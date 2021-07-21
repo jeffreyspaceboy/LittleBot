@@ -20,7 +20,7 @@ class Robot : public rclcpp::Node{
     void command_callback(const std_msgs::msg::String::SharedPtr msg);
     void cmd_vel_callback(const geometry_msgs::Twist::SharedPtr msg);
   public:
-    Robot() : Node("robot");
+    Robot() : Node("little_bot");
 };
 #endif
 /*---ROBOT_HPP---*/

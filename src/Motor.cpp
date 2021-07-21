@@ -38,23 +38,23 @@ void Motor::gpio_setup(uint8_t gpio_speed, uint8_t gpio_dir_1, uint8_t gpio_dir_
 
 void Motor::spin(int velocity){
     if(velocity > this->max_speed){
-    velocity = this->max_speed;
+        velocity = this->max_speed;
     }
     if(velocity < -this->max_speed){
-    velocity = -this->max_speed;
+        velocity = -this->max_speed;
     }
     if(velocity > 0){
-    gpioWrite(this->gpio_dir_1, 1);
-    gpioWrite(this->gpio_dir_2, 0);
-    gpioPWM(this->gpio_speed, velocity);
+        gpioWrite(this->gpio_dir_1, 1);
+        gpioWrite(this->gpio_dir_2, 0);
+        gpioPWM(this->gpio_speed, velocity);
     }else if(velocity < 0){
-    gpioWrite(this->gpio_dir_1, 0);
-    gpioWrite(this->gpio_dir_2, 1);
-    gpioPWM(this->gpio_speed, velocity);
+        gpioWrite(this->gpio_dir_1, 0);
+        gpioWrite(this->gpio_dir_2, 1);
+        gpioPWM(this->gpio_speed, velocity);
     }else{
-    gpioWrite(this->gpio_dir_1, 0);
-    gpioWrite(this->gpio_dir_2, 0);
-    gpioWrite(this->gpio_speed, 0);
+        gpioWrite(this->gpio_dir_1, 0);
+        gpioWrite(this->gpio_dir_2, 0);
+        gpioWrite(this->gpio_speed, 0);
     }
 }
 
