@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(LittleBot)
+project(little_bot)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -19,12 +19,14 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
-add_executable(robot src/robot.cpp)
+add_executable(robot src/main.cpp)
 ament_target_dependencies(robot rclcpp std_msgs)
 
 install(TARGETS
-  talker
+  command
+  cmd_vel
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
