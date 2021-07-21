@@ -21,12 +21,25 @@ class Motor:
         
         GPIO.setup(self.gpio_enc_a, GPIO.IN)
         GPIO.setup(self.gpio_enc_b, GPIO.IN)
+        GPIO.add_event_detect(self.gpio_enc_a, GPIO.BOTH)
+        GPIO.add_event_callback(self.gpio_enc_a, self.refresh_encoder_callback)
+        GPIO.add_event_detect(self.gpio_enc_b, GPIO.BOTH)
+        GPIO.add_event_callback(self.gpio_enc_b, self.refresh_encoder_callback)
+
+        self.enc_count = 0
+        self.enc_state = GPIO.input(self.gpio_enc_a)
+        self.enc_last_state = self.enc_state
 
         #  get a handle to PWM
         self.frequency = frequency
         self.max_speed = max_speed
         self.pwm_speed = GPIO.PWM(self.gpio_speed, self.frequency)
         self.stop()
+
+    def __del__(self):
+        self.stop()
+        GPIO.remove_event_detect(self.gpio_enc_a)
+        GPIO.remove_event_detect(self.gpio_enc_b)
 
     def spin (self, velocity):
         if(velocity > self.max_speed):
@@ -49,6 +62,18 @@ class Motor:
         GPIO.output(self.gpio_dir_1, GPIO.LOW)
         GPIO.output(self.gpio_dir_2, GPIO.LOW)
         self.pwm_speed.stop()
+
+    def reset_encoder(self):
+        self.enc_count = 0
+
+    def refresh_encoder_callback(self):
+        self.enc_state = GPIO.input(self.gpio_enc_a)
+        if(self.enc_state != self.enc_last_state):
+            if(GPIO.input(self.gpio_enc_b) != self.enc_state):
+                self.enc_count = self.enc_count + 1
+            else:
+                self.enc_count = self.enc_count - 1
+        self.enc_last_state = self.enc_state
 
 def main():
     left_motor = Motor(gpio_speed = 2, gpio_dir_1 = 4, gpio_dir_2 = 3, gpio_enc_a = 27, gpio_enc_b = 17, frequency=20, max_speed=255)
