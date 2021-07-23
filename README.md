@@ -9,6 +9,7 @@ motor RPM = 100 rpm
 motor RPS = 1.66666666666 rps
 circumferance = 212.91 mm/rotation
 max_drive_speed = 354.85 mm/s
+max_drive_speed = 0.35485 m/s
 max_drive_speed = 1.16420604 ft/s
 1.43159081302 rot/ft
 1717.90897562 enc/ft            
