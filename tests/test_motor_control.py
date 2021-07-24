@@ -1,7 +1,9 @@
 #! /usr/bin/env python3
 
 import RPi.GPIO as GPIO #Raspberry Pi
+import sched
 import time
+
 import threading
 
 GPIO.setmode(GPIO.BCM)
@@ -88,44 +90,6 @@ class PID_Controller:
         return True
 
 
-#! /usr/bin/env python3
-
-import RPi.GPIO as GPIO #Raspberry Pi
-import time
-import threading
-
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-
-#NOTES:
-# Encoder and motor should only deal with units that they already have (Drivetrain can worry about distance)
-# Encoder should be able to produce RPM, RPS, Revolutions, Encoder Counts
- 
-# Motor should be able to produce calculated RPM, RPS, Revolutions (Of motor output (must calculate))
-# Motor should be able to run at a specific RPM/RPS on command
-# Motor should be able to run at a specific duty cycle on command
-# Motor should be able to stop without over shooting 
-# Motor should be able to use PID to reach a desired target
-# Motor calibration:
-# 1. Spin Motor at max speed (in air)
-# 2. Get RPM of max speed spin and save as RPM Value
-# 3. Try To achieve other specific RPM values and record the duty cycle of those values for use later
-
-#Once Motor is calebrated, we need to do drivetrain calibration:
-# 1. Drive forward until Lidar registers x distance of change.
-# 2. Drive backwards to measure the same change
-# 3. Put something close to the robot (like a pole of somekind)
-# 4. Turn the robot in a stationary circle until the lidar registers the object back at the front of the robot
-# 5. repeat 4 in both directions
- 
-
-
-
-# Drivetrain should be able to drive in mm/cm/m/in/ft
-# Drivetrain should be able to return it's position relative to where it started
-# Drivetrain should be able to drive straight
-
-
 class Encoder:
     def __init__(self, gpio_a, gpio_b):
         self.gpio_a = gpio_a
@@ -142,10 +106,17 @@ class Encoder:
         GPIO.add_event_callback(self.gpio_b, self.gpio_b_event_callback)
 
         self.rps = 0.0
+        self.rpm = 0.0
         self.rps_last_count = 0.0
         self.rps_timer = time.time()
 
-        self.refresh_rps()
+        #self.refresh_scheduler = sched.scheduler(time.time, time.sleep)
+        #self.refresh_scheduler.enter(0.01, 1, self.refresh_rps, (self.refresh_scheduler,))
+        #self.refresh_scheduler.run()
+
+    def __del__(self):
+        GPIO.remove_event_detect(self.gpio_a)
+        GPIO.remove_event_detect(self.gpio_b)
 
     def reset(self):
         self.count = 0.0
@@ -154,7 +125,9 @@ class Encoder:
         self.rps = (self.count-self.rps_last_count)/(time.time()-self.rps_timer)
         self.rps_last_count = self.count
         self.rps_timer = time.time() 
-        threading.Timer(0.05, refresh_rps,self).start()
+        self.rpm = self.rps*60.0
+        #self.refresh_scheduler.enter(0.01, 1, self.refresh_rps, (sc,))
+        #threading.Timer(0.05, refresh_rps, (self)).start()
 
     def gpio_a_event_callback(self, channel):
         if(GPIO.input(self.gpio_b) == 0):
@@ -167,6 +140,8 @@ class Encoder:
                 self.count = self.count + 1.0
             else:
                 self.count = self.count - 1.0
+        if(self.count % 11 == 0):
+            self.refresh_rps()
     
     def gpio_b_event_callback(self, channel):
         if(GPIO.input(self.gpio_a) == 0):
@@ -179,9 +154,11 @@ class Encoder:
                 self.count = self.count - 1.0
             else:
                 self.count = self.count + 1.0
+        if(self.count % 11 == 0):
+            self.refresh_rps()
 
 class Motor:
-    def __init__(self, gpio_speed, gpio_dir_1, gpio_dir_2, gpio_enc_a, gpio_enc_b, rpm=100.0, max_power=100.0, enc_rev=1200.0, frequency=20.0):
+    def __init__(self, gpio_speed, gpio_dir_1, gpio_dir_2, gpio_enc_a, gpio_enc_b, max_power=100.0, enc_rev=2400.0, frequency=20.0):
         self.rpm = rpm
         self.rps = rpm/60.0
         self.max_power = max_power
@@ -190,32 +167,15 @@ class Motor:
         self.gpio_speed = gpio_speed
         self.gpio_dir_1 = gpio_dir_1
         self.gpio_dir_2 = gpio_dir_2
-        self.gpio_enc_a = gpio_enc_a
-        self.gpio_enc_b = gpio_enc_b
-
+        self.encoder = Encoder(gpio_enc_a, gpio_enc_b)
+        #self.encoder.refresh_rps()
         #  Configure GPIO
         GPIO.setup(self.gpio_speed,  GPIO.OUT)
         GPIO.setup(self.gpio_dir_1, GPIO.OUT)
         GPIO.setup(self.gpio_dir_2, GPIO.OUT)
-        
-        GPIO.setup(self.gpio_enc_a, GPIO.IN)
-        GPIO.setup(self.gpio_enc_b, GPIO.IN)
-        GPIO.add_event_detect(self.gpio_enc_a, GPIO.BOTH)
-        GPIO.add_event_callback(self.gpio_enc_a, self.refresh_encoder_callback)
-        # GPIO.add_event_detect(self.gpio_enc_b, GPIO.BOTH)
-        # GPIO.add_event_callback(self.gpio_enc_b, self.refresh_encoder_callback)
-
-        self.enc_count = 0.0
-        self.enc_state = GPIO.input(self.gpio_enc_a)
-        self.enc_last_state = self.enc_state
 
         self.pwm_speed = GPIO.PWM(self.gpio_speed, self.frequency)
         self.stop()
-
-    def __del__(self):
-        self.stop()
-        GPIO.remove_event_detect(self.gpio_enc_a)
-        GPIO.remove_event_detect(self.gpio_enc_b)
 
     def spin(self, power):
         if(power > self.max_power):
@@ -237,21 +197,7 @@ class Motor:
         GPIO.output(self.gpio_dir_1, GPIO.LOW)
         GPIO.output(self.gpio_dir_2, GPIO.LOW)
         self.pwm_speed.stop()
-
-    def reset_encoder(self):
-        self.enc_count = 0.0
-
-    def refresh_encoder_callback(self, channel):
-        self.enc_state = GPIO.input(self.gpio_enc_a)
-        if(self.enc_state != self.enc_last_state):
-            if(GPIO.input(self.gpio_enc_b) != self.enc_state):
-                self.enc_count = self.enc_count + 1
-            else:
-                self.enc_count = self.enc_count - 1
-        self.enc_last_state = self.enc_state
     
-    def pid_sensor_reset(self):
-        self.reset_encoder()
     def pid_stop_func(self):
         self.stop()
     def pid_move_func(self, power):
@@ -268,21 +214,21 @@ class Motor:
             GPIO.output(self.gpio_dir_1, GPIO.LOW)
             GPIO.output(self.gpio_dir_2, GPIO.HIGH)
             
-    def pid_get_sensor_value(self):
-        return self.enc_count
-
 def main():
     left_motor = Motor(gpio_speed = 2, gpio_dir_1 = 4, gpio_dir_2 = 3, gpio_enc_a = 27, gpio_enc_b = 17)
-    right_motor = Motor(gpio_speed = 13, gpio_dir_1 = 6, gpio_dir_2 = 5, gpio_enc_a = 19, gpio_enc_b = 26)
-    left_pid_controller = PID_Controller(Kp=1.0, Ki=0.00, Kd=0.0, Dt=0.01)
+    #right_motor = Motor(gpio_speed = 13, gpio_dir_1 = 6, gpio_dir_2 = 5, gpio_enc_a = 19, gpio_enc_b = 26)
+    #left_pid_controller = PID_Controller(Kp=0.4, Ki=0.00, Kd=0.0, Dt=0.01)
 
-    print(left_pid_controller.base_move_loop(setpoint=2400.0, max_velocity=100.0, timeout_sec=10.0, subsystem=left_motor))
+    #print(left_pid_controller.base_move_loop(setpoint=2400.0, max_velocity=100.0, timeout_sec=10.0, subsystem=left_motor))
 
-    # left_motor.spin(100)
-    # while(left_motor.enc_count<1150):
-    #     print(left_motor.enc_count)
+    left_motor.spin(50)
+    while 1:#(left_motor.encoder.count < 2200):
+        print(left_motor.encoder.rpm)
     # left_motor.spin(-100)
     #left_motor.stop()
 
 if __name__ == '__main__':
     main()
+
+#2400
+#54.54545454545454545.... :1
