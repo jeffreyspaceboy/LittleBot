@@ -88,8 +88,3 @@ int main(int argc, char * argv[]){
     return 0;
 }
 
-// Build with:
-// g++ -Wall -pthread -o basic_motor_test basic_motor_test.cpp -lpigpio -lrt
-
-// Compile with:
-// sudo ./basic_motor_test

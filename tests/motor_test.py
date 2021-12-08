@@ -9,34 +9,6 @@ import threading
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
-#NOTES:
-# Encoder and motor should only deal with units that they already have (Drivetrain can worry about distance)
-# Encoder should be able to produce RPM, RPS, Revolutions, Encoder Counts
- 
-# Motor should be able to produce calculated RPM, RPS, Revolutions (Of motor output (must calculate))
-# Motor should be able to run at a specific RPM/RPS on command
-# Motor should be able to run at a specific duty cycle on command
-# Motor should be able to stop without over shooting 
-# Motor should be able to use PID to reach a desired target
-# Motor calibration:
-# 1. Spin Motor at max speed (in air)
-# 2. Get RPM of max speed spin and save as RPM Value
-# 3. Try To achieve other specific RPM values and record the duty cycle of those values for use later
-
-#Once Motor is calebrated, we need to do drivetrain calibration:
-# 1. Drive forward until Lidar registers x distance of change.
-# 2. Drive backwards to measure the same change
-# 3. Put something close to the robot (like a pole of somekind)
-# 4. Turn the robot in a stationary circle until the lidar registers the object back at the front of the robot
-# 5. repeat 4 in both directions
- 
-
-
-
-# Drivetrain should be able to drive in mm/cm/m/in/ft
-# Drivetrain should be able to return it's position relative to where it started
-# Drivetrain should be able to drive straight
-
 class PID_Controller:
     def __init__(self, Kp, Ki, Kd, Dt):
         self.set_constants(Kp, Ki, Kd, Dt)
@@ -88,7 +60,6 @@ class PID_Controller:
         print(move_complete)
         subsystem.pid_stop_func()
         return True
-
 
 class Encoder:
     def __init__(self, gpio_a, gpio_b):
@@ -230,5 +201,28 @@ def main():
 if __name__ == '__main__':
     main()
 
-#2400
-#54.54545454545454545.... :1
+
+#NOTES:
+# Encoder and motor should only deal with units that they already have (Drivetrain can worry about distance)
+# Encoder should be able to produce RPM, RPS, Revolutions, Encoder Counts
+ 
+# Motor should be able to produce calculated RPM, RPS, Revolutions (Of motor output (must calculate))
+# Motor should be able to run at a specific RPM/RPS on command
+# Motor should be able to run at a specific duty cycle on command
+# Motor should be able to stop without over shooting 
+# Motor should be able to use PID to reach a desired target
+# Motor calibration:
+# 1. Spin Motor at max speed (in air)
+# 2. Get RPM of max speed spin and save as RPM Value
+# 3. Try To achieve other specific RPM values and record the duty cycle of those values for use later
+
+#Once Motor is calebrated, we need to do drivetrain calibration:
+# 1. Drive forward until Lidar registers x distance of change.
+# 2. Drive backwards to measure the same change
+# 3. Put something close to the robot (like a pole of somekind)
+# 4. Turn the robot in a stationary circle until the lidar registers the object back at the front of the robot
+# 5. repeat 4 in both directions
+ 
+# Drivetrain should be able to drive in mm/cm/m/in/ft
+# Drivetrain should be able to return it's position relative to where it started
+# Drivetrain should be able to drive straight

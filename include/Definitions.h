@@ -6,6 +6,20 @@
 /*    Created:      2021-12-07                                                */
 /*----------------------------------------------------------------------------*/
 
+#define LDR_EN 21
+
+#define L_MTR_EN 6
+#define L_MTR_A 22
+#define L_MTR_B 27
+#define L_ENC_A 17
+#define L_ENC_B 4
+
+#define R_MTR_EN 5
+#define R_MTR_A 12
+#define R_MTR_B 13
+#define R_ENC_A 19
+#define R_ENC_B 26
+
 // RETURN DEFINITIONS
 #define SUCCESS 0
 #define FAILURE 1

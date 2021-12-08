@@ -34,7 +34,7 @@ Encoder encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pin,
     return new_encoder;
 }
 
-int32_t encoder_del(Encoder *encoder){
+int encoder_del(Encoder *encoder){
     gpioSetISRFuncEx(encoder->gpio_phase_a, EITHER_EDGE, 0, NULL, (void *)encoder);
     gpioSetISRFuncEx(encoder->gpio_phase_b, EITHER_EDGE, 0, NULL, (void *)encoder);
 
@@ -43,7 +43,7 @@ int32_t encoder_del(Encoder *encoder){
     return SUCCESS;
 }
 
-int32_t encoder_reset(Encoder *encoder){
+int encoder_reset(Encoder *encoder){
     encoder->ticks = ENCODER_DEFAULT_TICK_RESET;
     return SUCCESS;
 }

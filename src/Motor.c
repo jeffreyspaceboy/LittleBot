@@ -25,18 +25,18 @@ Motor motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_
     return new_motor;
 }
 
-int32_t motor_del(Motor *motor){ 
-    return motor_stop(motor); 
+int motor_del(Motor *motor){ 
+    return encoder_del(motor->encoder) || motor_stop(motor);  
 }
 
-int32_t motor_link_encoder(Motor *motor, Encoder *new_encoder, double encoder_to_motor_ratio){
+int motor_link_encoder(Motor *motor, Encoder *new_encoder){
     if(motor->encoder != NULL){
         printf("%s Motor %s replacing existing encoder %s with new encoder %s.\n",WARNING_MSG, motor, motor->encoder->name, new_encoder->name);
     }
     motor->encoder = new_encoder;
 }
 
-int32_t motor_spin(Motor *motor, int32_t power){
+int motor_spin(Motor *motor, int power){
     if(power == 0){
         return motor_stop(motor);
     }else if(power > 0){
@@ -57,14 +57,14 @@ int32_t motor_spin(Motor *motor, int32_t power){
     return SUCCESS;
 }
 
-int32_t motor_stop(Motor *motor){
+int motor_stop(Motor *motor){
     gpioWrite(motor->gpio_phase_a, 0);
     gpioWrite(motor->gpio_phase_b, 0);
     gpioWrite(motor->gpio_enable, 0);
     return SUCCESS;
 }
 
-int32_t motor_set_max_power(Motor *motor, int32_t new_max_power){
+int motor_set_max_power(Motor *motor, int new_max_power){
     motor->max_power = new_max_power;
     return new_max_power;
 }
