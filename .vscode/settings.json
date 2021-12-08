@@ -1,16 +1,6 @@
 {
     "files.associations": {
-        "*.tcc": "cpp",
-        "functional": "cpp",
-        "memory": "cpp",
-        "motor.h": "c",
-        "stdint.h": "c",
         "encoder.h": "c",
-        "definitions.h": "c",
-        "stdbool.h": "c",
-        "chrono": "c",
-        "unordered_map": "c",
-        "bitset": "c",
-        "ratio": "c"
+        "motor.h": "c"
     }
 }

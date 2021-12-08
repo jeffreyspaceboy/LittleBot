@@ -27,6 +27,8 @@ typedef void (*gpioISRFuncEx_t)(int gpio, int level, uint32_t tick, void *data);
 
 Encoder encoder_init(char encoder_name[NAME_MAX_SIZE], int gpio_phase_a_pin, int gpio_phase_b_pin, float encoder_ratio, bool reverse);
 int encoder_del(Encoder *encoder);
+
+int encoder_start(Encoder *encoder);
 int encoder_reset(Encoder *encoder);
 double encoder_refresh_rpm(Encoder *encoder, uint32_t current_tick_us);
 void encoder_event_callback(int gpio, int level, uint32_t tick, void *data);

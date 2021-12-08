@@ -13,8 +13,8 @@
 Encoder encoder_init(char encoder_name[NAME_MAX_SIZE], int gpio_phase_a_pin, int gpio_phase_b_pin,  float encoder_ratio, bool reverse){
     Encoder new_encoder = {
         .name = "",
-        .gpio_phase_a = gpio_phase_a_pin,
-        .gpio_phase_b = gpio_phase_b_pin,
+        .gpio_phase_a = (reverse == false) ? gpio_phase_a_pin : gpio_phase_b_pin,
+        .gpio_phase_b = (reverse == false) ? gpio_phase_b_pin : gpio_phase_a_pin,
         .prev_gpio = -1, // GPIO does not exist
         .level_phase_a = 2, // No level change
         .level_phase_b = 2, // No level change
@@ -69,18 +69,19 @@ void encoder_event_callback(int gpio, int level, uint32_t tick, void *data){
 
     if(gpio == encoder->gpio_phase_a){
         encoder->level_phase_a = level; 
+        if(encoder->level_phase_b == 0){
+            encoder->ticks += (encoder->level_phase_a == 0) ? -1 : 1;
+        }else{
+            encoder->ticks += (encoder->level_phase_a == 0) ? 1 : -1;
+        }
     }else if(gpio == encoder->gpio_phase_b){
         encoder->level_phase_b = level;
-    } 
-
-    if((gpio != encoder->prev_gpio) && (level == 1)){
-        encoder->prev_gpio = gpio;
-        if((gpio == encoder->gpio_phase_a) && (encoder->level_phase_b == 1)){
-            encoder->ticks++;
-        }else if((gpio == encoder->gpio_phase_b) && (encoder->level_phase_a == 1)){
-            encoder->ticks--;
+        if(encoder->level_phase_a == 0){
+            encoder->ticks += (encoder->level_phase_b == 0) ? 1 : -1;
+        }else{
+            encoder->ticks += (encoder->level_phase_b == 0) ? -1 : 1;
         }
-    }
+    } 
 
     if(encoder->ticks % ENCODER_RPM_REFRESH_RATE == 0){
         encoder_refresh_rpm(encoder, tick);
