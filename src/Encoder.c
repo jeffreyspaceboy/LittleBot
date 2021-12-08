@@ -8,12 +8,13 @@
 
 #include <pigpio.h>
 #include <stdio.h>
+#include <string.h>
 
-Encoder encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin,  float encoder_ratio, bool reverse){
+Encoder encoder_init(char encoder_name[NAME_MAX_SIZE], int gpio_phase_a_pin, int gpio_phase_b_pin,  float encoder_ratio, bool reverse){
     Encoder new_encoder = {
-        .name = encoder_name,
-        .gpio_phase_a = (reverse == false) ? gpio_phase_a_pin : gpio_phase_b_pin,
-        .gpio_phase_b = (reverse == false) ? gpio_phase_b_pin : gpio_phase_a_pin,
+        .name = "",
+        .gpio_phase_a = gpio_phase_a_pin,
+        .gpio_phase_b = gpio_phase_b_pin,
         .prev_gpio = -1, // GPIO does not exist
         .level_phase_a = 2, // No level change
         .level_phase_b = 2, // No level change
@@ -23,14 +24,14 @@ Encoder encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pin,
         .rpm = 0.0,
         .ratio = encoder_ratio,
     };
+    strncpy(new_encoder.name, encoder_name, sizeof(new_encoder.name));
+
     gpioSetMode(new_encoder.gpio_phase_a, PI_INPUT);
     gpioSetMode(new_encoder.gpio_phase_b, PI_INPUT);
 
     gpioSetPullUpDown(new_encoder.gpio_phase_a, PI_PUD_UP);
     gpioSetPullUpDown(new_encoder.gpio_phase_b, PI_PUD_UP);
 
-    gpioSetISRFuncEx(new_encoder.gpio_phase_a, EITHER_EDGE, 500, encoder_event_callback, (void *)&new_encoder);
-    gpioSetISRFuncEx(new_encoder.gpio_phase_b, EITHER_EDGE, 500, encoder_event_callback, (void *)&new_encoder);
     return new_encoder;
 }
 
@@ -40,6 +41,12 @@ int encoder_del(Encoder *encoder){
 
     gpioSetPullUpDown(encoder->gpio_phase_a, PI_PUD_OFF);
     gpioSetPullUpDown(encoder->gpio_phase_b, PI_PUD_OFF);
+    return SUCCESS;
+}
+
+int encoder_start(Encoder *encoder){
+    gpioSetISRFuncEx(encoder->gpio_phase_a, EITHER_EDGE, 5000, encoder_event_callback, (void *)encoder);
+    gpioSetISRFuncEx(encoder->gpio_phase_b, EITHER_EDGE, 5000, encoder_event_callback, (void *)encoder);
     return SUCCESS;
 }
 
@@ -57,12 +64,12 @@ double encoder_refresh_rpm(Encoder *encoder, uint32_t current_tick_us){
     return encoder->rpm;
 }
 
-gpioISRFuncEx_t encoder_event_callback(int gpio, int level, uint32_t tick, void *data){
+void encoder_event_callback(int gpio, int level, uint32_t tick, void *data){
     Encoder *encoder = (Encoder *) data;
 
     if(gpio == encoder->gpio_phase_a){
         encoder->level_phase_a = level; 
-    }else{
+    }else if(gpio == encoder->gpio_phase_b){
         encoder->level_phase_b = level;
     } 
 
@@ -78,5 +85,6 @@ gpioISRFuncEx_t encoder_event_callback(int gpio, int level, uint32_t tick, void 
     if(encoder->ticks % ENCODER_RPM_REFRESH_RATE == 0){
         encoder_refresh_rpm(encoder, tick);
     }  
+    return;
 }
 /*---ENCODER_C---*/
