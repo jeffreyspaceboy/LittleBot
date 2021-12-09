@@ -45,9 +45,9 @@ int encoder_del(Encoder *encoder){
 }
 
 int encoder_start(Encoder *encoder){
-    gpioSetISRFuncEx(encoder->gpio_phase_a, EITHER_EDGE, 5000, encoder_event_callback, (void *)encoder);
-    gpioSetISRFuncEx(encoder->gpio_phase_b, EITHER_EDGE, 5000, encoder_event_callback, (void *)encoder);
-    return SUCCESS;
+    gpioSetISRFuncEx(encoder->gpio_phase_a, EITHER_EDGE, 100, encoder_event_callback, (void *)encoder);
+    gpioSetISRFuncEx(encoder->gpio_phase_b, EITHER_EDGE, 100, encoder_event_callback, (void *)encoder);
+    return encoder_reset(encoder);
 }
 
 int encoder_reset(Encoder *encoder){
@@ -85,7 +85,7 @@ void encoder_event_callback(int gpio, int level, uint32_t tick, void *data){
 
     if(encoder->ticks % ENCODER_RPM_REFRESH_RATE == 0){
         encoder_refresh_rpm(encoder, tick);
-    }  
+    }
     return;
 }
 /*---ENCODER_C---*/

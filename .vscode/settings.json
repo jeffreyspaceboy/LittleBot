@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "encoder.h": "c",
-        "motor.h": "c"
+        "motor.h": "c",
+        "drivetrain.h": "c"
     }
 }

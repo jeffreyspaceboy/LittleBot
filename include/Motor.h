@@ -23,10 +23,8 @@ typedef struct{
     Encoder *encoder;
 } Motor;
 
-Motor motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, bool reverse);
+Motor motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, Encoder *new_encoder, bool reverse);
 int motor_del(Motor *motor);
-
-int motor_link_encoder(Motor *motor, Encoder *new_encoder);
 
 int motor_spin(Motor *motor, int power);
 int motor_stop(Motor *motor);

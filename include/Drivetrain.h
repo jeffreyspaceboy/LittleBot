@@ -23,10 +23,10 @@ typedef struct{
 } Drivetrain;
 
 Drivetrain drivetrain_init(char drivetrain_name[NAME_MAX_SIZE], Motor *left_motor, Motor *right_motor);
-int drivetrain_del(Motor *drivetrain);
+int drivetrain_del(Drivetrain *drivetrain);
 
-int drivetrain_spin(Motor *drivetrain, int leftpower);
-int drivetrain_stop(Motor *drivetrain);
+int drivetrain_spin(Drivetrain *drivetrain, int left_power, int right_power);
+int drivetrain_stop(Drivetrain *drivetrain);
 
 #ifdef __cplusplus
 }

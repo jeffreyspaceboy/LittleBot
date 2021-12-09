@@ -5,13 +5,24 @@ LittleBot was developed for a small and simple two wheel robot. The code within 
 Jeffrey Fisher II
 
 ## Notes:
-Encoder_Counts/Revolution = 1200?
-Wheel_Diameter(mm) = 67.77
-motor RPM = 100 rpm
-motor RPS = 1.66666666666 rps
-circumferance = 212.91 mm/rotation
-max_drive_speed = 354.85 mm/s
-max_drive_speed = 0.35485 m/s
-max_drive_speed = 1.16420604 ft/s
-1.43159081302 rot/ft
-1717.90897562 enc/ft            
+Motor Max Speed: 201RPM 
+Motor Internal Ratio: 21.3 Encoder Rotations : 1 Wheel Rotation 
+Encoder Output Ticks: 44
+Wheel Radius: 38 mm
+Wheel Diameter: 76 mm 
+
+Motor Specifications:
+Rated Voltage: 12V
+Voltage Range: 6-24V
+No-load Speed: 201RPM
+Load speed: 168RPM
+No-load Current: 46mA
+Load Current: 300mA
+Stall Current: 1A
+Torque: 0.53kg.cm
+Reduction Ratio: 21.3:1
+Gearbox Size(D*L): 25x19mm/0.98x0.75inch
+Motor Size(D*L): 24.5x30mm/0.96x1.18inch
+Shaft Size(D*L): 4x10mm/0.16x0.39inch
+Encoder Cable Length: 20cm/7.87inch
+Gross Weight: Approx. 100g

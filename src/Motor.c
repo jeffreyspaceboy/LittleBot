@@ -8,35 +8,29 @@
 
 #include <pigpio.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-Motor motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, bool reverse){
+Motor motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, Encoder *new_encoder, bool reverse){
     Motor new_motor = {
         .name = "",
         .gpio_enable = gpio_enable_pin,
         .gpio_phase_a = (reverse == false) ? gpio_phase_a_pin : gpio_phase_b_pin,
         .gpio_phase_b = (reverse == false) ? gpio_phase_b_pin : gpio_phase_a_pin,
         .max_power = MOTOR_DEFAULT_MAX_POWER,
-        .encoder = NULL,
+        .encoder = new_encoder,
     };
     strncpy(new_motor.name, motor_name, sizeof(new_motor.name));
     gpioSetMode(new_motor.gpio_enable, PI_OUTPUT);
     gpioSetMode(new_motor.gpio_phase_a, PI_OUTPUT);
     gpioSetMode(new_motor.gpio_phase_b, PI_OUTPUT);
     motor_stop(&new_motor);
+    encoder_start(new_motor.encoder);
     return new_motor;
 }
 
 int motor_del(Motor *motor){ 
     return encoder_del(motor->encoder) || motor_stop(motor);  
-}
-
-int motor_link_encoder(Motor *motor, Encoder *new_encoder){
-    if(motor->encoder != NULL){
-        printf("%s Motor %s replacing existing encoder %s with new encoder %s.\n",WARNING_MSG, motor->name, motor->encoder->name, new_encoder->name);
-    }
-    motor->encoder = new_encoder;
-    return SUCCESS;
 }
 
 int motor_spin(Motor *motor, int power){
@@ -50,12 +44,10 @@ int motor_spin(Motor *motor, int power){
         gpioWrite(motor->gpio_phase_b, 1);
     }
 
-    if(power > motor->max_power){
+    if(abs(power) > motor->max_power){
         gpioPWM(motor->gpio_enable, motor->max_power);
-    }else if(power < -motor->max_power){
-        gpioPWM(motor->gpio_enable, -motor->max_power);
     }else{
-        gpioPWM(motor->gpio_enable, power);
+        gpioPWM(motor->gpio_enable, abs(power));
     }
     return SUCCESS;
 }
