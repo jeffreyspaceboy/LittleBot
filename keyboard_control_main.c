@@ -18,7 +18,7 @@ curses.h
     sudo apt-get install libncurses5-dev libncursesw5-dev
 
 BUILD:
-gcc -Wall -pthread -o little_bot_program main.c src/Drivetrain.c src/Motor.c src/Encoder.c -lpigpio -lrt -lncurses -ltinfo
+gcc -Wall -pthread -o little_bot_program keyboard_control_main.c src/Drivetrain.c src/Motor.c src/Encoder.c -lpigpio -lrt -lncurses -ltinfo
 
 RUN:
 sudo ./little_bot_program
@@ -58,25 +58,8 @@ int main(int argc, char * argv[]){
         }
         if(c == 10){ break; } //Break if Enter is pressed
     }
-    echo();
     clrtoeol();
     endwin();
-    drivetrain_del(&drivetrain);
-    gpioTerminate();
-
-    // drivetrain_spin(&drivetrain, 255, 255);
-    // gpioSleep(PI_TIME_RELATIVE, 2, 500000);
-    // drivetrain_stop(&drivetrain);
-
-    //drivetrain_spin(&drivetrain, 255, 255);
-    //drivetrain_stop(&drivetrain);
-    
-    // while(1){
-    //     //printf("(%f | %f)\n",360*drivetrain.left_motor->encoder->ticks/(44.0*21.3),360*drivetrain.right_motor->encoder->ticks/(44.0*21.3));
-    //     printf("(%f | %f)\n",drivetrain.left_motor->encoder->rpm,drivetrain.right_motor->encoder->rpm);
-    //     gpioSleep(PI_TIME_RELATIVE, 0, 100000);
-    // }
-    
     drivetrain_del(&drivetrain);
     gpioTerminate();
     return SUCCESS;

@@ -3,6 +3,7 @@
         "encoder.h": "c",
         "motor.h": "c",
         "drivetrain.h": "c",
-        "select.h": "c"
+        "select.h": "c",
+        "curses.h": "c"
     }
 }
