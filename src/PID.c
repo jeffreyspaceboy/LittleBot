@@ -14,23 +14,24 @@ PID_Controller pid_init(float P, float I, float D, float error_tolerance){
         .kp = P,
         .ki = I,
         .kd = D,
+        .error_tolerance = error_tolerance,
+        .error = 0.0,
         .prev_error = 0.0,
         .error_integral = 0.0,
-        .error_tolerance = error_tolerance,
-        .prev_time = 0.0,
+        .dedt = 0.0,
+        .dt = 0.0,
+        .prev_time = 0,
     };
     return new_pid;
 }
 
 float pid_power(PID_Controller *pid, float target, float current, uint32_t current_time){
-    float dt, error, dedt;
-    dt = (float)(current_time - pid->prev_time); //Time Delta
+    pid->dt = (float)(current_time - pid->prev_time); //Time Delta
     pid->prev_time = current_time;
-    error = target - current; //Error
-    pid->error_integral += error*dt; //Integral
-    dedt = (error - pid->prev_error)/dt; //Derivative  
-    pid->prev_error = error;
-    //if(abs(error) < pid->error_tolerance){ return 0; } //At Target
-    return (pid->kp*error) + (pid->kd*dedt) + (pid->ki * pid->error_integral); //Control Signal
+    pid->error = target - current; //Error
+    pid->error_integral += pid->error * pid->dt; //Integral
+    pid->dedt = (pid->error - pid->prev_error) / pid->dt; //Derivative  
+    pid->prev_error = pid->error;
+    return (pid->kp * pid->error) + (pid->ki * pid->error_integral) + (pid->kd * pid->dedt); //Control Signal
 }
 /*---PID_C---*/

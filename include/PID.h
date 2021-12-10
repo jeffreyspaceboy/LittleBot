@@ -15,8 +15,8 @@ extern "C" {
 #include <stdint.h>
 
 typedef struct{
-    float kp, ki, kd;
-    float prev_error, error_integral, error_tolerance;
+    float kp, ki, kd, error_tolerance;
+    float error, prev_error, error_integral, dedt, dt;
     long prev_time;
 } PID_Controller;
 
