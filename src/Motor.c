@@ -7,16 +7,16 @@
 #include "../include/Motor.h"
 
 #include <pigpio.h>
-#include <stdio.h>
+
 #include <stdlib.h>
 #include <string.h>
 
-Motor motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, Encoder *new_encoder, bool reverse){
+Motor motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, Encoder *new_encoder, int reverse){
     Motor new_motor = {
         .name = "",
         .gpio_enable = gpio_enable_pin,
-        .gpio_phase_a = (reverse == false) ? gpio_phase_a_pin : gpio_phase_b_pin,
-        .gpio_phase_b = (reverse == false) ? gpio_phase_b_pin : gpio_phase_a_pin,
+        .gpio_phase_a = (reverse == 0) ? gpio_phase_a_pin : gpio_phase_b_pin,
+        .gpio_phase_b = (reverse == 0) ? gpio_phase_b_pin : gpio_phase_a_pin,
         .max_power = MOTOR_DEFAULT_MAX_POWER,
         .encoder = new_encoder,
     };

@@ -13,7 +13,6 @@ extern "C" {
 #include "Definitions.h"
 
 #include <stdint.h>
-#include <stdbool.h>
 
 typedef struct{
     char name[NAME_MAX_SIZE];
@@ -25,7 +24,7 @@ typedef struct{
 
 typedef void (*gpioISRFuncEx_t)(int gpio, int level, uint32_t tick, void *data);
 
-Encoder encoder_init(char encoder_name[NAME_MAX_SIZE], int gpio_phase_a_pin, int gpio_phase_b_pin, float encoder_ratio, bool reverse);
+Encoder encoder_init(char encoder_name[NAME_MAX_SIZE], int gpio_phase_a_pin, int gpio_phase_b_pin, float encoder_ratio, int reverse);
 int encoder_del(Encoder *encoder);
 
 int encoder_start(Encoder *encoder);

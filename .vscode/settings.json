@@ -4,6 +4,7 @@
         "motor.h": "c",
         "drivetrain.h": "c",
         "select.h": "c",
-        "curses.h": "c"
+        "curses.h": "c",
+        "pid.h": "c"
     }
 }

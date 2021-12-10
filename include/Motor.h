@@ -14,7 +14,6 @@ extern "C" {
 #include "Encoder.h"
 
 #include <stdint.h>
-#include <stdbool.h>
 
 typedef struct{
     char name[NAME_MAX_SIZE];
@@ -23,7 +22,7 @@ typedef struct{
     Encoder *encoder;
 } Motor;
 
-Motor motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, Encoder *new_encoder, bool reverse);
+Motor motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, Encoder *new_encoder, int reverse);
 int motor_del(Motor *motor);
 
 int motor_spin(Motor *motor, int power);

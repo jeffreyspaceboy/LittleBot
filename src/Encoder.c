@@ -2,19 +2,20 @@
 /*----------------------------------------------------------------------------*/
 /*    Module:       Motor.c                                                   */
 /*    Author:       Jeffrey Fisher II                                         */
-/*    Created:      2021-12-06                                                */
+/*    Created:      2021-12-09                                                */
 /*----------------------------------------------------------------------------*/
 #include "../include/Encoder.h"
 
 #include <pigpio.h>
+
 #include <stdio.h>
 #include <string.h>
 
-Encoder encoder_init(char encoder_name[NAME_MAX_SIZE], int gpio_phase_a_pin, int gpio_phase_b_pin,  float encoder_ratio, bool reverse){
+Encoder encoder_init(char encoder_name[NAME_MAX_SIZE], int gpio_phase_a_pin, int gpio_phase_b_pin,  float encoder_ratio, int reverse){
     Encoder new_encoder = {
         .name = "",
-        .gpio_phase_a = (reverse == false) ? gpio_phase_a_pin : gpio_phase_b_pin,
-        .gpio_phase_b = (reverse == false) ? gpio_phase_b_pin : gpio_phase_a_pin,
+        .gpio_phase_a = (reverse == 0) ? gpio_phase_a_pin : gpio_phase_b_pin,
+        .gpio_phase_b = (reverse == 0) ? gpio_phase_b_pin : gpio_phase_a_pin,
         .prev_gpio = -1, // GPIO does not exist
         .level_phase_a = 2, // No level change
         .level_phase_b = 2, // No level change
