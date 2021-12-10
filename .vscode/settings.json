@@ -2,6 +2,7 @@
     "files.associations": {
         "encoder.h": "c",
         "motor.h": "c",
-        "drivetrain.h": "c"
+        "drivetrain.h": "c",
+        "select.h": "c"
     }
 }

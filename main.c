@@ -3,15 +3,26 @@
 #include "include/Encoder.h"
 #include "include/Drivetrain.h"
 
-#include <pigpio.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include <pigpio.h>
+#include <curses.h>
+
+//Install:
+//sudo apt-get install libncurses5-dev libncursesw5-dev
 
 // Build with:
 // gcc -Wall -pthread -o little_bot_program main.c src/Drivetrain.c src/Motor.c src/Encoder.c -lpigpio -lrt
+// gcc -Wall -pthread -o little_bot_program main.c src/Drivetrain.c src/Motor.c src/Encoder.c -lpigpio -lrt -lncurses -ltinfo
+
 
 // Compile with:
 // sudo ./little_bot_program
+
+#define WIDTH 30
+#define HEIGHT 10 
 
 int main(int argc, char * argv[]){
     if (gpioInitialise() < 0) { return FAILURE; }
@@ -30,27 +41,64 @@ int main(int argc, char * argv[]){
     //drivetrain_spin(&drivetrain, 255, 255);
     //drivetrain_stop(&drivetrain);
 
+    // int speed = 200;
+    // int c;
+    // system ("/bin/stty raw"); /* use system call to make terminal send all keystrokes directly to stdin */
+    // while(c != 10 || c != '.') {
+    //     c = getc(stdin);
+    //     if(c == 'w'){
+    //         drivetrain_spin(&drivetrain, speed, speed);
+    //     }else if(c == 's'){
+    //         drivetrain_spin(&drivetrain, -speed, -speed);
+    //     }else if(c == 'a'){
+    //         drivetrain_spin(&drivetrain, -speed, speed);
+    //     }else if(c == 'd'){
+    //         drivetrain_spin(&drivetrain, speed, -speed);
+    //     }else{
+    //         drivetrain_stop(&drivetrain);
+    //     }
+    //     putc(' ', stdin);
+    //     //c = putchar(' '); /* type a period to break out of the loop, since CTRL-D won't work raw */
+    // }
+    // system ("/bin/stty cooked"); /* use system call to set terminal behaviour to more normal behaviour */
+    
+    initscr();
+    noecho();
+    keypad(stdscr, TRUE);
+    cbreak();
+    int speed = 200;
     int c;
-    system ("/bin/stty raw"); /* use system call to make terminal send all keystrokes directly to stdin */
-    while((c = getchar())!= '.') {
-        if(c == 'w'){
-            drivetrain_spin(&drivetrain, 255, 255);
-        }else if(c == 's'){
-            drivetrain_spin(&drivetrain, -255, -255);
-        }else if(c == 'a'){
-            drivetrain_spin(&drivetrain, -255, 255);
-        }else if(c == 'd'){
-            drivetrain_spin(&drivetrain, 255, -255);
-        }else{
-            drivetrain_stop(&drivetrain);
+    while(true) {
+        initscr();
+        noecho();
+        keypad(stdscr, TRUE);
+        cbreak();
+        c = getch();
+        printf("%d\r\n",c);
+        switch(c){
+            case KEY_UP:
+                drivetrain_spin(&drivetrain, speed, speed);
+                break;
+            case KEY_DOWN:
+                drivetrain_spin(&drivetrain, -speed, -speed);
+                break;
+            case KEY_LEFT:
+                drivetrain_spin(&drivetrain, -speed, speed);
+                break;
+            case KEY_RIGHT:
+                drivetrain_spin(&drivetrain, speed, -speed);
+                break;
+            default:
+                drivetrain_stop(&drivetrain);
+                break;
         }
-        
-        putchar(c); /* type a period to break out of the loop, since CTRL-D won't work raw */
+        if(c == 10){ break; } //Break if Enter is pressed
+        endwin();
     }
-    system ("/bin/stty cooked"); /* use system call to set terminal behaviour to more normal behaviour */
-    
+    clrtoeol();
+	refresh();
+    endwin();
 
-    
     // while(1){
     //     //printf("(%f | %f)\n",360*drivetrain.left_motor->encoder->ticks/(44.0*21.3),360*drivetrain.right_motor->encoder->ticks/(44.0*21.3));
     //     printf("(%f | %f)\n",drivetrain.left_motor->encoder->rpm,drivetrain.right_motor->encoder->rpm);

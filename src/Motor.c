@@ -34,6 +34,12 @@ int motor_del(Motor *motor){
 }
 
 int motor_spin(Motor *motor, int power){
+    if(abs(power) > motor->max_power){
+        gpioPWM(motor->gpio_enable, motor->max_power);
+    }else{
+        gpioPWM(motor->gpio_enable, abs(power));
+    }
+
     if(power == 0){
         return motor_stop(motor);
     }else if(power > 0){
@@ -43,19 +49,13 @@ int motor_spin(Motor *motor, int power){
         gpioWrite(motor->gpio_phase_a, 0);
         gpioWrite(motor->gpio_phase_b, 1);
     }
-
-    if(abs(power) > motor->max_power){
-        gpioPWM(motor->gpio_enable, motor->max_power);
-    }else{
-        gpioPWM(motor->gpio_enable, abs(power));
-    }
     return SUCCESS;
 }
 
 int motor_stop(Motor *motor){
+    gpioWrite(motor->gpio_enable, 0);
     gpioWrite(motor->gpio_phase_a, 0);
     gpioWrite(motor->gpio_phase_b, 0);
-    gpioWrite(motor->gpio_enable, 0);
     return SUCCESS;
 }
 
