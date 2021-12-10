@@ -41,38 +41,12 @@ int main(int argc, char * argv[]){
     //drivetrain_spin(&drivetrain, 255, 255);
     //drivetrain_stop(&drivetrain);
 
-    // int speed = 200;
-    // int c;
-    // system ("/bin/stty raw"); /* use system call to make terminal send all keystrokes directly to stdin */
-    // while(c != 10 || c != '.') {
-    //     c = getc(stdin);
-    //     if(c == 'w'){
-    //         drivetrain_spin(&drivetrain, speed, speed);
-    //     }else if(c == 's'){
-    //         drivetrain_spin(&drivetrain, -speed, -speed);
-    //     }else if(c == 'a'){
-    //         drivetrain_spin(&drivetrain, -speed, speed);
-    //     }else if(c == 'd'){
-    //         drivetrain_spin(&drivetrain, speed, -speed);
-    //     }else{
-    //         drivetrain_stop(&drivetrain);
-    //     }
-    //     putc(' ', stdin);
-    //     //c = putchar(' '); /* type a period to break out of the loop, since CTRL-D won't work raw */
-    // }
-    // system ("/bin/stty cooked"); /* use system call to set terminal behaviour to more normal behaviour */
-    
     initscr();
     noecho();
     keypad(stdscr, TRUE);
-    cbreak();
     int speed = 200;
     int c;
     while(true) {
-        initscr();
-        noecho();
-        keypad(stdscr, TRUE);
-        cbreak();
         c = getch();
         printf("%d\r\n",c);
         switch(c){
@@ -93,10 +67,8 @@ int main(int argc, char * argv[]){
                 break;
         }
         if(c == 10){ break; } //Break if Enter is pressed
-        endwin();
     }
     clrtoeol();
-	refresh();
     endwin();
 
     // while(1){
