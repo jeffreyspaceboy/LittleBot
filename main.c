@@ -36,34 +36,32 @@ int main(int argc, char * argv[]){
     Motor right_motor = motor_init("RIGHT_MOTOR", R_MTR_EN, R_MTR_A, R_MTR_B, &right_encoder, false);
 
     Drivetrain drivetrain = drivetrain_init("DRIVETRAIN", &left_motor, &right_motor);
-    PID_Controller pid_left = pid_init(400.0, 0.000000001, 550.0, 0.01);
-    PID_Controller pid_right = pid_init(400.0, 0.000000001, 550.0, 0.01);
+    PID_Controller pid_left = pid_init(400.0, 0.000000001, 550.0, 0.05);
+    PID_Controller pid_right = pid_init(400.0, 0.000000001, 550.0, 0.05);
+    int turn_bias = 50;
 
-    // while(true){
-    //      float left_rotations = (float)(drivetrain.left_motor->encoder->ticks/(44.0*21.3));
-    //      float right_rotations = (float)(drivetrain.right_motor->encoder->ticks/(44.0*21.3));
-    //      uint32_t current_time = gpioTick();
-    //      drivetrain_spin(&drivetrain, pid_power(&pid_left, 1.0, left_rotations, current_time), pid_power(&pid_right, 1.0, right_rotations, current_time));
-    //      printf("(%f | %f)\n",left_rotations,right_rotations);
-    //      //printf("(%f | %f)\n",drivetrain.left_motor->encoder->rpm,drivetrain.right_motor->encoder->rpm);
-    //      //gpioSleep(PI_TIME_RELATIVE, 0, 100000);
-    // }
     int timesGood = 0;
     bool moveComplete = false;
     float left_rotations = motor_get_rotations(&left_motor);
     float right_rotations = motor_get_rotations(&right_motor);
-    float distance = 4.0;
+    float distance = 2.0;
     while(!moveComplete && right_rotations <= distance*2 && left_rotations <= distance*2){ 
         uint32_t current_time = gpioTick();
         left_rotations = motor_get_rotations(&left_motor);
         right_rotations = motor_get_rotations(&right_motor);
         printf("(%f | %f)\n", left_rotations, right_rotations);
-        drivetrain_spin(&drivetrain, (int)pid_power(&pid_left, distance, left_rotations, current_time), (int)pid_power(&pid_right, distance, right_rotations, current_time));
+        if(left_rotations > right_rotations){
+            drivetrain_spin(&drivetrain, (int)pid_power(&pid_left, distance, left_rotations, current_time), (int)pid_power(&pid_right, distance, right_rotations, current_time)+turn_bias);
+        }else if(right_rotations > left_rotations){
+            drivetrain_spin(&drivetrain, (int)pid_power(&pid_left, distance, left_rotations, current_time)+turn_bias, (int)pid_power(&pid_right, distance, right_rotations, current_time));
+        }else{
+            drivetrain_spin(&drivetrain, (int)pid_power(&pid_left, distance, left_rotations, current_time), (int)pid_power(&pid_right, distance, right_rotations, current_time));
+        }
+        
         if(fabs(pid_right.error)<=pid_right.error_tolerance && fabs(pid_left.error)<=pid_left.error_tolerance){ timesGood++; }
         if(timesGood >= 1000){ moveComplete = true; }
     }
     drivetrain_spin(&drivetrain, 0, 0);
-    //printf("(%f | %f)\n", 0.0, right_rotations);
 
     drivetrain_del(&drivetrain);
     gpioTerminate();

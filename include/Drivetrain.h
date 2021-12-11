@@ -20,6 +20,7 @@ extern "C" {
 typedef struct{
     char name[NAME_MAX_SIZE];
     Motor *left_motor, *right_motor;
+    float wheel_diameter;
 } Drivetrain;
 
 Drivetrain drivetrain_init(char drivetrain_name[NAME_MAX_SIZE], Motor *left_motor, Motor *right_motor);
