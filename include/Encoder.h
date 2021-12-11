@@ -17,9 +17,9 @@ extern "C" {
 typedef struct{
     char name[NAME_MAX_SIZE];
     int gpio_phase_a, gpio_phase_b;
-    int prev_gpio, level_phase_a, level_phase_b, ticks, prev_ticks;
-    uint32_t prev_tick_us;
-    double rpm, ratio;
+    int prev_gpio, level_phase_a, level_phase_b, count, prev_count;
+    uint32_t prev_us;
+    float rps, ratio;
 } Encoder;
 
 typedef void (*gpioISRFuncEx_t)(int gpio, int level, uint32_t tick, void *data);
@@ -29,7 +29,10 @@ int encoder_del(Encoder *encoder);
 
 int encoder_start(Encoder *encoder);
 int encoder_reset(Encoder *encoder);
-double encoder_refresh_rpm(Encoder *encoder, uint32_t current_tick_us);
+
+float encoder_refresh_rps(Encoder *encoder, uint32_t current_tick_us);
+float encoder_get_rotations(Encoder *encoder);
+
 void encoder_event_callback(int gpio, int level, uint32_t tick, void *data);
 
 #ifdef __cplusplus

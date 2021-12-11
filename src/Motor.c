@@ -63,4 +63,8 @@ int motor_set_max_power(Motor *motor, int new_max_power){
     motor->max_power = new_max_power;
     return new_max_power;
 }
+
+float motor_get_rotations(Motor *motor){
+    return encoder_get_rotations(motor->encoder);
+}
 /*---MOTOR_C---*/

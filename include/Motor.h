@@ -27,7 +27,10 @@ int motor_del(Motor *motor);
 
 int motor_spin(Motor *motor, int power);
 int motor_stop(Motor *motor);
+
 int motor_set_max_power(Motor *motor, int new_max_power);
+
+float motor_get_rotations(Motor *motor);
 
 #ifdef __cplusplus
 }

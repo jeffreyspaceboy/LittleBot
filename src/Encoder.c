@@ -19,10 +19,10 @@ Encoder encoder_init(char encoder_name[NAME_MAX_SIZE], int gpio_phase_a_pin, int
         .prev_gpio = -1, // GPIO does not exist
         .level_phase_a = 2, // No level change
         .level_phase_b = 2, // No level change
-        .ticks = ENCODER_DEFAULT_TICK_RESET,
-        .prev_ticks = ENCODER_DEFAULT_TICK_RESET,
-        .prev_tick_us = 0,
-        .rpm = 0.0,
+        .count = ENCODER_DEFAULT_TICK_RESET,
+        .prev_count = ENCODER_DEFAULT_TICK_RESET,
+        .prev_us = 0,
+        .rps = 0.0,
         .ratio = encoder_ratio,
     };
     strncpy(new_encoder.name, encoder_name, sizeof(new_encoder.name));
@@ -52,40 +52,41 @@ int encoder_start(Encoder *encoder){
 }
 
 int encoder_reset(Encoder *encoder){
-    encoder->ticks = ENCODER_DEFAULT_TICK_RESET;
+    encoder->count = ENCODER_DEFAULT_TICK_RESET;
     return SUCCESS;
 }
 
-double encoder_refresh_rpm(Encoder *encoder, uint32_t current_tick_us){
-    //TODO: Calculate RPM using averaging.
-    double rpus = (double)(encoder->ticks - encoder->prev_ticks) / (double)(current_tick_us - encoder->prev_tick_us);
-    encoder->prev_ticks = encoder->ticks;
-    encoder->prev_tick_us = current_tick_us;
-    encoder->rpm = rpus * 60000000.0 * encoder->ratio;
-    return encoder->rpm;
+float encoder_refresh_rps(Encoder *encoder, uint32_t current_us){
+    encoder->rps = ((float)(encoder->count - encoder->prev_count) / (float)(current_us - encoder->prev_us)) * 1000000.0 * encoder->ratio;
+    encoder->prev_count = encoder->count;
+    encoder->prev_us = current_us;
+    return encoder->rps;
 }
 
-void encoder_event_callback(int gpio, int level, uint32_t tick, void *data){
-    Encoder *encoder = (Encoder *) data;
+float encoder_get_rotations(Encoder *encoder){
+    return ((float)encoder->count) * encoder->ratio;
+}
 
+void encoder_event_callback(int gpio, int level, uint32_t current_us, void *data){
+    Encoder *encoder = (Encoder *) data;
     if(gpio == encoder->gpio_phase_a){
         encoder->level_phase_a = level; 
         if(encoder->level_phase_b == 0){
-            encoder->ticks += (encoder->level_phase_a == 0) ? -1 : 1;
+            encoder->count += (encoder->level_phase_a == 0) ? -1 : 1;
         }else{
-            encoder->ticks += (encoder->level_phase_a == 0) ? 1 : -1;
+            encoder->count += (encoder->level_phase_a == 0) ? 1 : -1;
         }
     }else if(gpio == encoder->gpio_phase_b){
         encoder->level_phase_b = level;
         if(encoder->level_phase_a == 0){
-            encoder->ticks += (encoder->level_phase_b == 0) ? 1 : -1;
+            encoder->count += (encoder->level_phase_b == 0) ? 1 : -1;
         }else{
-            encoder->ticks += (encoder->level_phase_b == 0) ? -1 : 1;
+            encoder->count += (encoder->level_phase_b == 0) ? -1 : 1;
         }
     } 
 
-    if(encoder->ticks % ENCODER_RPM_REFRESH_RATE == 0){
-        encoder_refresh_rpm(encoder, tick);
+    if(encoder->count % ENCODER_RPM_REFRESH_RATE == 0){ 
+        encoder_refresh_rps(encoder, current_us); 
     }
     return;
 }
