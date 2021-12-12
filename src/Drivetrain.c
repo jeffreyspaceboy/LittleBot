@@ -35,33 +35,15 @@ int drivetrain_spin(Drivetrain_t *drivetrain, int left_power, int right_power){
     return motor_spin(drivetrain->left_motor, left_power) || motor_spin(drivetrain->right_motor, right_power);
 }
 
-int drivetrain_pid_distance_spin(Drivetrain_t *drivetrain, float distance){
-    PID_Controller_t pid_left = pid_init(400.0, 0.00000001, 550.0);
-    PID_Controller_t pid_right = pid_init(400.0, 0.00000001, 550.0);
-    float tolerance = 0.08;
-    int timesGood = 0, turn_bias = 50;
-    bool moveComplete = false;
-    float left_rotations = motor_get_rotations(drivetrain->left_motor);
-    float right_rotations = motor_get_rotations(drivetrain->right_motor);
-    pid_start(&pid_left, distance, tolerance);
-    pid_start(&pid_right, distance, tolerance);
-    while(!moveComplete && right_rotations <= distance*2.0F && left_rotations <= distance*2.0F){ 
-        left_rotations = motor_get_rotations(drivetrain->left_motor);
-        right_rotations = motor_get_rotations(drivetrain->right_motor);
-        printf("%s (%f | %f)\n", INFO_MSG, left_rotations, right_rotations);
-        if(left_rotations > right_rotations){
-            drivetrain_spin(drivetrain, (int)pid_power(&pid_left, left_rotations)-turn_bias, (int)pid_power(&pid_right, right_rotations));
-        }else if(right_rotations > left_rotations){
-            drivetrain_spin(drivetrain, (int)pid_power(&pid_left, left_rotations), (int)pid_power(&pid_right, right_rotations)-turn_bias);
-        }else{
-            drivetrain_spin(drivetrain, (int)pid_power(&pid_left, left_rotations), (int)pid_power(&pid_right, right_rotations));
-        }
-        
-        if(fabs(pid_right.error)<=pid_right.error_tolerance && fabs(pid_left.error)<=pid_left.error_tolerance){ timesGood++; }
-        if(timesGood >= 1000){ moveComplete = true; }
-        gpioSleep(PI_TIME_RELATIVE, 0, 1000);
+int drivetrain_pid_distance_spin(Drivetrain_t *drivetrain, PID_Controller_t *pid_distance, PID_Controller_t *pid_velocity_left, PID_Controller_t *pid_velocity_right, float distance_target, float tolerance){
+    if(!pid_distance->enabled){ pid_start(pid_distance, distance_target, tolerance); }
+    float current_rotations = (motor_get_rotations(drivetrain->left_motor) + motor_get_rotations(drivetrain->right_motor))/2.0F;
+    float rps_target = pid_power(pid_distance, current_rotations);
+    if(fabs(pid_distance->error) > pid_distance->error_tolerance){
+        motor_pid_velocity(drivetrain->left_motor, pid_velocity_left, rps_target);
+        motor_pid_velocity(drivetrain->right_motor, pid_velocity_right, rps_target);
     }
-    return drivetrain_spin(drivetrain, 0, 0);
+    return SUCCESS;
 }
 
 int drivetrain_pid_velocity_spin(Drivetrain_t *drivetrain, float rps){

@@ -32,6 +32,7 @@ typedef struct Motor_t{
     uint8_t gpio_enable, gpio_phase_a, gpio_phase_b;
     int max_power;
     Encoder_t *encoder;
+    //TODO: ADD PID CONTROLLER
 } Motor_t;
 
 

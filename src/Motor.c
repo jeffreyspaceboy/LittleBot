@@ -60,7 +60,9 @@ int motor_spin(Motor_t *motor, int power){
 
 int motor_pid_velocity(Motor_t *motor, PID_Controller_t* pid, float rps_target){
     if(!pid->enabled){ pid_start(pid, rps_target, 0.0); }
-    return motor_spin(motor, (int)pid_power(pid, motor_get_rps(motor)));
+    int power = (int)pid_power(pid, motor_get_rps(motor));
+    motor_spin(motor, power);
+    return power;
 }
 
 int motor_stop(Motor_t *motor){
