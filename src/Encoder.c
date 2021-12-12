@@ -91,6 +91,7 @@ float encoder_refresh_rps(Encoder_t *encoder, uint32_t current_us){
     encoder->prev_rps[0] = encoder->rps;
     sum += encoder->prev_rps[0];
     encoder->avg_rps = sum/ENCODER_RPS_BUFFER_SIZE;
+    encoder->rps = encoder->avg_rps;
     return encoder->rps;
 }
 
