@@ -26,7 +26,7 @@ extern "C" {
  * @param max_power Max power input to the motor
  * @param Encoder The encoder connected to the motor
  */
-typedef struct{
+typedef struct Motor{
     char name[NAME_MAX_SIZE];
     uint8_t gpio_enable, gpio_phase_a, gpio_phase_b;
     int max_power;

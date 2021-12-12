@@ -30,7 +30,7 @@ extern "C" {
  * @param dt (= current_time - prev_time) The change in time between the current loop and the previous one.
  * @param prev_time The time observed the last time the pid function was run.
  */
-typedef struct{
+typedef struct PID_Controller{
     float kp, ki, kd;
     float target, error_tolerance, error, prev_error, error_integral, dedt, dt;
     long prev_time;

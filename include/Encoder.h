@@ -32,7 +32,7 @@ extern "C" {
  * @param prev_rps RPS recorded from the previous ENCODER_RPS_BUFFER_SIZE rps readings
  * @param ratio The ratio from encoder ticks to the desired axis of rotation. aka Wheel Rotation Per Encoder Ticks
 */
-typedef struct{
+typedef struct Encoder{
     char name[NAME_MAX_SIZE];
     uint8_t gpio_phase_a, gpio_phase_b, prev_gpio; 
     int level_phase_a, level_phase_b, count, prev_count;

@@ -9,7 +9,9 @@
         "definitions.h": "c",
         "math.h": "c",
         "stdint.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "ncurses.h": "c",
+        "stdio.h": "c"
     },
     "editor.showFoldingControls": "always",
     "editor.unfoldOnClickAfterEndOfLine": true,

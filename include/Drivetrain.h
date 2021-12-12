@@ -24,7 +24,7 @@ extern "C" {
  * @param left_motor Left Motor
  * @param right_motor Right Motor
  */
-typedef struct{
+typedef struct Drivetrain{
     char name[NAME_MAX_SIZE];
     Motor *left_motor, *right_motor;
 } Drivetrain;
