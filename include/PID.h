@@ -30,32 +30,32 @@ extern "C" {
  * @param dt (= current_time - prev_time) The change in time between the current loop and the previous one.
  * @param prev_time The time observed the last time the pid function was run.
  */
-typedef struct PID_Controller{
+typedef struct PID_Controller_t{
     float kp, ki, kd;
     float target, error_tolerance, error, prev_error, error_integral, dedt, dt;
     long prev_time;
-} PID_Controller;
+} PID_Controller_t;
 
 /** @brief PID Initialization
  * @param kP Proportional Gain Constant
  * @param kI Integral Gain Constant
  * @param kD Derivative Gain Constant
  * @return PID_Controller */
-PID_Controller pid_init(float kP, float kI, float kD);
+PID_Controller_t pid_init(float kP, float kI, float kD);
 
 /** @brief Initializes your target and gets controller ready for use. Run this right before your PID loop.
  * @param pid PID Controller to be used
  * @param target The value the controller is trying to reach
  * @param error_tolerance The tolerance for error used externally for this PID controller
  * @return int SUCCESS or FAILURE */
-int pid_start(PID_Controller *pid, float target, float error_tolerance);
+int pid_start(PID_Controller_t *pid, float target, float error_tolerance);
 
 /** @brief Takes target and current values as inputs and outputs a power based on tuned PID gains.
  * @param pid PID Controller to be used
  * @param target The value the controller is trying to reach
  * @param current The value the system currently has
  * @return float - output power of the PID function */
-float pid_power(PID_Controller *pid, float current);
+float pid_power(PID_Controller_t *pid, float current);
 
 
 #ifdef __cplusplus

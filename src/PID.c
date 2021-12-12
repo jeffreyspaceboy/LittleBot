@@ -15,9 +15,9 @@
 #include <stdlib.h>
 
 
-PID_Controller pid_init(float kP, float kI, float kD){
+PID_Controller_t pid_init(float kP, float kI, float kD){
     //Example Constants: kp = 20.00 | kd = 1.55 | ki = 0.05
-    PID_Controller new_pid = {
+    PID_Controller_t new_pid = {
         .kp = kP,
         .ki = kI,
         .kd = kD,
@@ -31,15 +31,16 @@ PID_Controller pid_init(float kP, float kI, float kD){
     return new_pid;
 }
 
-int pid_start(PID_Controller *pid, float target, float error_tolerance){
+int pid_start(PID_Controller_t *pid, float target, float error_tolerance){
     pid->error_tolerance = error_tolerance;
+    pid->target = target;
     pid->prev_error = target;
     pid->error_integral = 0.0;
     pid->prev_time = gpioTick();
     return SUCCESS;
 }
 
-float pid_power(PID_Controller *pid, float current){
+float pid_power(PID_Controller_t *pid, float current){
     uint32_t current_time = gpioTick();
     pid->dt = (float)(current_time - pid->prev_time); //Time Delta
     pid->prev_time = current_time;

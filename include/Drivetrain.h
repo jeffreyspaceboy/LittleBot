@@ -24,10 +24,10 @@ extern "C" {
  * @param left_motor Left Motor
  * @param right_motor Right Motor
  */
-typedef struct Drivetrain{
+typedef struct Drivetrain_t{
     char name[NAME_MAX_SIZE];
-    Motor *left_motor, *right_motor;
-} Drivetrain;
+    Motor_t *left_motor, *right_motor;
+} Drivetrain_t;
 
 
 /** @brief Drivetrain initialization.
@@ -35,12 +35,12 @@ typedef struct Drivetrain{
  * @param left_motor Motor for left side
  * @param right_motor Motor for right side
  * @return Drivetrain */
-Drivetrain drivetrain_init(char drivetrain_name[NAME_MAX_SIZE], Motor *left_motor, Motor *right_motor);
+Drivetrain_t drivetrain_init(char drivetrain_name[NAME_MAX_SIZE], Motor_t *left_motor, Motor_t *right_motor);
 
 /** @brief Drivetrain destruction.
  * @param drivetrain Drivetrain to be deleted 
  * @return int: SUCCESS or FAILURE */
-int drivetrain_del(Drivetrain *drivetrain);
+int drivetrain_del(Drivetrain_t *drivetrain);
 
 
 /** @brief Spin the drivetrain motors based on the powers given.
@@ -48,12 +48,12 @@ int drivetrain_del(Drivetrain *drivetrain);
  * @param left_power Left motor power
  * @param right_power Right motor power
  * @return int: SUCCESS or FAILURE */
-int drivetrain_spin(Drivetrain *drivetrain, int left_power, int right_power);
+int drivetrain_spin(Drivetrain_t *drivetrain, int left_power, int right_power);
 
 /** @brief Stop the drivetrain motors.
  * @param drivetrain Drivetrain to be stopped
  * @return int: SUCCESS or FAILURE */
-int drivetrain_stop(Drivetrain *drivetrain);
+int drivetrain_stop(Drivetrain_t *drivetrain);
 
 
 #ifdef __cplusplus

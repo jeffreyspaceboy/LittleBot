@@ -15,8 +15,8 @@
 #include <stdio.h>
 #include <string.h>
 
-Drivetrain drivetrain_init(char drivetrain_name[NAME_MAX_SIZE], Motor *left_motor, Motor *right_motor){
-    Drivetrain new_drivetrain = {
+Drivetrain_t drivetrain_init(char drivetrain_name[NAME_MAX_SIZE], Motor_t *left_motor, Motor_t *right_motor){
+    Drivetrain_t new_drivetrain = {
         .name = "",
         .left_motor = left_motor,
         .right_motor = right_motor,
@@ -25,15 +25,15 @@ Drivetrain drivetrain_init(char drivetrain_name[NAME_MAX_SIZE], Motor *left_moto
     return new_drivetrain;
 }
 
-int drivetrain_del(Drivetrain *drivetrain){
+int drivetrain_del(Drivetrain_t *drivetrain){
     return motor_del(drivetrain->left_motor) || motor_del(drivetrain->right_motor);  
 }
 
-int drivetrain_spin(Drivetrain *drivetrain, int left_power, int right_power){
+int drivetrain_spin(Drivetrain_t *drivetrain, int left_power, int right_power){
     return motor_spin(drivetrain->left_motor, left_power) || motor_spin(drivetrain->right_motor, right_power);
 }
 
-int drivetrain_stop(Drivetrain *drivetrain){
+int drivetrain_stop(Drivetrain_t *drivetrain){
     return motor_stop(drivetrain->left_motor) || motor_stop(drivetrain->right_motor);
 }
 /*---DRIVETRAIN_C---*/

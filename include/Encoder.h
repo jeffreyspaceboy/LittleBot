@@ -32,16 +32,16 @@ extern "C" {
  * @param prev_rps RPS recorded from the previous ENCODER_RPS_BUFFER_SIZE rps readings
  * @param ratio The ratio from encoder ticks to the desired axis of rotation. aka Wheel Rotation Per Encoder Ticks
 */
-typedef struct Encoder{
+typedef struct Encoder_t{
     char name[NAME_MAX_SIZE];
     uint8_t gpio_phase_a, gpio_phase_b, prev_gpio; 
     int level_phase_a, level_phase_b, count, prev_count;
     uint32_t prev_us;
     float rps, avg_rps, ratio;
     float prev_rps[ENCODER_RPS_BUFFER_SIZE];
-} Encoder;
+} Encoder_t;
 
-typedef void (*gpioISRFuncEx_t)(int gpio, int level, uint32_t tick, void *data);
+//typedef void (*gpioISRFuncEx_t)(int gpio, int level, uint32_t tick, void *data);
 
 
 /** @brief Encoder initialization.
@@ -51,46 +51,46 @@ typedef void (*gpioISRFuncEx_t)(int gpio, int level, uint32_t tick, void *data);
  * @param encoder_ratio Ratio of: Output (Wheel) Rotations per Encoder Ticks
  * @param reverse Boolean to reverse Phase A & B
  * @return Encoder */
-Encoder encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, float encoder_ratio, int reverse);
+Encoder_t encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, float encoder_ratio, int reverse);
 
 /** @brief Encoder destruction.
  * @param encoder Encoder you want to delete 
  * @return int: SUCCESS or FAILURE */
-int encoder_del(Encoder *encoder);
+int encoder_del(Encoder_t *encoder);
 
 
 /** @brief Enables GPIO interupts for Phase A & B, and reset encoder count.
  * @param encoder Encoder to be started
  * @return int: SUCCESS or FAILURE */
-int encoder_start(Encoder *encoder);
+int encoder_start(Encoder_t *encoder);
 
 /** @brief Sets Encoder.count & Encoder.prev_count to 0.
  * @param encoder Encoder to be reset
  * @return int: SUCCESS or FAILURE */
-int encoder_reset(Encoder *encoder);
+int encoder_reset(Encoder_t *encoder);
 
 
 /** @brief Calculates rotations using count * ratio.
  * @param encoder Encoder to get rotations from 
  * @return float: Rotations */
-float encoder_get_rotations(Encoder *encoder);
+float encoder_get_rotations(Encoder_t *encoder);
 
 /** @brief Calculates angle in degrees using count * ratio * 360.
  * @param encoder Encoder to get angel from 
  * @return float: Angle in degrees */
-float encoder_get_angle_degrees(Encoder *encoder);
+float encoder_get_angle_degrees(Encoder_t *encoder);
 
 /** @brief Calculates angle in radians using count * ratio * 2 * PI.
  * @param encoder Encoder to get angel from 
  * @return float: Angle in radians */
-float encoder_get_angle_radians(Encoder *encoder);
+float encoder_get_angle_radians(Encoder_t *encoder);
 
 
 /** @brief Updates encoder RPS. (Called every quarter encoder rotation by encoder_event_callback)
  * @param encoder Encoder to be refreshed
  * @param current_tick_us Time (usec) of the most recent encoder phase change (Passed by encoder_event_callback)
  * @return float: New RPS */
-float encoder_refresh_rps(Encoder *encoder, uint32_t current_tick_us);
+float encoder_refresh_rps(Encoder_t *encoder, uint32_t current_tick_us);
 
 /** @brief Phase Interupt Event Callback. (Called by gpioSetISRFuncEx when Encoder Phases change)
  * @param gpio GPIO that caused event

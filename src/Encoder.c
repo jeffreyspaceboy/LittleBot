@@ -17,8 +17,8 @@
 #include <math.h>
 
 
-Encoder encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin,  float encoder_ratio, int reverse){
-    Encoder new_encoder = {
+Encoder_t encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin,  float encoder_ratio, int reverse){
+    Encoder_t new_encoder = {
         .gpio_phase_a = (reverse == 0) ? gpio_phase_a_pin : gpio_phase_b_pin,
         .gpio_phase_b = (reverse == 0) ? gpio_phase_b_pin : gpio_phase_a_pin,
         .prev_gpio = -1, // GPIO does not exist
@@ -44,7 +44,7 @@ Encoder encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pin,
     return new_encoder;
 }
 
-int encoder_del(Encoder *encoder){
+int encoder_del(Encoder_t *encoder){
     gpioSetISRFuncEx(encoder->gpio_phase_a, EITHER_EDGE, 0, NULL, (void *)encoder);
     gpioSetISRFuncEx(encoder->gpio_phase_b, EITHER_EDGE, 0, NULL, (void *)encoder);
     gpioSetPullUpDown(encoder->gpio_phase_a, PI_PUD_OFF);
@@ -53,33 +53,33 @@ int encoder_del(Encoder *encoder){
 }
 
 
-int encoder_start(Encoder *encoder){
+int encoder_start(Encoder_t *encoder){
     gpioSetISRFuncEx(encoder->gpio_phase_a, EITHER_EDGE, 100, encoder_event_callback, (void *)encoder);
     gpioSetISRFuncEx(encoder->gpio_phase_b, EITHER_EDGE, 100, encoder_event_callback, (void *)encoder);
     return encoder_reset(encoder);
 }
 
-int encoder_reset(Encoder *encoder){
+int encoder_reset(Encoder_t *encoder){
     encoder->count = ENCODER_DEFAULT_TICK_RESET;
     encoder->prev_count = ENCODER_DEFAULT_TICK_RESET;
     return SUCCESS;
 }
 
 
-float encoder_get_rotations(Encoder *encoder){
+float encoder_get_rotations(Encoder_t *encoder){
     return ((float)encoder->count) * encoder->ratio;
 }
 
-float encoder_get_angle_degrees(Encoder *encoder){
+float encoder_get_angle_degrees(Encoder_t *encoder){
     return encoder_get_rotations(encoder) * 360.0F;
 }
 
-float encoder_get_angle_radians(Encoder *encoder){
+float encoder_get_angle_radians(Encoder_t *encoder){
     return encoder_get_rotations(encoder) * 2.0F*M_PI;
 }
 
 
-float encoder_refresh_rps(Encoder *encoder, uint32_t current_us){
+float encoder_refresh_rps(Encoder_t *encoder, uint32_t current_us){
     encoder->rps = ((float)(encoder->count - encoder->prev_count) / (float)(current_us - encoder->prev_us)) * 1000000.0F * encoder->ratio;
     encoder->prev_count = encoder->count;
     encoder->prev_us = current_us;
@@ -95,7 +95,7 @@ float encoder_refresh_rps(Encoder *encoder, uint32_t current_us){
 }
 
 void encoder_event_callback(int gpio, int level, uint32_t current_us, void *data){
-    Encoder *encoder = (Encoder *) data;
+    Encoder_t *encoder = (Encoder_t *) data;
     if(gpio == encoder->gpio_phase_a){
         encoder->level_phase_a = level; 
         if(encoder->level_phase_b == 0){

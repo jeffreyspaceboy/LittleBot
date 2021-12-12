@@ -16,8 +16,8 @@
 #include <string.h>
 
 
-Motor motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, Encoder *new_encoder, int reverse){
-    Motor new_motor = {
+Motor_t motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, Encoder_t *new_encoder, int reverse){
+    Motor_t new_motor = {
         .name = "",
         .gpio_enable = gpio_enable_pin,
         .gpio_phase_a = (reverse == 0) ? gpio_phase_a_pin : gpio_phase_b_pin,
@@ -34,12 +34,12 @@ Motor motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_
     return new_motor;
 }
 
-int motor_del(Motor *motor){ 
+int motor_del(Motor_t *motor){ 
     return encoder_del(motor->encoder) || motor_stop(motor);  
 }
 
 
-int motor_spin(Motor *motor, int power){
+int motor_spin(Motor_t *motor, int power){
     if(abs(power) > motor->max_power){
         gpioPWM(motor->gpio_enable, motor->max_power);
     }else{
@@ -58,32 +58,32 @@ int motor_spin(Motor *motor, int power){
     return SUCCESS;
 }
 
-int motor_stop(Motor *motor){
+int motor_stop(Motor_t *motor){
     gpioWrite(motor->gpio_enable, 0);
     gpioWrite(motor->gpio_phase_a, 0);
     gpioWrite(motor->gpio_phase_b, 0);
     return SUCCESS;
 }
 
-int motor_set_max_power(Motor *motor, int new_max_power){
+int motor_set_max_power(Motor_t *motor, int new_max_power){
     motor->max_power = new_max_power;
     return new_max_power;
 }
 
 
-float motor_get_rotations(Motor *motor){
+float motor_get_rotations(Motor_t *motor){
     return encoder_get_rotations(motor->encoder);
 }
 
-float motor_get_angle_degrees(Motor *motor){
+float motor_get_angle_degrees(Motor_t *motor){
     return encoder_get_angle_degrees(motor->encoder);
 }
 
-float motor_get_angle_radians(Motor *motor){
+float motor_get_angle_radians(Motor_t *motor){
     return encoder_get_angle_radians(motor->encoder);
 }
 
-float motor_get_rps(Motor *motor){
+float motor_get_rps(Motor_t *motor){
     return motor->encoder->rps;
 }
 /*---MOTOR_C---*/
