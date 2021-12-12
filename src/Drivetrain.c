@@ -35,13 +35,13 @@ int drivetrain_spin(Drivetrain_t *drivetrain, int left_power, int right_power){
     return motor_spin(drivetrain->left_motor, left_power) || motor_spin(drivetrain->right_motor, right_power);
 }
 
-int drivetrain_pid_distance_spin(Drivetrain_t *drivetrain, PID_Controller_t *pid_distance, PID_Controller_t *pid_velocity_left, PID_Controller_t *pid_velocity_right, float distance_target, float tolerance){
+int drivetrain_pid_distance_spin(Drivetrain_t *drivetrain, PID_Controller_t *pid_distance, float distance_target, float tolerance){
     if(!pid_distance->enabled){ pid_start(pid_distance, distance_target, tolerance); }
     float current_rotations = (motor_get_rotations(drivetrain->left_motor) + motor_get_rotations(drivetrain->right_motor))/2.0F;
-    float rps_target = pid_power(pid_distance, current_rotations);
+    float rpm_target = pid_power(pid_distance, current_rotations);
     if(fabs(pid_distance->error) > pid_distance->error_tolerance){
-        motor_pid_velocity(drivetrain->left_motor, pid_velocity_left, rps_target);
-        motor_pid_velocity(drivetrain->right_motor, pid_velocity_right, rps_target);
+        motor_set_rpm(drivetrain->left_motor, rpm_target);
+        motor_set_rpm(drivetrain->right_motor, rpm_target);
     }
     return SUCCESS;
 }
@@ -57,8 +57,8 @@ int drivetrain_pid_velocity_spin(Drivetrain_t *drivetrain, float rpm){
     pid_start(&pid_left, rpm, tolerance);
     pid_start(&pid_right, rpm, tolerance);
     while(!moveComplete && l_rpm <= rpm*2.0F && r_rpm <= rpm*2.0F){ 
-        l_rpm = motor_get_rps(drivetrain->left_motor);
-        r_rpm = motor_get_rps(drivetrain->right_motor);
+        l_rpm = motor_get_rpm(drivetrain->left_motor);
+        r_rpm = motor_get_rpm(drivetrain->right_motor);
         printf("%s (%f | %f)\n", INFO_MSG, l_rpm, r_rpm);
         if(l_rpm > r_rpm){
             drivetrain_spin(drivetrain, (int)pid_power(&pid_left, l_rpm)-turn_bias, (int)pid_power(&pid_right, r_rpm));

@@ -99,7 +99,7 @@ int motor_spin(Motor_t *motor, int power);
  * @param motor Motor to control
  * @param rps_target RPM target
  * @return float: RPM that was set by the PID controller */
-float motor_set_velocity(Motor_t *motor, float rpm_target);
+float motor_set_rpm(Motor_t *motor, float rpm_target);
 
 /** @brief Stop the Motor.
  * @param motor Motor to be stopped

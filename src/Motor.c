@@ -13,6 +13,7 @@
 
 /* STANDARD INCLUDES */
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <math.h>
 
@@ -103,7 +104,8 @@ int motor_spin(Motor_t *motor, int power){
 float motor_set_rpm(Motor_t *motor, float rpm_target){
     if(motor->pid_velocity_controller == NULL){ 
         printf("%s(%s) This motor has not been setup with a PID Velocity Controller.\n", ERROR_MSG, motor->name); 
-        return; 
+        motor_spin(motor, 0);
+        return 0; 
     }
     if(!motor->pid_velocity_controller->enabled){ pid_start(motor->pid_velocity_controller, rpm_target, 0.0); }
     float power = pid_power(motor->pid_velocity_controller, motor_get_rpm(motor));

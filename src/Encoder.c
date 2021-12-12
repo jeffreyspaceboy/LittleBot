@@ -33,8 +33,8 @@ Encoder_t encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pi
     strncpy(new_encoder.name, encoder_name, sizeof(new_encoder.name));
 
     //Clear rps buffer
-    for(int i = 0; i < ENCODER_RPS_BUFFER_SIZE; i++){
-        new_encoder.prev_rps[i] = 0.0F;
+    for(int i = 0; i < ENCODER_RPM_BUFFER_SIZE; i++){
+        new_encoder.prev_rpm[i] = 0.0F;
     }
 
     gpioSetMode(new_encoder.gpio_phase_a, PI_INPUT);
