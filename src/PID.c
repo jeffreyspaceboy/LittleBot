@@ -13,6 +13,7 @@
 
 /* STANDARD INCLUDES */
 #include <stdlib.h>
+#include <stdio.h>
 
 
 PID_Controller_t pid_init(float kP, float kI, float kD){
@@ -27,6 +28,7 @@ PID_Controller_t pid_init(float kP, float kI, float kD){
         .dedt = 0.0,
         .dt = 0.0,
         .prev_time = 0,
+        .enabled = false,
     };
     return new_pid;
 }
@@ -37,10 +39,12 @@ int pid_start(PID_Controller_t *pid, float target, float error_tolerance){
     pid->prev_error = target;
     pid->error_integral = 0.0;
     pid->prev_time = gpioTick();
+    pid->enabled = true;
     return SUCCESS;
 }
 
 float pid_power(PID_Controller_t *pid, float current){
+    if(!pid->enabled){ printf("%s You should run pid_start() before calling this function.\n", WARNING_MSG); }
     uint32_t current_time = gpioTick();
     pid->dt = (float)(current_time - pid->prev_time); //Time Delta
     pid->prev_time = current_time;

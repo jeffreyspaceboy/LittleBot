@@ -13,6 +13,7 @@ extern "C" {
 /* LOCAL INCLUDES */
 #include "Definitions.h"
 #include "Encoder.h"
+#include "PID.h"
 
 /* STANDARD INCLUDES */
 #include <stdint.h>
@@ -55,6 +56,8 @@ int motor_del(Motor_t *motor);
  * @param power Power to spin the motor at
  * @return int: SUCCESS or FAILURE */
 int motor_spin(Motor_t *motor, int power);
+
+int motor_pid_velocity(Motor_t *motor, PID_Controller_t* pid, float rps_target);
 
 /** @brief Stop the Motor.
  * @param motor Motor to be stopped

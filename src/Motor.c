@@ -58,6 +58,11 @@ int motor_spin(Motor_t *motor, int power){
     return SUCCESS;
 }
 
+int motor_pid_velocity(Motor_t *motor, PID_Controller_t* pid, float rps_target){
+    if(!pid->enabled){ pid_start(pid, rps_target, 0.0); }
+    return motor_spin(motor, (int)pid_power(pid, motor_get_rps(motor)));
+}
+
 int motor_stop(Motor_t *motor){
     gpioWrite(motor->gpio_enable, 0);
     gpioWrite(motor->gpio_phase_a, 0);

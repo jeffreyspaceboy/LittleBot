@@ -15,6 +15,7 @@ extern "C" {
 
 /* STANDARD INCLUDES */
 #include <stdint.h>
+#include <stdbool.h>
 
 
 /** @brief PID_CONTROLLER TYPE - used for PID control of motors, or other feedback and control.
@@ -34,6 +35,7 @@ typedef struct PID_Controller_t{
     float kp, ki, kd;
     float target, error_tolerance, error, prev_error, error_integral, dedt, dt;
     long prev_time;
+    bool enabled;
 } PID_Controller_t;
 
 /** @brief PID Initialization

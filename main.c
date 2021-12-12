@@ -28,20 +28,24 @@ gcc -Wall -pthread -o little_bot main.c src/Encoder.c src/Motor.c src/PID.c src/
 RUN:
 sudo ./little_bot
 */
-  
 
-#define errExit(msg) do { perror(msg); exit(EXIT_FAILURE); \
-    } while (0)
-
-/* Signal Handler for SIGINT */
-void sigintHandler(int sig_num){
-    gpioTerminate();
-    write(STDERR_FILENO, "Caught SIGINT!\n", 15);
-    
+void  sigintHandler(int sig){
+     char  c;
+     signal(sig, SIG_IGN);
+     printf("%s Are you sure you want to quit? [y/n]\n",WARNING_MSG);
+     c = getchar();
+     if (c == 'y' || c == 'Y'){ 
+        gpioWrite_Bits_0_31_Clear(0xFFFFFFFF);
+        gpioWrite_Bits_32_53_Clear(0x0003FFFF);
+        gpioTerminate(); 
+        exit(SUCCESS); 
+    }
+     else { signal(SIGINT, sigintHandler); }
+     getchar();
 }
 
 int main(int argc, char * argv[]){
-    if (signal(SIGINT, sigintHandler) == SIG_ERR){ errExit("signal SIGINT"); }
+    signal(SIGINT, sigintHandler);
     if (gpioInitialise() < 0) { return FAILURE; }
     Encoder_t left_encoder = encoder_init("LEFT_ENCODER", L_ENC_A, L_ENC_B,  1/(44.0*21.3), false);
     Motor_t left_motor = motor_init("LEFT_MOTOR", L_MTR_EN, L_MTR_A, L_MTR_B, &left_encoder, true);
@@ -50,38 +54,48 @@ int main(int argc, char * argv[]){
     Motor_t right_motor = motor_init("RIGHT_MOTOR", R_MTR_EN, R_MTR_A, R_MTR_B, &right_encoder, false);
 
     Drivetrain_t drivetrain = drivetrain_init("DRIVETRAIN", &left_motor, &right_motor);
-    PID_Controller_t pid_left = pid_init(400.0, 0.000000001, 550.0);
-    PID_Controller_t pid_right = pid_init(400.0, 0.000000001, 550.0);
-    int turn_bias = 100;
-
-    int timesGood = 0;
-    bool moveComplete = false;
-    float left_rotations = motor_get_rotations(&left_motor);
-    float right_rotations = motor_get_rotations(&right_motor);
-    float distance = 2.0;
-    float tolerance = 0.1;
-    pid_start(&pid_left, distance, tolerance);
-    pid_start(&pid_right, distance, tolerance);
-    while(!moveComplete && right_rotations <= distance*2 && left_rotations <= distance*2){ 
-        left_rotations = motor_get_rotations(&left_motor);
-        right_rotations = motor_get_rotations(&right_motor);
-        printf("%s (%f | %f)\n", INFO_MSG, left_rotations, right_rotations);
-        if(left_rotations > right_rotations){
-            drivetrain_spin(&drivetrain, (int)pid_power(&pid_left,left_rotations), (int)pid_power(&pid_right, right_rotations)+turn_bias);
-        }else if(right_rotations > left_rotations){
-            drivetrain_spin(&drivetrain, (int)pid_power(&pid_left, left_rotations)+turn_bias, (int)pid_power(&pid_right, right_rotations));
-        }else{
-            drivetrain_spin(&drivetrain, (int)pid_power(&pid_left, left_rotations), (int)pid_power(&pid_right, right_rotations));
-        }
-        
-        if(fabs(pid_right.error)<=pid_right.error_tolerance && fabs(pid_left.error)<=pid_left.error_tolerance){ timesGood++; }
-        if(timesGood >= 1000){ moveComplete = true; }
-        gpioSleep(PI_TIME_RELATIVE, 0, 1000);
+    
+    //drivetrain_pid_distance_spin(&drivetrain, 2.0F);
+    //drivetrain_pid_velocity_spin(&drivetrain, 2.0F);
+    PID_Controller_t pid_right = pid_init(500.0, 0.00001, 0.0);
+    while(true){
+        motor_spin(&right_motor, 200);
+        motor_pid_velocity(&right_motor, &pid_right, 2.0F);
+        //printf("%s (%f)\n", INFO_MSG, motor_get_rps(&right_motor));
+        gpioSleep(PI_TIME_RELATIVE, 0, 5000);
     }
-    drivetrain_spin(&drivetrain, 0, 0);
-
+    // initscr();
+    // keypad(stdscr, TRUE);
+    // int c, speed = 200;
+    // while(TRUE) {
+    //     c = getch();
+    //     switch(c){
+    //         case KEY_UP:
+    //             motor_pid_velocity(&right_motor, &pid_right, 2.0F);
+    //             printf("%s (%f)\n", INFO_MSG, motor_get_rps(&right_motor));
+    //             gpioSleep(PI_TIME_RELATIVE, 0, 5000);
+    //             break;
+    //         case KEY_DOWN:
+    //             drivetrain_spin(&drivetrain, -speed, -speed);
+    //             break;
+    //         case KEY_LEFT:
+    //             drivetrain_spin(&drivetrain, -speed, speed);
+    //             break;
+    //         case KEY_RIGHT:
+    //             drivetrain_spin(&drivetrain, speed, -speed);
+    //             break;
+    //         default:
+    //             drivetrain_stop(&drivetrain);
+    //             break;
+    //     }
+    //     if(c == 10){ break; }
+    // }
+    // clrtoeol();
+    // endwin();
     drivetrain_del(&drivetrain);
+    gpioWrite_Bits_0_31_Clear(0xFFFFFFFF);
+    gpioWrite_Bits_32_53_Clear(0x0003FFFF);
     gpioTerminate();
-    exit(SUCCESS);
+    return SUCCESS;
 }
 /*---MAIN_C---*/

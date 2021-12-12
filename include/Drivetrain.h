@@ -12,8 +12,9 @@ extern "C" {
 
 /* LOCAL INCLUDES */
 #include "Definitions.h"
-#include "Motor.h"
 #include "Encoder.h"
+#include "Motor.h"
+#include "PID.h"
 
 /* STANDARD INCLUDES */
 #include <stdint.h>
@@ -55,6 +56,8 @@ int drivetrain_spin(Drivetrain_t *drivetrain, int left_power, int right_power);
  * @return int: SUCCESS or FAILURE */
 int drivetrain_stop(Drivetrain_t *drivetrain);
 
+int drivetrain_pid_distance_spin(Drivetrain_t *drivetrain, float distance);
+int drivetrain_pid_velocity_spin(Drivetrain_t *drivetrain, float rps);
 
 #ifdef __cplusplus
 }
