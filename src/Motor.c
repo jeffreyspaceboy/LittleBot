@@ -4,12 +4,17 @@
 /*    Author:       Jeffrey Fisher II                                         */
 /*    Created:      2021-12-06                                                */
 /*----------------------------------------------------------------------------*/
+
+/* LOCAL INCLUDES */
 #include "../include/Motor.h"
 
+/* NON-STANDARD INCLUDES */
 #include <pigpio.h>
 
+/* STANDARD INCLUDES */
 #include <stdlib.h>
 #include <string.h>
+
 
 Motor motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, Encoder *new_encoder, int reverse){
     Motor new_motor = {
@@ -32,6 +37,7 @@ Motor motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_
 int motor_del(Motor *motor){ 
     return encoder_del(motor->encoder) || motor_stop(motor);  
 }
+
 
 int motor_spin(Motor *motor, int power){
     if(abs(power) > motor->max_power){
@@ -64,7 +70,20 @@ int motor_set_max_power(Motor *motor, int new_max_power){
     return new_max_power;
 }
 
+
 float motor_get_rotations(Motor *motor){
     return encoder_get_rotations(motor->encoder);
+}
+
+float motor_get_degrees(Motor *motor){
+    return encoder_get_degrees(motor->encoder);
+}
+
+float motor_get_radians(Motor *motor){
+    return encoder_get_radians(motor->encoder);
+}
+
+float motor_get_rps(Motor *motor){
+    return motor->encoder->rps;
 }
 /*---MOTOR_C---*/

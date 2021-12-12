@@ -2,12 +2,16 @@
 /*----------------------------------------------------------------------------*/
 /*    Module:       Drivetrain.c                                              */
 /*    Author:       Jeffrey Fisher II                                         */
-/*    Created:      2021-12-09                                                */
+/*    Created:      2021-12-11                                                */
 /*----------------------------------------------------------------------------*/
+
+/* LOCAL INCLUDES */
 #include "../include/Drivetrain.h"
 
+/* NON-STANDARD INCLUDES */
 #include <pigpio.h>
 
+/* STANDARD INCLUDES */
 #include <stdio.h>
 #include <string.h>
 

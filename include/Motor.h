@@ -4,17 +4,28 @@
 /*----------------------------------------------------------------------------*/
 /*    Module:       Motor.h                                                   */
 /*    Author:       Jeffrey Fisher II                                         */
-/*    Created:      2021-12-06                                                */
+/*    Created:      2021-12-11                                                */
 /*----------------------------------------------------------------------------*/
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/* LOCAL INCLUDES */
 #include "Definitions.h"
 #include "Encoder.h"
 
+/* STANDARD INCLUDES */
 #include <stdint.h>
 
+
+/** @brief MOTOR TYPE - used to define a dual phase motor w/ encoder.
+ * @param name Name used for DEBUG printf
+ * @param gpio_enable GPIO pin for motor enable/speed
+ * @param gpio_phase_a GPIO pin for phase A
+ * @param gpio_phase_b GPIO pin for phase B
+ * @param max_power Max power input to the motor
+ * @param Encoder The encoder connected to the motor
+ */
 typedef struct{
     char name[NAME_MAX_SIZE];
     uint8_t gpio_enable, gpio_phase_a, gpio_phase_b;
@@ -22,15 +33,61 @@ typedef struct{
     Encoder *encoder;
 } Motor;
 
+
+/** @brief Motor initialization.
+ * @param encoder_name Name for DEBUG
+ * @param gpio_enable_pin GPIO Motor Enable Pin
+ * @param gpio_phase_a_pin GPIO Phase A Pin
+ * @param gpio_phase_b_pin GPIO Phase B Pin
+ * @param new_encoder Encoder connected to the motor
+ * @param reverse Bolean to reverse Phase A & B
+ * @return Motor */
 Motor motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, Encoder *new_encoder, int reverse);
+
+/** @brief Motor & Encoder destruction.
+ * @param motor Motor to be deleted
+ * @return int: SUCCESS or FAILURE */
 int motor_del(Motor *motor);
 
+
+/** @brief Spin the Motor at a given power.
+ * @param motor Motor to spin
+ * @param power Power to spin the motor at
+ * @return int: SUCCESS or FAILURE */
 int motor_spin(Motor *motor, int power);
+
+/** @brief Stop the Motor.
+ * @param motor Motor to be stopped
+ * @return int: SUCCESS or FAILURE */
 int motor_stop(Motor *motor);
 
+/** @brief Set the max power of the motor.
+ * @param motor Motor to set max power to
+ * @param new_max_power Max power to be set
+ * @return int: SUCCESS or FAILURE */
 int motor_set_max_power(Motor *motor, int new_max_power);
 
+
+/** @brief Gets rotations from the Encoder.
+ * @param motor Motor to get rotations from 
+ * @return float: Rotations */
 float motor_get_rotations(Motor *motor);
+
+/** @brief Gets angle in degrees from the Encoder.
+ * @param motor Motor to get angel from 
+ * @return float: Angle in degrees */
+float motor_get_degrees(Motor *motor);
+
+/** @brief Gets angle in radians from the Encoder.
+ * @param motor Motor to get angel from 
+ * @return float: Angle in radians */
+float motor_get_radians(Motor *motor);
+
+/** @brief Gets rotations per second from the Encoder.
+ * @param motor Motor to get RPS from
+ * @return float: Motor RPS*/
+float motor_get_rps(Motor *motor);
+
 
 #ifdef __cplusplus
 }

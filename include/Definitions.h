@@ -1,11 +1,13 @@
+/*---DEFINITIONS_H---*/
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 /*----------------------------------------------------------------------------*/
 /*    Module:       Definitions.h                                             */
 /*    Author:       Jeffrey Fisher II                                         */
-/*    Created:      2021-12-07                                                */
+/*    Created:      2021-12-11                                                */
 /*----------------------------------------------------------------------------*/
 
+/* GPIO DEFINITIONS */
 #define LDR_EN 21
 
 #define L_MTR_EN 6
@@ -20,24 +22,26 @@
 #define R_ENC_A 19
 #define R_ENC_B 26
 
-// RETURN DEFINITIONS
+/* RETURN DEFINITIONS */
 #define SUCCESS 0
 #define FAILURE 1
 
-// PRINT DEFINITIONS
+/* PRINT DEFINITIONS */
 #define STATUS_MSG "STATUS:"
 #define INFO_MSG "INFO:"
 #define WARNING_MSG "WARNING:"
 #define ERROR_MSG "ERROR:"
 
-// MOTOR DEFINITIONS
+/* MOTOR DEFINITIONS */
 #define MOTOR_DEFAULT_MAX_POWER 255
 
-// ENCODER DEFINITIONS
+/* ENCODER DEFINITIONS */
 #define ENCODER_DEFAULT_TICK_RESET 0
-#define ENCODER_RPM_REFRESH_RATE 11
+#define ENCODER_RPS_REFRESH_RATE 11
+#define ENCODER_RPS_BUFFER_SIZE 10
 
-// GENERAL DEFINITIONS
+/* GENERAL DEFINITIONS */
 #define NAME_MAX_SIZE 64
 
 #endif
+/*---DEFINITIONS_H---*/

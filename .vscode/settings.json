@@ -5,6 +5,13 @@
         "drivetrain.h": "c",
         "select.h": "c",
         "curses.h": "c",
-        "pid.h": "c"
-    }
+        "pid.h": "c",
+        "definitions.h": "c",
+        "math.h": "c",
+        "stdint.h": "c",
+        "string.h": "c"
+    },
+    "editor.showFoldingControls": "always",
+    "editor.unfoldOnClickAfterEndOfLine": true,
+    "notebook.showFoldingControls": "always"
 }
