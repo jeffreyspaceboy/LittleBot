@@ -57,7 +57,7 @@ int drivetrain_spin(Drivetrain_t *drivetrain, int left_power, int right_power);
 int drivetrain_stop(Drivetrain_t *drivetrain);
 
 int drivetrain_pid_distance_spin(Drivetrain_t *drivetrain, PID_Controller_t *pid_distance, PID_Controller_t *pid_velocity_left, PID_Controller_t *pid_velocity_right, float distance_target, float tolerance);
-int drivetrain_pid_velocity_spin(Drivetrain_t *drivetrain, float rps);
+int drivetrain_pid_velocity_spin(Drivetrain_t *drivetrain, float rpm);
 
 #ifdef __cplusplus
 }

@@ -27,7 +27,7 @@ Encoder_t encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pi
         .count = ENCODER_DEFAULT_TICK_RESET,
         .prev_count = ENCODER_DEFAULT_TICK_RESET,
         .prev_us = 0U,
-        .rps = 0.0F,
+        .rpm = 0.0F,
         .ratio = encoder_ratio,
     };
     strncpy(new_encoder.name, encoder_name, sizeof(new_encoder.name));
@@ -54,8 +54,8 @@ int encoder_del(Encoder_t *encoder){
 
 
 int encoder_start(Encoder_t *encoder){
-    gpioSetISRFuncEx(encoder->gpio_phase_a, EITHER_EDGE, 100, encoder_event_callback, (void *)encoder);
-    gpioSetISRFuncEx(encoder->gpio_phase_b, EITHER_EDGE, 100, encoder_event_callback, (void *)encoder);
+    gpioSetISRFuncEx(encoder->gpio_phase_a, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, encoder_event_callback, (void *)encoder);
+    gpioSetISRFuncEx(encoder->gpio_phase_b, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, encoder_event_callback, (void *)encoder);
     return encoder_reset(encoder);
 }
 
@@ -79,20 +79,20 @@ float encoder_get_angle_radians(Encoder_t *encoder){
 }
 
 
-float encoder_refresh_rps(Encoder_t *encoder, uint32_t current_us){
-    encoder->rps = ((float)(encoder->count - encoder->prev_count) / (float)(current_us - encoder->prev_us)) * 1000000.0F * encoder->ratio;
+float encoder_refresh_rpm(Encoder_t *encoder, uint32_t current_us){
+    encoder->rpm = ((float)(encoder->count - encoder->prev_count) / (float)(current_us - encoder->prev_us)) * 60000000.0F * encoder->ratio;
     encoder->prev_count = encoder->count;
     encoder->prev_us = current_us;
     float sum = 0;
-    for(int i = ENCODER_RPS_BUFFER_SIZE-1; i >= 1; i--){
-        encoder->prev_rps[i] = encoder->prev_rps[i-1];
-        sum += encoder->prev_rps[i];
+    for(int i = ENCODER_RPM_BUFFER_SIZE-1; i >= 1; i--){
+        encoder->prev_rpm[i] = encoder->prev_rpm[i-1];
+        sum += encoder->prev_rpm[i];
     }
-    encoder->prev_rps[0] = encoder->rps;
-    sum += encoder->prev_rps[0];
-    encoder->avg_rps = sum/ENCODER_RPS_BUFFER_SIZE;
-    encoder->rps = encoder->avg_rps;
-    return encoder->rps;
+    encoder->prev_rpm[0] = encoder->rpm;
+    sum += encoder->prev_rpm[0];
+    encoder->avg_rpm = sum/ENCODER_RPM_BUFFER_SIZE;
+    encoder->rpm = encoder->avg_rpm;
+    return encoder->rpm;
 }
 
 void encoder_event_callback(int gpio, int level, uint32_t current_us, void *data){
@@ -113,9 +113,10 @@ void encoder_event_callback(int gpio, int level, uint32_t current_us, void *data
         }
     } 
 
-    // Refresh RPS every QUARTER rotation of the encoder. (Subject to change)
-    if(encoder->count % ENCODER_RPS_REFRESH_RATE == 0){
-        encoder_refresh_rps(encoder, current_us); 
+    // Refresh RPM every Encoder rotation of the encoder. (Subject to change)
+    // TODO: Make this run even when the motor isn't moving
+    if(encoder->count % ENCODER_RPM_REFRESH_RATE == 0){
+        encoder_refresh_rpm(encoder, current_us); 
     }
     return;
 }

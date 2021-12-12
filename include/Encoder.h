@@ -37,8 +37,8 @@ typedef struct Encoder_t{
     uint8_t gpio_phase_a, gpio_phase_b, prev_gpio; 
     int level_phase_a, level_phase_b, count, prev_count;
     uint32_t prev_us;
-    float rps, avg_rps, ratio;
-    float prev_rps[ENCODER_RPS_BUFFER_SIZE];
+    float rpm, avg_rpm, ratio;
+    float prev_rpm[ENCODER_RPM_BUFFER_SIZE];
 } Encoder_t;
 
 //typedef void (*gpioISRFuncEx_t)(int gpio, int level, uint32_t tick, void *data);
@@ -90,7 +90,7 @@ float encoder_get_angle_radians(Encoder_t *encoder);
  * @param encoder Encoder to be refreshed
  * @param current_tick_us Time (usec) of the most recent encoder phase change (Passed by encoder_event_callback)
  * @return float: New RPS */
-float encoder_refresh_rps(Encoder_t *encoder, uint32_t current_tick_us);
+float encoder_refresh_rpm(Encoder_t *encoder, uint32_t current_tick_us);
 
 /** @brief Phase Interupt Event Callback. (Called by gpioSetISRFuncEx when Encoder Phases change)
  * @param gpio GPIO that caused event

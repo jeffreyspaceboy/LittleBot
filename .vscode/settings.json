@@ -11,7 +11,9 @@
         "stdint.h": "c",
         "string.h": "c",
         "ncurses.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "typeinfo": "c",
+        "stdlib.h": "c"
     },
     "editor.showFoldingControls": "always",
     "editor.unfoldOnClickAfterEndOfLine": true,

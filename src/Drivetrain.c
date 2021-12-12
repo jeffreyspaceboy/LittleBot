@@ -46,26 +46,26 @@ int drivetrain_pid_distance_spin(Drivetrain_t *drivetrain, PID_Controller_t *pid
     return SUCCESS;
 }
 
-int drivetrain_pid_velocity_spin(Drivetrain_t *drivetrain, float rps){
+int drivetrain_pid_velocity_spin(Drivetrain_t *drivetrain, float rpm){
     PID_Controller_t pid_left = pid_init(400.0, 0.000000001, 550.0);
     PID_Controller_t pid_right = pid_init(400.0, 0.000000001, 550.0);
     float tolerance = 0.01;
     int timesGood = 0, turn_bias = 0;
     bool moveComplete = false;
-    float l_rps = motor_get_rps(drivetrain->left_motor);
-    float r_rps = motor_get_rps(drivetrain->right_motor);
-    pid_start(&pid_left, rps, tolerance);
-    pid_start(&pid_right, rps, tolerance);
-    while(!moveComplete && l_rps <= rps*2.0F && r_rps <= rps*2.0F){ 
-        l_rps = motor_get_rps(drivetrain->left_motor);
-        r_rps = motor_get_rps(drivetrain->right_motor);
-        printf("%s (%f | %f)\n", INFO_MSG, l_rps, r_rps);
-        if(l_rps > r_rps){
-            drivetrain_spin(drivetrain, (int)pid_power(&pid_left, l_rps)-turn_bias, (int)pid_power(&pid_right, r_rps));
-        }else if(r_rps > l_rps){
-            drivetrain_spin(drivetrain, (int)pid_power(&pid_left, l_rps), (int)pid_power(&pid_right, r_rps)-turn_bias);
+    float l_rpm = motor_get_rpm(drivetrain->left_motor);
+    float r_rpm = motor_get_rpm(drivetrain->right_motor);
+    pid_start(&pid_left, rpm, tolerance);
+    pid_start(&pid_right, rpm, tolerance);
+    while(!moveComplete && l_rpm <= rpm*2.0F && r_rpm <= rpm*2.0F){ 
+        l_rpm = motor_get_rps(drivetrain->left_motor);
+        r_rpm = motor_get_rps(drivetrain->right_motor);
+        printf("%s (%f | %f)\n", INFO_MSG, l_rpm, r_rpm);
+        if(l_rpm > r_rpm){
+            drivetrain_spin(drivetrain, (int)pid_power(&pid_left, l_rpm)-turn_bias, (int)pid_power(&pid_right, r_rpm));
+        }else if(r_rpm > l_rpm){
+            drivetrain_spin(drivetrain, (int)pid_power(&pid_left, l_rpm), (int)pid_power(&pid_right, r_rpm)-turn_bias);
         }else{
-            drivetrain_spin(drivetrain, (int)pid_power(&pid_left, l_rps), (int)pid_power(&pid_right, r_rps));
+            drivetrain_spin(drivetrain, (int)pid_power(&pid_left, l_rpm), (int)pid_power(&pid_right, r_rpm));
         }
         
         if(fabs(pid_right.error)<=pid_right.error_tolerance && fabs(pid_left.error)<=pid_left.error_tolerance){ timesGood++; }

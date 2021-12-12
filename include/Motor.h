@@ -25,16 +25,19 @@ extern "C" {
  * @param gpio_phase_a GPIO pin for phase A
  * @param gpio_phase_b GPIO pin for phase B
  * @param max_power Max power input to the motor
- * @param Encoder The encoder connected to the motor
+ * @param encoder The encoder connected to the motor
+ * @param pid_velocity_controller A PID controller for velocity control of the motor
  */
 typedef struct Motor_t{
     char name[NAME_MAX_SIZE];
     uint8_t gpio_enable, gpio_phase_a, gpio_phase_b;
     int max_power;
     Encoder_t *encoder;
-    //TODO: ADD PID CONTROLLER
+    PID_Controller_t *pid_velocity_controller;
 } Motor_t;
 
+
+/* MOTOR SETUP FUNCTIONS */
 
 /** @brief Motor initialization.
  * @param encoder_name Name for DEBUG
@@ -44,7 +47,7 @@ typedef struct Motor_t{
  * @param new_encoder Encoder connected to the motor
  * @param reverse Bolean to reverse Phase A & B
  * @return Motor */
-Motor_t motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, Encoder_t *new_encoder, int reverse);
+Motor_t motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, int reverse, Encoder_t *new_encoder, PID_Controller_t *new_pid_velocity_controller);
 
 /** @brief Motor & Encoder destruction.
  * @param motor Motor to be deleted
@@ -52,18 +55,7 @@ Motor_t motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint
 int motor_del(Motor_t *motor);
 
 
-/** @brief Spin the Motor at a given power.
- * @param motor Motor to spin
- * @param power Power to spin the motor at
- * @return int: SUCCESS or FAILURE */
-int motor_spin(Motor_t *motor, int power);
-
-int motor_pid_velocity(Motor_t *motor, PID_Controller_t* pid, float rps_target);
-
-/** @brief Stop the Motor.
- * @param motor Motor to be stopped
- * @return int: SUCCESS or FAILURE */
-int motor_stop(Motor_t *motor);
+/* SET FUNCTIONS */
 
 /** @brief Set the max power of the motor.
  * @param motor Motor to set max power to
@@ -71,6 +63,8 @@ int motor_stop(Motor_t *motor);
  * @return int: SUCCESS or FAILURE */
 int motor_set_max_power(Motor_t *motor, int new_max_power);
 
+
+/* GET FUNCTIONS */
 
 /** @brief Gets rotations from the Encoder.
  * @param motor Motor to get rotations from 
@@ -90,7 +84,27 @@ float motor_get_angle_radians(Motor_t *motor);
 /** @brief Gets rotations per second from the Encoder.
  * @param motor Motor to get RPS from
  * @return float: Motor RPS*/
-float motor_get_rps(Motor_t *motor);
+float motor_get_rpm(Motor_t *motor);
+
+
+/* MOTION FUNCTIONS */
+
+/** @brief Spin the Motor at a given power.
+ * @param motor Motor to spin
+ * @param power Power to spin the motor at
+ * @return int: SUCCESS or FAILURE */
+int motor_spin(Motor_t *motor, int power);
+
+/** @brief Sets velocity using the pid_velocity_controller.
+ * @param motor Motor to control
+ * @param rps_target RPM target
+ * @return float: RPM that was set by the PID controller */
+float motor_set_velocity(Motor_t *motor, float rpm_target);
+
+/** @brief Stop the Motor.
+ * @param motor Motor to be stopped
+ * @return int: SUCCESS or FAILURE */
+int motor_stop(Motor_t *motor);
 
 
 #ifdef __cplusplus

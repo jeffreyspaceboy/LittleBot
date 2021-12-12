@@ -36,15 +36,15 @@ int main(int argc, char * argv[]){
 
     /*---ROBOT-CODE-HERE---*/
     Encoder_t left_encoder = encoder_init("LEFT_ENCODER", L_ENC_A, L_ENC_B,  1/(44.0*21.3), false);
-    Motor_t left_motor = motor_init("LEFT_MOTOR", L_MTR_EN, L_MTR_A, L_MTR_B, &left_encoder, true);
     PID_Controller_t pid_velocity_left = pid_init(4.0F, 0.001F, 0.03F);
+    Motor_t left_motor = motor_init("LEFT_MOTOR", L_MTR_EN, L_MTR_A, L_MTR_B, true, &left_encoder, &pid_velocity_left);
 
     Encoder_t right_encoder = encoder_init("RIGHT_ENCODER", R_ENC_A, R_ENC_B,  1/(44.0*21.3), true);
-    Motor_t right_motor = motor_init("RIGHT_MOTOR", R_MTR_EN, R_MTR_A, R_MTR_B, &right_encoder, false);
     PID_Controller_t pid_velocity_right = pid_init(4.0F, 0.001F, 0.03F);
-
+    Motor_t right_motor = motor_init("RIGHT_MOTOR", R_MTR_EN, R_MTR_A, R_MTR_B, false, &right_encoder, &pid_velocity_right);
+    
     Drivetrain_t drivetrain = drivetrain_init("DRIVETRAIN", &left_motor, &right_motor);
-    PID_Controller_t pid_distance = pid_init(0.005F, 0.0000000F, 0.00F);
+    //PID_Controller_t pid_distance = pid_init(0.005F, 0.0000000F, 0.00F);
     /*---ROBOT-CODE-HERE---*/
     
     //drivetrain_pid_distance_spin(&drivetrain, 2.0F);
@@ -55,10 +55,9 @@ int main(int argc, char * argv[]){
         signal(SIGINT, signal_handler);
 
         /*---ROBOT-CODE-HERE---*/
-        //drivetrain_pid_distance_spin(&drivetrain, &pid_distance, &pid_velocity_left, &pid_velocity_right, 2.0F, 0.05F);
-        motor_pid_velocity(&left_motor, &pid_velocity_left, 2.0F);
-        motor_pid_velocity(&right_motor, &pid_velocity_right, 2.0F);
-        printf("%f, %f\n", motor_get_rps(&left_motor),  motor_get_rps(&right_motor));
+        motor_pid_velocity(&left_motor, 100.0F);
+        motor_pid_velocity(&right_motor, 100.0F);
+        printf("%f, %f\n", motor_get_rpm(&left_motor),  motor_get_rpm(&right_motor));
         gpioSleep(PI_TIME_RELATIVE, 0, 5000);
         /*---ROBOT-CODE-HERE---*/
         
