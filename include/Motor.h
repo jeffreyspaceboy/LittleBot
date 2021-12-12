@@ -76,12 +76,12 @@ float motor_get_rotations(Motor *motor);
 /** @brief Gets angle in degrees from the Encoder.
  * @param motor Motor to get angel from 
  * @return float: Angle in degrees */
-float motor_get_degrees(Motor *motor);
+float motor_get_angle_degrees(Motor *motor);
 
 /** @brief Gets angle in radians from the Encoder.
  * @param motor Motor to get angel from 
  * @return float: Angle in radians */
-float motor_get_radians(Motor *motor);
+float motor_get_angle_radians(Motor *motor);
 
 /** @brief Gets rotations per second from the Encoder.
  * @param motor Motor to get RPS from

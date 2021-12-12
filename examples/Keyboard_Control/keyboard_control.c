@@ -14,7 +14,6 @@
 #include <sys/time.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <signal.h>
 
 /* NON-STANDARD INCLUDES */
 #include <pigpio.h>
@@ -22,22 +21,15 @@
 
 /*
 BUILD:
-gcc -Wall -pthread -o keyboard_control keyboard_control_main.c src/Drivetrain.c src/Motor.c src/Encoder.c -lpigpio -lrt -lncurses -ltinfo
+gcc -Wall -pthread -o keyboard_control keyboard_control.c ../../src/Encoder.c ../../src/Motor.c ../../src/Drivetrain.c -lpigpio -lrt -lncurses -ltinfo
 
 RUN:
 sudo ./keyboard_control
 */
 
-/* Signal Handler for SIGINT */
-void sigintHandler(int sig_num){
-    printf("\n%s FORCED TO EXIT W/ CTRL+C\n", WARNING_MSG);
-    gpioTerminate();
-}
-
 #define MAX_KEY_DELTA_US 500000ULL
 uint64_t get_us() {
     struct timeval tv;
-    uint64_t cur_us;
     gettimeofday(&tv,NULL);
     return (uint64_t)tv.tv_sec * 1000000ULL + (uint64_t)tv.tv_usec;
 }
@@ -73,7 +65,6 @@ keyeevent_t check_key(keystate_t *kstate, int ch) {
 }
 
 int main() {
-    signal(SIGINT, sigintHandler);
     if (gpioInitialise() < 0) { return FAILURE; }
     Encoder left_encoder = encoder_init("LEFT_ENCODER", L_ENC_A, L_ENC_B,  1/(44.0*21.3), false);
     Motor left_motor = motor_init("LEFT_MOTOR", L_MTR_EN, L_MTR_A, L_MTR_B, &left_encoder, true);
@@ -95,20 +86,19 @@ int main() {
         switch(evt) {
             case eKEY_DOWN:
                 printw("Key[%llu] 0x%02x down\n",keystate.last_us,(uint8_t)ch);
-                drivetrain_spin(&drivetrain, -speed, -speed);
+                drivetrain_spin(&drivetrain, speed, speed);
                 break;
             case eKEY_UP:
                 printw("Key[%llu] 0x%02x up\n",keystate.delta_us,(uint8_t)ch);
-                drivetrain_spin(&drivetrain, speed, speed);
+                drivetrain_spin(&drivetrain, 0, 0);
                 break;
             case eKEY_REPEAT:
                 printw("Key[%llu] 0x%02x repeat\n",keystate.last_us,(uint8_t)ch);
                 break;
             case eKEY_NOKEY:
-                drivetrain_spin(&drivetrain, 0, 0);
                 break;
         }
-        usleep(1000);
+        usleep(10000);
     }
     getch();
     endwin();

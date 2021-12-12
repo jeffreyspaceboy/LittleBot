@@ -75,12 +75,12 @@ float motor_get_rotations(Motor *motor){
     return encoder_get_rotations(motor->encoder);
 }
 
-float motor_get_degrees(Motor *motor){
-    return encoder_get_degrees(motor->encoder);
+float motor_get_angle_degrees(Motor *motor){
+    return encoder_get_angle_degrees(motor->encoder);
 }
 
-float motor_get_radians(Motor *motor){
-    return encoder_get_radians(motor->encoder);
+float motor_get_angle_radians(Motor *motor){
+    return encoder_get_angle_radians(motor->encoder);
 }
 
 float motor_get_rps(Motor *motor){
