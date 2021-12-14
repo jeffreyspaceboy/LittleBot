@@ -6,8 +6,8 @@
 /*----------------------------------------------------------------------------*/
 
 /* LOCAL INCLUDES */
-#include "include/Drivetrain.h"
-#include "include/PID.h"
+#include "Drivetrain.h"
+#include "PID.h"
 
 /* STANDARD INCLUDES */
 #include <stdint.h>
@@ -49,13 +49,14 @@ int main(int argc, char * argv[]){
     Drivetrain_t drivetrain = drivetrain_init("DRIVETRAIN", &left_motor, &right_motor);
     /*---ROBOT-CODE-HERE---/\---*/
     
+    float rpm_target = 130.0F;
+    float left_power, right_power;
     while(RUNNING){
         signal(SIGINT, signal_handler);
 
         /*---ROBOT-CODE-HERE---\/---*/
-        float rpm_target = 130.0F;
-        float left_power = motor_set_rpm(&left_motor, rpm_target);
-        float right_power = motor_set_rpm(&right_motor, rpm_target);
+        left_power = motor_set_rpm(&left_motor, rpm_target);
+        right_power = motor_set_rpm(&right_motor, rpm_target);
         printf("L:(%f|%f) R:(%f|%f)\n", motor_get_rpm(&left_motor), left_power, motor_get_rpm(&right_motor), right_power);
         gpioSleep(PI_TIME_RELATIVE, 0, 5000);
         /*---ROBOT-CODE-HERE---/\---*/

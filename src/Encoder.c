@@ -6,7 +6,7 @@
 /*----------------------------------------------------------------------------*/
 
 /* LOCAL INCLUDES */
-#include "../include/Encoder.h"
+#include "Encoder.h"
 
 /* NON-STANDARD INCLUDES */
 #include <pigpio.h>
@@ -80,6 +80,7 @@ float encoder_get_angle_radians(Encoder_t *encoder){
 
 
 float encoder_refresh_rpm(Encoder_t *encoder, uint32_t current_us){
+    //TODO: Call this function at a set Freq, not based on encoder events.
     encoder->rpm = ((float)(encoder->count - encoder->prev_count) / (float)(current_us - encoder->prev_us)) * 60000000.0F * encoder->ratio;
     encoder->prev_count = encoder->count;
     encoder->prev_us = current_us;
@@ -114,7 +115,6 @@ void encoder_event_callback(int gpio, int level, uint32_t current_us, void *data
     } 
 
     // Refresh RPM every Encoder rotation of the encoder. (Subject to change)
-    // TODO: Make this run even when the motor isn't moving
     if(encoder->count % ENCODER_RPM_REFRESH_RATE == 0){
         encoder_refresh_rpm(encoder, current_us); 
     }

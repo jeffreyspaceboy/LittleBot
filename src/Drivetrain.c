@@ -6,7 +6,7 @@
 /*----------------------------------------------------------------------------*/
 
 /* LOCAL INCLUDES */
-#include "../include/Drivetrain.h"
+#include "Drivetrain.h"
 
 /* NON-STANDARD INCLUDES */
 #include <pigpio.h>

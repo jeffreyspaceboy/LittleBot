@@ -6,7 +6,7 @@
 /*----------------------------------------------------------------------------*/
 
 /* LOCAL INCLUDES */
-#include "../include/Motor.h"
+#include "Motor.h"
 
 /* NON-STANDARD INCLUDES */
 #include <pigpio.h>
@@ -102,15 +102,19 @@ int motor_spin(Motor_t *motor, int power){
 }
 
 float motor_set_rpm(Motor_t *motor, float rpm_target){
+    //TODO: Make this run automatically at a uniform frequency
+    //TODO: Use Mutex Locking to allow for multi-threding (Lock at start and Unlock at end)
+    pthread_mutex_lock(motor->lock);
     if(motor->pid_velocity_controller == NULL){ 
         printf("%s(%s) This motor has not been setup with a PID Velocity Controller.\n", ERROR_MSG, motor->name); 
         motor_spin(motor, 0);
         return 0; 
     }
     if(!motor->pid_velocity_controller->enabled){ pid_start(motor->pid_velocity_controller, rpm_target, 0.0); }
-    float power = pid_power(motor->pid_velocity_controller, motor_get_rpm(motor));
-    motor_spin(motor, (int)power);
-    return power;
+    int power = (int)pid_power(motor->pid_velocity_controller, motor_get_rpm(motor));
+    motor_spin(motor, power);
+    pthread_mutex_unlock(motor->lock);
+    return (float)power;
 }
 
 int motor_stop(Motor_t *motor){

@@ -17,6 +17,7 @@ extern "C" {
 
 /* STANDARD INCLUDES */
 #include <stdint.h>
+#include <pthread.h>
 
 
 /** @brief MOTOR TYPE - used to define a dual phase motor w/ encoder.
@@ -34,6 +35,8 @@ typedef struct Motor_t{
     int max_power;
     Encoder_t *encoder;
     PID_Controller_t *pid_velocity_controller;
+    pthread_mutex_t *lock;
+
 } Motor_t;
 
 
