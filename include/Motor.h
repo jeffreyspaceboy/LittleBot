@@ -35,8 +35,7 @@ typedef struct Motor_t{
     int max_power;
     Encoder_t *encoder;
     PID_Controller_t *pid_velocity_controller;
-    pthread_mutex_t *lock;
-
+    pthread_mutex_t *mutex;
 } Motor_t;
 
 

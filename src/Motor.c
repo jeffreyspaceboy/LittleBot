@@ -31,6 +31,10 @@ Motor_t motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint
         .pid_velocity_controller = new_pid_velocity_controller,
     };
     strncpy(new_motor.name, motor_name, sizeof(new_motor.name));
+    if(pthread_mutex_init(new_motor.mutex, NULL) != 0){
+        printf("%s(%s) Motor mutex init failed.\n",ERROR_MSG,new_motor.name);
+        return new_motor;
+    }
     gpioSetMode(new_motor.gpio_enable, PI_OUTPUT);
     gpioSetMode(new_motor.gpio_phase_a, PI_OUTPUT);
     gpioSetMode(new_motor.gpio_phase_b, PI_OUTPUT);
@@ -41,6 +45,7 @@ Motor_t motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint
 
 int motor_del(Motor_t *motor){ 
     if(motor->encoder != NULL){ encoder_del(motor->encoder); }
+    pthread_mutex_destroy(motor->mutex);
     return motor_stop(motor);  
 }
 
@@ -104,7 +109,7 @@ int motor_spin(Motor_t *motor, int power){
 float motor_set_rpm(Motor_t *motor, float rpm_target){
     //TODO: Make this run automatically at a uniform frequency
     //TODO: Use Mutex Locking to allow for multi-threding (Lock at start and Unlock at end)
-    pthread_mutex_lock(motor->lock);
+    pthread_mutex_lock(motor->mutex);
     if(motor->pid_velocity_controller == NULL){ 
         printf("%s(%s) This motor has not been setup with a PID Velocity Controller.\n", ERROR_MSG, motor->name); 
         motor_spin(motor, 0);
@@ -113,7 +118,7 @@ float motor_set_rpm(Motor_t *motor, float rpm_target){
     if(!motor->pid_velocity_controller->enabled){ pid_start(motor->pid_velocity_controller, rpm_target, 0.0); }
     int power = (int)pid_power(motor->pid_velocity_controller, motor_get_rpm(motor));
     motor_spin(motor, power);
-    pthread_mutex_unlock(motor->lock);
+    pthread_mutex_unlock(motor->mutex);
     return (float)power;
 }
 

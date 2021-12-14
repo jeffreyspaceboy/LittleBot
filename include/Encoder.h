@@ -15,6 +15,7 @@ extern "C" {
 
 /* STANDARD INCLUDES */
 #include <stdint.h>
+#include <pthread.h>
 
 
 /** @brief ENCODER TYPE - used to define a dual phase encoder.
@@ -39,6 +40,7 @@ typedef struct Encoder_t{
     uint32_t prev_us;
     float rpm, avg_rpm, ratio;
     float prev_rpm[ENCODER_RPM_BUFFER_SIZE];
+    pthread_mutex_t *mutex;
 } Encoder_t;
 
 //typedef void (*gpioISRFuncEx_t)(int gpio, int level, uint32_t tick, void *data);
