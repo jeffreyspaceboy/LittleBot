@@ -32,10 +32,13 @@ extern "C" {
 typedef struct Motor_t{
     char name[NAME_MAX_SIZE];
     uint8_t gpio_enable, gpio_phase_a, gpio_phase_b;
+    float rpm_target;
     int max_power;
     Encoder_t *encoder;
     PID_Controller_t *pid_velocity_controller;
-    pthread_mutex_t *mutex;
+
+    pthread_t encoder_thread;
+    pthread_mutex_t mutex;
 } Motor_t;
 
 
@@ -107,6 +110,8 @@ float motor_set_rpm(Motor_t *motor, float rpm_target);
  * @param motor Motor to be stopped
  * @return int: SUCCESS or FAILURE */
 int motor_stop(Motor_t *motor);
+
+void *motor_control_thread(void *arg);
 
 
 #ifdef __cplusplus

@@ -4,7 +4,7 @@
 /*----------------------------------------------------------------------------*/
 /*    Module:       Encoder.h                                                 */
 /*    Author:       Jeffrey Fisher II                                         */
-/*    Created:      2021-12-11                                                */
+/*    Created:      2021-12-15                                                */
 /*----------------------------------------------------------------------------*/
 #ifdef __cplusplus
 extern "C" {
@@ -40,10 +40,8 @@ typedef struct Encoder_t{
     uint32_t prev_us;
     float rpm, avg_rpm, ratio;
     float prev_rpm[ENCODER_RPM_BUFFER_SIZE];
-    pthread_mutex_t *mutex;
+    pthread_mutex_t mutex;
 } Encoder_t;
-
-//typedef void (*gpioISRFuncEx_t)(int gpio, int level, uint32_t tick, void *data);
 
 
 /** @brief Encoder initialization.
@@ -88,11 +86,10 @@ float encoder_get_angle_degrees(Encoder_t *encoder);
 float encoder_get_angle_radians(Encoder_t *encoder);
 
 
-/** @brief Updates encoder RPS. (Called every quarter encoder rotation by encoder_event_callback)
+/** @brief Updates encoder RPS.
  * @param encoder Encoder to be refreshed
- * @param current_tick_us Time (usec) of the most recent encoder phase change (Passed by encoder_event_callback)
  * @return float: New RPS */
-float encoder_refresh_rpm(Encoder_t *encoder, uint32_t current_tick_us);
+float encoder_refresh_rpm(Encoder_t *encoder);
 
 /** @brief Phase Interupt Event Callback. (Called by gpioSetISRFuncEx when Encoder Phases change)
  * @param gpio GPIO that caused event
@@ -100,6 +97,8 @@ float encoder_refresh_rpm(Encoder_t *encoder, uint32_t current_tick_us);
  * @param tick Time (usec) of the encoder phase change
  * @param data Encoder Pointer*/
 void encoder_event_callback(int gpio, int level, uint32_t tick, void *data);
+
+void *encoder_control_thread(void *arg);
 
 
 #ifdef __cplusplus

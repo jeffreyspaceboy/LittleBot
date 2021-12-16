@@ -16,6 +16,7 @@
 #include <math.h>
 #include <signal.h>
 #include <unistd.h>
+#include <pthread.h>
 
 /* NON-STANDARD INCLUDES */
 #include <pigpio.h>
@@ -47,6 +48,9 @@ int main(int argc, char * argv[]){
     Motor_t right_motor = motor_init("RIGHT_MOTOR", R_MTR_EN, R_MTR_A, R_MTR_B, false, &right_encoder, &pid_velocity_right);
     
     Drivetrain_t drivetrain = drivetrain_init("DRIVETRAIN", &left_motor, &right_motor);
+    
+    pthread_t left_motor_thread;
+    pthread_create(&left_motor_thread, NULL, motor_control_thread, (void *)&left_motor);
     /*---ROBOT-CODE-HERE---/\---*/
     
     float rpm_target = 130.0F;
@@ -56,7 +60,7 @@ int main(int argc, char * argv[]){
 
         /*---ROBOT-CODE-HERE---\/---*/
         left_power = motor_set_rpm(&left_motor, rpm_target);
-        right_power = motor_set_rpm(&right_motor, rpm_target);
+        //right_power = motor_set_rpm(&right_motor, rpm_target);
         printf("L:(%f|%f) R:(%f|%f)\n", motor_get_rpm(&left_motor), left_power, motor_get_rpm(&right_motor), right_power);
         gpioSleep(PI_TIME_RELATIVE, 0, 5000);
         /*---ROBOT-CODE-HERE---/\---*/
@@ -65,6 +69,8 @@ int main(int argc, char * argv[]){
     }
 
     printf("\n\n===STOPPING=ROBOT===\n\n");
+    pthread_cancel(left_motor_thread);
+
     drivetrain_del(&drivetrain);
     gpioWrite_Bits_0_31_Clear(0xFFFFFFFF);
     gpioWrite_Bits_32_53_Clear(0x0003FFFF);
