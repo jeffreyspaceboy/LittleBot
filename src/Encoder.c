@@ -37,11 +37,8 @@ Encoder_t encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pi
     }
     pthread_mutex_lock(&new_encoder.mutex);
     strncpy(new_encoder.name, encoder_name, sizeof(new_encoder.name));
-    //Clear rps buffer
-    for(int i = 0; i < ENCODER_RPM_BUFFER_SIZE; i++){
-        new_encoder.prev_rpm[i] = 0.0F;
-    }
-
+    //Clear RPM Buffer
+    for(int i = 0; i < ENCODER_RPM_BUFFER_SIZE; i++){ new_encoder.prev_rpm[i] = 0.0F; }
     gpioSetMode(new_encoder.gpio_phase_a, PI_INPUT);
     gpioSetMode(new_encoder.gpio_phase_b, PI_INPUT);
     gpioSetPullUpDown(new_encoder.gpio_phase_a, PI_PUD_UP);
@@ -50,10 +47,15 @@ Encoder_t encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pi
     return new_encoder;
 }
 
+int encoder_create_thread(Encoder_t *encoder){
+    pthread_create(&encoder->thread, NULL, encoder_control_thread, (void *)encoder);
+}
+
 int encoder_del(Encoder_t *encoder){
     pthread_mutex_lock(&encoder->mutex);
     encoder->enabled = false;
     pthread_mutex_unlock(&encoder->mutex);
+    pthread_join(encoder->thread, NULL);
     pthread_mutex_destroy(&encoder->mutex);
     return SUCCESS;
 }

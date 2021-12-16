@@ -51,13 +51,15 @@ int drivetrain_del(Drivetrain_t *drivetrain);
  * @return int: SUCCESS or FAILURE */
 int drivetrain_spin(Drivetrain_t *drivetrain, int left_power, int right_power);
 
+int drivetrain__set_rpm(Drivetrain_t *drivetrain, float left_rpm_target, float right_rpm_target);
+
 /** @brief Stop the drivetrain motors.
  * @param drivetrain Drivetrain to be stopped
  * @return int: SUCCESS or FAILURE */
 int drivetrain_stop(Drivetrain_t *drivetrain);
 
-int drivetrain_pid_distance_spin(Drivetrain_t *drivetrain, PID_Controller_t *pid_distance, float distance_target, float tolerance);
-int drivetrain_pid_velocity_spin(Drivetrain_t *drivetrain, float rpm);
+// int drivetrain_pid_distance_spin(Drivetrain_t *drivetrain, PID_Controller_t *pid_distance, float distance_target, float tolerance);
+// int drivetrain_pid_velocity_spin(Drivetrain_t *drivetrain, float rpm);
 
 #ifdef __cplusplus
 }

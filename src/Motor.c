@@ -44,19 +44,28 @@ Motor_t motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint
     gpioSetMode(new_motor.gpio_phase_b, PI_OUTPUT);
     pthread_mutex_unlock(&new_motor.mutex);
     motor_stop(&new_motor);
-    if(new_motor.encoder != NULL){ encoder_start(new_motor.encoder); }
-    //pthread_create(&new_motor.encoder_thread, NULL, encoder_control_thread, (void *)new_motor.encoder);
+    if(new_motor.encoder != NULL){ 
+        encoder_create_thread(new_motor.encoder);
+        encoder_start(new_motor.encoder); 
+    }
     pthread_mutex_unlock(&new_motor.mutex);
     return new_motor;
+}
+
+int motor_create_thread(Motor_t *motor){
+    pthread_create(&motor->thread, NULL, motor_control_thread, (void *)motor);
+    return SUCCESS;
 }
 
 int motor_del(Motor_t *motor){ 
     pthread_mutex_lock(&motor->mutex);
     motor->enabled = false;
-    //pthread_cancel(motor->encoder_thread);
-    if(motor->encoder != NULL){ encoder_del(motor->encoder); }
     pthread_mutex_unlock(&motor->mutex);
+    if(motor->encoder != NULL){ 
+        encoder_del(motor->encoder); 
+    }
     motor_set_rpm(motor, 0);
+    pthread_join(motor->thread, NULL);
     motor_stop(motor);
     pthread_mutex_destroy(&motor->mutex);
     return SUCCESS;
@@ -70,6 +79,13 @@ int motor_set_max_power(Motor_t *motor, int new_max_power){
     motor->max_power = new_max_power;
     pthread_mutex_unlock(&motor->mutex);
     return new_max_power;
+}
+
+float motor_set_rpm(Motor_t *motor, float rpm_target){
+    pthread_mutex_lock(&motor->mutex);
+    motor->rpm_target = rpm_target;
+    pthread_mutex_unlock(&motor->mutex);
+    return rpm_target;
 }
 
 
@@ -111,10 +127,12 @@ int motor_get_power(Motor_t *motor){
     return power;
 }
 
+
 /* MOTION FUNCTIONS */
 
 int motor_spin(Motor_t *motor, int power){
     pthread_mutex_lock(&motor->mutex);
+    motor->power = power;
     if(abs(power) > motor->max_power){
         gpioPWM(motor->gpio_enable, motor->max_power);
     }else{
@@ -133,13 +151,6 @@ int motor_spin(Motor_t *motor, int power){
     }
     pthread_mutex_unlock(&motor->mutex);
     return SUCCESS;
-}
-
-float motor_set_rpm(Motor_t *motor, float rpm_target){
-    pthread_mutex_lock(&motor->mutex);
-    motor->rpm_target = rpm_target;
-    pthread_mutex_unlock(&motor->mutex);
-    return rpm_target;
 }
 
 int motor_stop(Motor_t *motor){
@@ -163,9 +174,9 @@ void *motor_control_thread(void *arg){
     while(motor->enabled){
         pthread_mutex_lock(&motor->mutex);
         if(!motor->pid_velocity_controller->enabled){ pid_start(motor->pid_velocity_controller, motor->rpm_target, 0.0); }
-        motor->power = (int)pid_power(motor->pid_velocity_controller, motor_get_rpm(motor));
+        int power = (int)pid_power(motor->pid_velocity_controller, motor_get_rpm(motor));
         pthread_mutex_unlock(&motor->mutex);
-        motor_spin(motor, motor->power);
+        motor_spin(motor, power);
         gpioSleep(PI_TIME_RELATIVE, 0, MOTOR_REFRESH_RATE);
     }
     motor_stop(motor);

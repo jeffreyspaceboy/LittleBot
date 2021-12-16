@@ -23,6 +23,8 @@
 #include <curses.h>
 
 // BUILD:
+// make
+// --or--
 // gcc -Wall -pthread -o little_bot main.c src/Encoder.c src/Motor.c src/PID.c src/Drivetrain.c -lpigpio -lrt -lncurses -ltinfo
 // RUN:
 // sudo ./little_bot
@@ -37,48 +39,38 @@ int main(int argc, char * argv[]){
 
     /*---ROBOT-CODE-HERE---\/---*/
     Encoder_t left_encoder = encoder_init("LEFT_ENCODER", L_ENC_A, L_ENC_B,  1/(44.0*21.3), false);
-    //PID_Controller_t pid_velocity_left = pid_init(4.0F, 0.001F, 0.03F); //RPS
-    //PID_Controller_t pid_velocity_left = pid_init(4.0F, 0.000005F, 0.5F); //RPM //First good Setup
-    PID_Controller_t pid_velocity_left = pid_init(3.5F, 0.00001F, 0.0001F); //RPM //Tuning First Setup
+    PID_Controller_t pid_velocity_left = pid_init(3.5F, 0.00001F, 0.0001F);
     Motor_t left_motor = motor_init("LEFT_MOTOR", L_MTR_EN, L_MTR_A, L_MTR_B, true, &left_encoder, &pid_velocity_left);
 
     Encoder_t right_encoder = encoder_init("RIGHT_ENCODER", R_ENC_A, R_ENC_B,  1/(44.0*21.3), true);
-    //PID_Controller_t pid_velocity_right = pid_init(4.0F, 0.001F, 0.03F); //RPS
-    PID_Controller_t pid_velocity_right = pid_init(3.5F, 0.000005F, 0.1F); //RPM //Tuning First Setup
+    PID_Controller_t pid_velocity_right = pid_init(3.5F, 0.00001F, 0.0001F);
     Motor_t right_motor = motor_init("RIGHT_MOTOR", R_MTR_EN, R_MTR_A, R_MTR_B, false, &right_encoder, &pid_velocity_right);
     
     Drivetrain_t drivetrain = drivetrain_init("DRIVETRAIN", &left_motor, &right_motor);
     
-    pthread_t left_encoder_thread, left_motor_thread;
-    pthread_create(&left_encoder_thread, NULL, encoder_control_thread, (void *)&left_encoder);
-    pthread_create(&left_motor_thread, NULL, motor_control_thread, (void *)&left_motor);
     /*---ROBOT-CODE-HERE---/\---*/
     
-    float rpm_target = 50.0F;
+    float rpm_target = 60.0F;
     float left_power, right_power;
     while(RUNNING){
         signal(SIGINT, signal_handler);
 
         /*---ROBOT-CODE-HERE---\/---*/
-        left_power = motor_set_rpm(&left_motor, rpm_target);
-        //right_power = motor_set_rpm(&right_motor, rpm_target);
+        drivetrain__set_rpm(&drivetrain, rpm_target, rpm_target);
         printf("L:(%f|%d) R:(%f|%d)\n", motor_get_rpm(&left_motor), left_motor.power, motor_get_rpm(&right_motor), right_motor.power);
-        gpioSleep(PI_TIME_RELATIVE, 0, 5000);
+        gpioSleep(PI_TIME_RELATIVE, 0, 50000);
         /*---ROBOT-CODE-HERE---/\---*/
         
         if(STATUS != SUCCESS){ break; }
     }
 
-    printf("\n\n===STOPPING=ROBOT===\n\n");
+    printf("\n===STOPPING=ROBOT===\n");
     drivetrain_del(&drivetrain);
-
-    pthread_join(left_encoder_thread, 0);
-    pthread_join(left_motor_thread, 0);
 
     gpioWrite_Bits_0_31_Clear(0xFFFFFFFF);
     gpioWrite_Bits_32_53_Clear(0x0003FFFF);
     gpioTerminate();
-    printf("\n\n===ROBOT=DONE===\n\n");
+    printf("\n===ROBOT=DONE===\n");
     pthread_exit(NULL);
     return SUCCESS;
 }
