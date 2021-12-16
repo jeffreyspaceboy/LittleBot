@@ -22,7 +22,6 @@ all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS)
-	$(MAKE) clean
 
 clean:
 	rm *.o src/*.o src/*.d
