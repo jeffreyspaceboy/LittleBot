@@ -30,14 +30,15 @@ extern "C" {
  * @param pid_velocity_controller A PID controller for velocity control of the motor
  */
 typedef struct Motor_t{
+    bool enabled;
     char name[NAME_MAX_SIZE];
     uint8_t gpio_enable, gpio_phase_a, gpio_phase_b;
     float rpm_target;
-    int max_power;
+    int power, max_power;
     Encoder_t *encoder;
     PID_Controller_t *pid_velocity_controller;
 
-    pthread_t encoder_thread;
+    //pthread_t encoder_thread;
     pthread_mutex_t mutex;
 } Motor_t;
 

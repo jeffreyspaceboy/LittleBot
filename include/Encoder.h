@@ -15,6 +15,7 @@ extern "C" {
 
 /* STANDARD INCLUDES */
 #include <stdint.h>
+#include <stdbool.h>
 #include <pthread.h>
 
 
@@ -34,6 +35,7 @@ extern "C" {
  * @param ratio The ratio from encoder ticks to the desired axis of rotation. aka Wheel Rotation Per Encoder Ticks
 */
 typedef struct Encoder_t{
+    bool enabled;
     char name[NAME_MAX_SIZE];
     uint8_t gpio_phase_a, gpio_phase_b, prev_gpio; 
     int level_phase_a, level_phase_b, count, prev_count;

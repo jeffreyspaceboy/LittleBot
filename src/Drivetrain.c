@@ -28,7 +28,9 @@ Drivetrain_t drivetrain_init(char drivetrain_name[NAME_MAX_SIZE], Motor_t *left_
 }
 
 int drivetrain_del(Drivetrain_t *drivetrain){
-    return motor_del(drivetrain->left_motor) || motor_del(drivetrain->right_motor);  
+    motor_del(drivetrain->left_motor);
+    motor_del(drivetrain->right_motor);
+    return SUCCESS;
 }
 
 int drivetrain_spin(Drivetrain_t *drivetrain, int left_power, int right_power){

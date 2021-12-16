@@ -15,11 +15,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <stdbool.h>
 
 
 Encoder_t encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin,  float encoder_ratio, int reverse){
     Encoder_t new_encoder = {
+        .enabled = true,
         .gpio_phase_a = (reverse == 0) ? gpio_phase_a_pin : gpio_phase_b_pin,
         .gpio_phase_b = (reverse == 0) ? gpio_phase_b_pin : gpio_phase_a_pin,
         .prev_gpio = -1, // GPIO does not exist
@@ -52,10 +52,7 @@ Encoder_t encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pi
 
 int encoder_del(Encoder_t *encoder){
     pthread_mutex_lock(&encoder->mutex);
-    gpioSetISRFuncEx(encoder->gpio_phase_a, EITHER_EDGE, 0, NULL, (void *)NULL);
-    gpioSetISRFuncEx(encoder->gpio_phase_b, EITHER_EDGE, 0, NULL, (void *)NULL);
-    gpioSetPullUpDown(encoder->gpio_phase_a, PI_PUD_OFF);
-    gpioSetPullUpDown(encoder->gpio_phase_b, PI_PUD_OFF);
+    encoder->enabled = false;
     pthread_mutex_unlock(&encoder->mutex);
     pthread_mutex_destroy(&encoder->mutex);
     return SUCCESS;
@@ -102,16 +99,14 @@ float encoder_refresh_rpm(Encoder_t *encoder){
     encoder->prev_count = encoder->count;
     encoder->prev_us = current_us;
     // UNCOMMENT FOR RPM AVERAGING:
-    // float sum = 0;
-    // for(int i = ENCODER_RPM_BUFFER_SIZE-1; i >= 1; i--){
-    //     encoder->prev_rpm[i] = encoder->prev_rpm[i-1];
-    //     sum += encoder->prev_rpm[i];
-    // }
-    // encoder->prev_rpm[0] = encoder->rpm;
-    // sum += encoder->prev_rpm[0];
-    // encoder->avg_rpm = sum/ENCODER_RPM_BUFFER_SIZE;
-    // encoder->rpm = encoder->avg_rpm;
-    float rpm = encoder->rpm;
+    float sum = 0;
+    for(int i = ENCODER_RPM_BUFFER_SIZE-1; i >= 1; i--){
+        encoder->prev_rpm[i] = encoder->prev_rpm[i-1];
+        sum += encoder->prev_rpm[i];
+    }
+    encoder->prev_rpm[0] = encoder->rpm;
+    sum += encoder->prev_rpm[0];
+    float rpm = encoder->rpm = sum/ENCODER_RPM_BUFFER_SIZE;
     pthread_mutex_unlock(&encoder->mutex);
     return rpm;
 }
@@ -140,7 +135,7 @@ void encoder_event_callback(int gpio, int level, uint32_t current_us, void *data
 
 void *encoder_control_thread(void *arg){
     Encoder_t *encoder = (Encoder_t *) arg;
-    while(true){
+    while(encoder->enabled){
         encoder_refresh_rpm(encoder);
         gpioSleep(PI_TIME_RELATIVE, 0, ENCODER_REFRESH_RATE);
     }
