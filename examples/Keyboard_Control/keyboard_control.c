@@ -6,8 +6,8 @@
 /*----------------------------------------------------------------------------*/
 
 /* LOCAL INCLUDES */
-#include "../../include/Drivetrain.h"
-#include "../../include/PID.h"
+#include "Drivetrain.h"
+#include "PID.h"
 
 /* STANDARD INCLUDES */
 #include <stdio.h>
@@ -89,8 +89,7 @@ int main() {
     noecho();
     nodelay(win, TRUE);
 
-    int target = 230;
-    float left_power = 0.0F, right_power = 0.0F;
+    int target = 255;
     refresh();
     while(RUNNING){
         signal(SIGINT, signal_handler);
@@ -101,27 +100,22 @@ int main() {
                 //printf("Key[%lu] 0x%02x down\r\n",keystate.last_us,(uint8_t)ch);
                 switch(ch){
                     case 'w':
-                        left_power = motor_spin(&left_motor, target);
-                        right_power = motor_spin(&right_motor, target);
+                        drivetrain_spin(&drivetrain, target, target);
                         break;
                     case 's':
-                        left_power = motor_spin(&left_motor, -target);
-                        right_power = motor_spin(&right_motor, -target);
+                        drivetrain_spin(&drivetrain, -target, -target);
                         break;
                     case 'd':
-                        left_power = motor_spin(&left_motor, target);
-                        right_power = motor_spin(&right_motor, -target);
+                        drivetrain_spin(&drivetrain, target, -target);
                         break;
                     case 'a':
-                        left_power = motor_spin(&left_motor, -target);
-                        right_power = motor_spin(&right_motor, target);
+                        drivetrain_spin(&drivetrain, -target, target);
                         break;
                     default:
-                        left_power = motor_spin(&left_motor, 0);
-                        right_power = motor_spin(&right_motor, 0);
+                        drivetrain_spin(&drivetrain, 0, 0);
                         break;
                 }
-                printf("L:(%f|%f) R:(%f|%f)\r\n", motor_get_rpm(&left_motor), left_power, motor_get_rpm(&right_motor), right_power);
+                printf("L:(%f) R:(%f)\r\n", motor_get_rpm(&left_motor), motor_get_rpm(&right_motor));
                 break;
             case eKEY_UP:
                 printf("Key[%lu] 0x%02x up\r\n",keystate.delta_us,(uint8_t)ch);
@@ -129,7 +123,7 @@ int main() {
                 break;
             case eKEY_REPEAT:
                 //printf("Key[%lu] 0x%02x repeat\r\n",keystate.last_us,(uint8_t)ch);
-                printf("L:(%f|%f) R:(%f|%f)\r\n", motor_get_rpm(&left_motor), left_power, motor_get_rpm(&right_motor), right_power);
+                printf("L:(%f) R:(%f)\r\n", motor_get_rpm(&left_motor), motor_get_rpm(&right_motor));
                 break;
             case eKEY_NOKEY:
                 break;

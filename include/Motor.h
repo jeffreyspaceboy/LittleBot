@@ -17,23 +17,33 @@ extern "C" {
 
 /* STANDARD INCLUDES */
 #include <stdint.h>
+#include <pthread.h>
 
 
 /** @brief MOTOR TYPE - used to define a dual phase motor w/ encoder.
+ * @param enabled Controls the looping of the motor control thread
  * @param name Name used for DEBUG printf
  * @param gpio_enable GPIO pin for motor enable/speed
  * @param gpio_phase_a GPIO pin for phase A
  * @param gpio_phase_b GPIO pin for phase B
+ * @param rpm_target Target RPM to be maintained by the motor control thread
+ * @param power the most recent power value set to the motor
  * @param max_power Max power input to the motor
  * @param encoder The encoder connected to the motor
  * @param pid_velocity_controller A PID controller for velocity control of the motor
+ * @param thread Pthread for the motor control thread
+ * @param mutex Mutex used to control locking of data
  */
 typedef struct Motor_t{
+    bool enabled;
     char name[NAME_MAX_SIZE];
     uint8_t gpio_enable, gpio_phase_a, gpio_phase_b;
-    int max_power;
+    float rpm_target;
+    int power, max_power;
     Encoder_t *encoder;
     PID_Controller_t *pid_velocity_controller;
+    pthread_t thread;
+    pthread_mutex_t mutex;
 } Motor_t;
 
 
@@ -44,10 +54,13 @@ typedef struct Motor_t{
  * @param gpio_enable_pin GPIO Motor Enable Pin
  * @param gpio_phase_a_pin GPIO Phase A Pin
  * @param gpio_phase_b_pin GPIO Phase B Pin
- * @param new_encoder Encoder connected to the motor
  * @param reverse Bolean to reverse Phase A & B
+ * @param new_encoder Encoder connected to the motor
+ * @param new_pid_velocity_controller Velocity PID controller to control the motor
  * @return Motor */
 Motor_t motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, int reverse, Encoder_t *new_encoder, PID_Controller_t *new_pid_velocity_controller);
+
+int motor_create_thread(Motor_t *motor);
 
 /** @brief Motor & Encoder destruction.
  * @param motor Motor to be deleted
@@ -62,6 +75,12 @@ int motor_del(Motor_t *motor);
  * @param new_max_power Max power to be set
  * @return int: SUCCESS or FAILURE */
 int motor_set_max_power(Motor_t *motor, int new_max_power);
+
+/** @brief Sets velocity to be used by the motor control thread.
+ * @param motor Motor to control
+ * @param rps_target RPM target
+ * @return float: RPM that was set by the PID controller */
+float motor_set_rpm(Motor_t *motor, float rpm_target);
 
 
 /* GET FUNCTIONS */
@@ -86,6 +105,12 @@ float motor_get_angle_radians(Motor_t *motor);
  * @return float: Motor RPS*/
 float motor_get_rpm(Motor_t *motor);
 
+/** @brief Gets the most recent power set to the Motor.
+ * @param motor Motor to get power from 
+ * @return int: Most recent power set to the motot
+ */
+int motor_get_power(Motor_t *motor);
+
 
 /* MOTION FUNCTIONS */
 
@@ -95,17 +120,15 @@ float motor_get_rpm(Motor_t *motor);
  * @return int: SUCCESS or FAILURE */
 int motor_spin(Motor_t *motor, int power);
 
-/** @brief Sets velocity using the pid_velocity_controller.
- * @param motor Motor to control
- * @param rps_target RPM target
- * @return float: RPM that was set by the PID controller */
-float motor_set_rpm(Motor_t *motor, float rpm_target);
-
 /** @brief Stop the Motor.
  * @param motor Motor to be stopped
  * @return int: SUCCESS or FAILURE */
 int motor_stop(Motor_t *motor);
 
+/** @brief Motor Control Thread. Uses PID to control the motor constantly.
+ * @param arg To pass Motor pointer as arg
+ * @return void*: NULL */
+void *motor_control_thread(void *arg);
 
 #ifdef __cplusplus
 }

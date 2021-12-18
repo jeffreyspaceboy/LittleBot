@@ -4,7 +4,7 @@
 /*----------------------------------------------------------------------------*/
 /*    Module:       Encoder.h                                                 */
 /*    Author:       Jeffrey Fisher II                                         */
-/*    Created:      2021-12-11                                                */
+/*    Created:      2021-12-15                                                */
 /*----------------------------------------------------------------------------*/
 #ifdef __cplusplus
 extern "C" {
@@ -15,9 +15,12 @@ extern "C" {
 
 /* STANDARD INCLUDES */
 #include <stdint.h>
+#include <stdbool.h>
+#include <pthread.h>
 
 
 /** @brief ENCODER TYPE - used to define a dual phase encoder.
+ * @param enabled Controls the looping of the encoder control thread
  * @param name Name used for DEBUG printf
  * @param gpio_phase_a GPIO pin for phase A
  * @param gpio_phase_b GPIO pin for phase B
@@ -27,21 +30,22 @@ extern "C" {
  * @param count The sum of all phase state changes of the encoder. aka Encoder Ticks
  * @param prev_count The most recent count value. Used for rps calculation
  * @param prev_us The time in usec from boot to the most recent rps measurement
- * @param rps Rotations Per Second
- * @param avg_rps RPS average over the prev_rps values
- * @param prev_rps RPS recorded from the previous ENCODER_RPS_BUFFER_SIZE rps readings
+ * @param rpm Rotations Per Minute
+ * @param prev_rpm RPM recorded from the previous ENCODER_RPM_BUFFER_SIZE rpm readings
  * @param ratio The ratio from encoder ticks to the desired axis of rotation. aka Wheel Rotation Per Encoder Ticks
-*/
+ * @param mutex Mutex used to control locking of data
+ */
 typedef struct Encoder_t{
+    bool enabled;
     char name[NAME_MAX_SIZE];
     uint8_t gpio_phase_a, gpio_phase_b, prev_gpio; 
     int level_phase_a, level_phase_b, count, prev_count;
     uint32_t prev_us;
-    float rpm, avg_rpm, ratio;
+    float rpm, ratio;
     float prev_rpm[ENCODER_RPM_BUFFER_SIZE];
+    pthread_t thread;
+    pthread_mutex_t mutex;
 } Encoder_t;
-
-//typedef void (*gpioISRFuncEx_t)(int gpio, int level, uint32_t tick, void *data);
 
 
 /** @brief Encoder initialization.
@@ -52,6 +56,8 @@ typedef struct Encoder_t{
  * @param reverse Boolean to reverse Phase A & B
  * @return Encoder */
 Encoder_t encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, float encoder_ratio, int reverse);
+
+int encoder_create_thread(Encoder_t *encoder);
 
 /** @brief Encoder destruction.
  * @param encoder Encoder you want to delete 
@@ -86,11 +92,10 @@ float encoder_get_angle_degrees(Encoder_t *encoder);
 float encoder_get_angle_radians(Encoder_t *encoder);
 
 
-/** @brief Updates encoder RPS. (Called every quarter encoder rotation by encoder_event_callback)
+/** @brief Updates encoder RPM.
  * @param encoder Encoder to be refreshed
- * @param current_tick_us Time (usec) of the most recent encoder phase change (Passed by encoder_event_callback)
- * @return float: New RPS */
-float encoder_refresh_rpm(Encoder_t *encoder, uint32_t current_tick_us);
+ * @return float: New RPM */
+float encoder_refresh_rpm(Encoder_t *encoder);
 
 /** @brief Phase Interupt Event Callback. (Called by gpioSetISRFuncEx when Encoder Phases change)
  * @param gpio GPIO that caused event
@@ -98,6 +103,11 @@ float encoder_refresh_rpm(Encoder_t *encoder, uint32_t current_tick_us);
  * @param tick Time (usec) of the encoder phase change
  * @param data Encoder Pointer*/
 void encoder_event_callback(int gpio, int level, uint32_t tick, void *data);
+
+/** @brief Encoder Control Thread. Refreshes encoder rpm at a uniform interval.
+ * @param arg To pass Encoder pointer as arg
+ * @return void*: NULL */
+void *encoder_control_thread(void *arg);
 
 
 #ifdef __cplusplus

@@ -6,7 +6,7 @@
 /*----------------------------------------------------------------------------*/
 
 /* LOCAL INCLUDES */
-#include "../include/PID.h"
+#include "PID.h"
 
 /* NON-STANDARD INCLUDES */
 #include <pigpio.h>

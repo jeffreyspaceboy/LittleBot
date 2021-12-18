@@ -13,7 +13,8 @@
         "ncurses.h": "c",
         "stdio.h": "c",
         "typeinfo": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "pigpio.h": "c"
     },
     "editor.showFoldingControls": "always",
     "editor.unfoldOnClickAfterEndOfLine": true,
