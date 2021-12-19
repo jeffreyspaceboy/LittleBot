@@ -28,6 +28,7 @@ Motor_t motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint
         .gpio_phase_a = (reverse == 0) ? gpio_phase_a_pin : gpio_phase_b_pin,
         .gpio_phase_b = (reverse == 0) ? gpio_phase_b_pin : gpio_phase_a_pin,
         .rpm_target = 0.0F,
+        .prev_target_rpm = 0.0F,
         .power = 0,
         .max_power = MOTOR_DEFAULT_MAX_POWER,
         .encoder = new_encoder,
@@ -42,6 +43,9 @@ Motor_t motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint
     gpioSetMode(new_motor.gpio_enable, PI_OUTPUT);
     gpioSetMode(new_motor.gpio_phase_a, PI_OUTPUT);
     gpioSetMode(new_motor.gpio_phase_b, PI_OUTPUT);
+    #ifdef MOTOR_PWM_FREQUENCY
+    gpioSetPWMfrequency(new_motor.gpio_enable, MOTOR_PWM_FREQUENCY);
+    #endif
     pthread_mutex_unlock(&new_motor.mutex);
     motor_stop(&new_motor);
     if(new_motor.encoder != NULL){ 
@@ -110,7 +114,7 @@ float motor_get_angle_radians(Motor_t *motor){
     return encoder_get_angle_radians(motor->encoder);
 }
 
-float motor_get_rpm(Motor_t *motor){
+float motor_sense_rpm(Motor_t *motor){
     if(motor->encoder == NULL){ 
         pthread_mutex_lock(&motor->mutex);
         printf("%s(%s) This motor has not been setup with an Encoder.\n", ERROR_MSG, motor->name); 
@@ -133,22 +137,13 @@ int motor_get_power(Motor_t *motor){
 int motor_spin(Motor_t *motor, int power){
     pthread_mutex_lock(&motor->mutex);
     motor->power = power;
-    if(abs(power) > motor->max_power){
+    if(power > motor->max_power || power < -motor->max_power){
         gpioPWM(motor->gpio_enable, motor->max_power);
     }else{
-        gpioPWM(motor->gpio_enable, abs(power));
+        gpioPWM(motor->gpio_enable, (power >= 0) ? power : -power);
     }
-
-    if(power < 0){
-        gpioWrite(motor->gpio_phase_a, 0);
-        gpioWrite(motor->gpio_phase_b, 1);
-    }else if(power > 0){
-        gpioWrite(motor->gpio_phase_a, 1);
-        gpioWrite(motor->gpio_phase_b, 0);
-    }else{
-        gpioWrite(motor->gpio_phase_a, 0);
-        gpioWrite(motor->gpio_phase_b, 0);
-    }
+    gpioWrite(motor->gpio_phase_a, (power > 0) ? 1 : 0);
+    gpioWrite(motor->gpio_phase_b, (power < 0) ? 1 : 0);
     pthread_mutex_unlock(&motor->mutex);
     return SUCCESS;
 }
@@ -173,12 +168,14 @@ void *motor_control_thread(void *arg){
     }
     while(motor->enabled){
         pthread_mutex_lock(&motor->mutex);
-        if(!motor->pid_velocity_controller->enabled){ pid_start(motor->pid_velocity_controller, motor->rpm_target, 0.0); }
-        int power = (int)pid_power(motor->pid_velocity_controller, motor_get_rpm(motor));
+        if(!motor->pid_velocity_controller->enabled || motor->prev_target_rpm != motor->rpm_target){ 
+            pid_start(motor->pid_velocity_controller, motor->rpm_target, 0.0); 
+            motor->prev_target_rpm = motor->rpm_target;
+        }
+        int power = (int)pid_power(motor->pid_velocity_controller, motor_sense_rpm(motor));
         pthread_mutex_unlock(&motor->mutex);
         motor_spin(motor, power);
         gpioSleep(PI_TIME_RELATIVE, 0, MOTOR_REFRESH_RATE);
     }
-    motor_stop(motor);
 }
 /*---MOTOR_C---*/

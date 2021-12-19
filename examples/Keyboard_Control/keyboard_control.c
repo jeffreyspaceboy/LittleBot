@@ -115,7 +115,7 @@ int main() {
                         drivetrain_spin(&drivetrain, 0, 0);
                         break;
                 }
-                printf("L:(%f) R:(%f)\r\n", motor_get_rpm(&left_motor), motor_get_rpm(&right_motor));
+                printf("L:(%f) R:(%f)\r\n", motor_sense_rpm(&left_motor), motor_sense_rpm(&right_motor));
                 break;
             case eKEY_UP:
                 printf("Key[%lu] 0x%02x up\r\n",keystate.delta_us,(uint8_t)ch);
@@ -123,7 +123,7 @@ int main() {
                 break;
             case eKEY_REPEAT:
                 //printf("Key[%lu] 0x%02x repeat\r\n",keystate.last_us,(uint8_t)ch);
-                printf("L:(%f) R:(%f)\r\n", motor_get_rpm(&left_motor), motor_get_rpm(&right_motor));
+                printf("L:(%f) R:(%f)\r\n", motor_sense_rpm(&left_motor), motor_sense_rpm(&right_motor));
                 break;
             case eKEY_NOKEY:
                 break;

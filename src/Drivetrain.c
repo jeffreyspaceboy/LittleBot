@@ -39,7 +39,7 @@ int drivetrain_spin(Drivetrain_t *drivetrain, int left_power, int right_power){
     return motor_spin(drivetrain->left_motor, left_power) || motor_spin(drivetrain->right_motor, right_power);
 }
 
-int drivetrain__set_rpm(Drivetrain_t *drivetrain, float left_rpm_target, float right_rpm_target){
+int drivetrain_set_rpm(Drivetrain_t *drivetrain, float left_rpm_target, float right_rpm_target){
     motor_set_rpm(drivetrain->left_motor, left_rpm_target);
     motor_set_rpm(drivetrain->right_motor, right_rpm_target);
     return SUCCESS;

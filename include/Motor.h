@@ -38,7 +38,7 @@ typedef struct Motor_t{
     bool enabled;
     char name[NAME_MAX_SIZE];
     uint8_t gpio_enable, gpio_phase_a, gpio_phase_b;
-    float rpm_target;
+    float rpm_target, prev_target_rpm;
     int power, max_power;
     Encoder_t *encoder;
     PID_Controller_t *pid_velocity_controller;
@@ -103,7 +103,7 @@ float motor_get_angle_radians(Motor_t *motor);
 /** @brief Gets rotations per second from the Encoder.
  * @param motor Motor to get RPS from
  * @return float: Motor RPS*/
-float motor_get_rpm(Motor_t *motor);
+float motor_sense_rpm(Motor_t *motor);
 
 /** @brief Gets the most recent power set to the Motor.
  * @param motor Motor to get power from 
