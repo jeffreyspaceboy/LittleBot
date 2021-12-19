@@ -1,4 +1,7 @@
+*.d
+*.o
+little_bot
+little_bot_program
+examples/Keyboard_Control/keyboard_control
 .vscode/settings.json
 .DS_Store
-*.o
-*.d
