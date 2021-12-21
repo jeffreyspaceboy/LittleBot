@@ -15,7 +15,8 @@
         "typeinfo": "c",
         "stdlib.h": "c",
         "pigpio.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "limits": "c"
     },
     "editor.showFoldingControls": "always",
     "editor.unfoldOnClickAfterEndOfLine": true,

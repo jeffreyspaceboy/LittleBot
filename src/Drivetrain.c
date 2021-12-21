@@ -24,8 +24,8 @@ Drivetrain_t drivetrain_init(char drivetrain_name[NAME_MAX_SIZE], Motor_t *left_
         .right_motor = right_motor,
     };
     strncpy(new_drivetrain.name, drivetrain_name, sizeof(new_drivetrain.name));
-    motor_create_thread(new_drivetrain.left_motor);
-    motor_create_thread(new_drivetrain.right_motor);
+    motor_create_rpm_control_thread(new_drivetrain.left_motor);
+    motor_create_rpm_control_thread(new_drivetrain.right_motor);
     return new_drivetrain;
 }
 

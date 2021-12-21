@@ -35,7 +35,7 @@ extern "C" {
  * @param mutex Mutex used to control locking of data
  */
 typedef struct Motor_t{
-    bool enabled;
+    bool rpm_control_enabled;
     char name[NAME_MAX_SIZE];
     uint8_t gpio_enable, gpio_phase_a, gpio_phase_b;
     float rpm_target, prev_target_rpm;
@@ -60,7 +60,11 @@ typedef struct Motor_t{
  * @return Motor */
 Motor_t motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, int reverse, Encoder_t *new_encoder, PID_Controller_t *new_pid_velocity_controller);
 
-int motor_create_thread(Motor_t *motor);
+
+int motor_rpm_control_enable(Motor_t *motor);
+int motor_rpm_control_disable(Motor_t *motor);
+
+int motor_create_rpm_control_thread(Motor_t *motor);
 
 /** @brief Motor & Encoder destruction.
  * @param motor Motor to be deleted
@@ -88,17 +92,17 @@ float motor_set_rpm(Motor_t *motor, float rpm_target);
 /** @brief Gets rotations from the Encoder.
  * @param motor Motor to get rotations from 
  * @return float: Rotations */
-float motor_get_rotations(Motor_t *motor);
+float motor_sense_rotations(Motor_t *motor);
 
 /** @brief Gets angle in degrees from the Encoder.
  * @param motor Motor to get angel from 
  * @return float: Angle in degrees */
-float motor_get_angle_degrees(Motor_t *motor);
+float motor_sense_angle_degrees(Motor_t *motor);
 
 /** @brief Gets angle in radians from the Encoder.
  * @param motor Motor to get angel from 
  * @return float: Angle in radians */
-float motor_get_angle_radians(Motor_t *motor);
+float motor_sense_angle_radians(Motor_t *motor);
 
 /** @brief Gets rotations per second from the Encoder.
  * @param motor Motor to get RPS from
@@ -128,7 +132,7 @@ int motor_stop(Motor_t *motor);
 /** @brief Motor Control Thread. Uses PID to control the motor constantly.
  * @param arg To pass Motor pointer as arg
  * @return void*: NULL */
-void *motor_control_thread(void *arg);
+void *motor_rpm_control_thread(void *arg);
 
 #ifdef __cplusplus
 }

@@ -2,7 +2,7 @@
 /*----------------------------------------------------------------------------*/
 /*    Module:       Motor.c                                                   */
 /*    Author:       Jeffrey Fisher II                                         */
-/*    Created:      2021-12-15                                                */
+/*    Created:      2021-12-21                                                */
 /*----------------------------------------------------------------------------*/
 
 /* LOCAL INCLUDES */
@@ -22,7 +22,7 @@
 
 Motor_t motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint8_t gpio_phase_a_pin, uint8_t gpio_phase_b_pin, int reverse, Encoder_t *new_encoder, PID_Controller_t *new_pid_velocity_controller){
     Motor_t new_motor = {
-        .enabled = true,
+        .rpm_control_enabled = false,
         .name = "",
         .gpio_enable = gpio_enable_pin,
         .gpio_phase_a = (reverse == 0) ? gpio_phase_a_pin : gpio_phase_b_pin,
@@ -52,19 +52,11 @@ Motor_t motor_init(char motor_name[NAME_MAX_SIZE], uint8_t gpio_enable_pin, uint
         encoder_create_thread(new_motor.encoder);
         encoder_start(new_motor.encoder); 
     }
-    pthread_mutex_unlock(&new_motor.mutex);
     return new_motor;
 }
 
-int motor_create_thread(Motor_t *motor){
-    pthread_create(&motor->thread, NULL, motor_control_thread, (void *)motor);
-    return SUCCESS;
-}
-
-int motor_del(Motor_t *motor){ 
-    pthread_mutex_lock(&motor->mutex);
-    motor->enabled = false;
-    pthread_mutex_unlock(&motor->mutex);
+int motor_del(Motor_t *motor){
+    motor_rpm_control_disable(motor);
     if(motor->encoder != NULL){ 
         encoder_del(motor->encoder); 
     }
@@ -75,6 +67,24 @@ int motor_del(Motor_t *motor){
     return SUCCESS;
 }
 
+int motor_create_rpm_control_thread(Motor_t *motor){
+    motor_rpm_control_enable(motor);
+    return pthread_create(&motor->thread, NULL, motor_rpm_control_thread, (void *)motor);
+}
+
+int motor_rpm_control_enable(Motor_t *motor){
+    pthread_mutex_lock(&motor->mutex);
+    motor->rpm_control_enabled = true;
+    pthread_mutex_unlock(&motor->mutex);
+    return SUCCESS;
+}
+
+int motor_rpm_control_disable(Motor_t *motor){
+    pthread_mutex_lock(&motor->mutex);
+    motor->rpm_control_enabled = false;
+    pthread_mutex_unlock(&motor->mutex);
+    return SUCCESS;
+}
 
 /* SET FUNCTIONS */
 
@@ -95,23 +105,23 @@ float motor_set_rpm(Motor_t *motor, float rpm_target){
 
 /* GET FUNCTIONS */
 
-float motor_get_rotations(Motor_t *motor){
+float motor_sense_rotations(Motor_t *motor){
     if(motor->encoder == NULL){ 
         pthread_mutex_lock(&motor->mutex);
         printf("%s(%s) This motor has not been setup with an Encoder.\n", ERROR_MSG, motor->name); 
         pthread_mutex_unlock(&motor->mutex);
         return FAILURE; 
     }
-    float rotations = encoder_get_rotations(motor->encoder);
+    float rotations = encoder_sense_rotations(motor->encoder);
     return rotations;
 }
 
-float motor_get_angle_degrees(Motor_t *motor){
-    return encoder_get_angle_degrees(motor->encoder);
+float motor_sense_angle_degrees(Motor_t *motor){
+    return encoder_sense_angle_degrees(motor->encoder);
 }
 
-float motor_get_angle_radians(Motor_t *motor){
-    return encoder_get_angle_radians(motor->encoder);
+float motor_sense_angle_radians(Motor_t *motor){
+    return encoder_sense_angle_radians(motor->encoder);
 }
 
 float motor_sense_rpm(Motor_t *motor){
@@ -157,16 +167,17 @@ int motor_stop(Motor_t *motor){
     return SUCCESS;
 }
 
-void *motor_control_thread(void *arg){
+void *motor_rpm_control_thread(void *arg){
     Motor_t *motor = (Motor_t *) arg;
     if(motor->pid_velocity_controller == NULL){ 
         pthread_mutex_lock(&motor->mutex);
         printf("%s(%s) This motor has not been setup with a PID Velocity Controller.\n", ERROR_MSG, motor->name); 
+        motor_rpm_control_disable(motor);
         motor_stop(motor);
         pthread_mutex_unlock(&motor->mutex);
         return NULL; 
     }
-    while(motor->enabled){
+    while(motor->rpm_control_enabled){
         pthread_mutex_lock(&motor->mutex);
         if(!motor->pid_velocity_controller->enabled || motor->prev_target_rpm != motor->rpm_target){ 
             pid_start(motor->pid_velocity_controller, motor->rpm_target, 0.0); 

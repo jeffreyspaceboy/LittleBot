@@ -2,7 +2,7 @@
 /*----------------------------------------------------------------------------*/
 /*    Module:       main.c                                                    */
 /*    Author:       Jeffrey Fisher II                                         */
-/*    Created:      2021-12-11                                                */
+/*    Created:      2021-12-21                                                */
 /*----------------------------------------------------------------------------*/
 
 /* LOCAL INCLUDES */
@@ -22,13 +22,6 @@
 #include <pigpio.h>
 #include <curses.h>
 
-// BUILD:
-// make
-// --or--
-// gcc -Wall -pthread -o little_bot main.c src/Encoder.c src/Motor.c src/PID.c src/Drivetrain.c -lpigpio -lrt -lncurses -ltinfo
-// RUN:
-// sudo ./little_bot
-
 bool RUNNING = true;
 void  signal_handler(int signal){ RUNNING = false; }
 
@@ -40,7 +33,7 @@ int main(int argc, char * argv[]){
 
     /*---ROBOT-CODE-HERE---\/---*/
     float ratio = 1.0F/(44.0F * 21.3F);
-    PID_Controller_t l_vel_pid = pid_init(3.5F, 0.0001F, 0.0001F);
+    PID_Controller_t l_vel_pid = pid_init(3.5F, 0.00001F, 0.0001F);
     PID_Controller_t r_vel_pid = pid_init(3.5F, 0.00001F, 0.0001F);
     Encoder_t l_encoder = encoder_init("LEFT_ENCODER", L_ENC_A, L_ENC_B,  ratio, false);
     Encoder_t r_encoder = encoder_init("RIGHT_ENCODER", R_ENC_A, R_ENC_B,  ratio, true);
@@ -50,21 +43,21 @@ int main(int argc, char * argv[]){
     /*---ROBOT-CODE-HERE---/\---*/
     
     bool go_fwd = true;
-    float rpm_target = 0.0F;
+    float rpm_target = 60.0F;
     while(RUNNING){
         /*---ROBOT-CODE-HERE---\/---*/
-        if(l_motor.rpm_target >= 150.0F){
-            go_fwd = false;
-        }else if(l_motor.rpm_target <= -150.0F){
-            go_fwd = true;
-        }
+        // if(l_motor.rpm_target >= 150.0F){
+        //     go_fwd = false;
+        // }else if(l_motor.rpm_target <= -150.0F){
+        //     go_fwd = true;
+        // }
 
-        if(go_fwd == true){
-            rpm_target += 1;
-        }else if(go_fwd == false){
-            rpm_target -= 1;
-        }
-        drivetrain_set_rpm(&drivetrain, rpm_target, 0);
+        // if(go_fwd == true){
+        //     rpm_target += 1;
+        // }else if(go_fwd == false){
+        //     rpm_target -= 1;
+        // }
+        drivetrain_set_rpm(&drivetrain, rpm_target, rpm_target);
         printf("L:(%f|%f|%d) R:(%f|%f|%d)\n", motor_sense_rpm(&l_motor), l_motor.rpm_target, l_motor.power, motor_sense_rpm(&r_motor), r_motor.rpm_target, r_motor.power);
         gpioSleep(PI_TIME_RELATIVE, 0, 60000);
         /*---ROBOT-CODE-HERE---/\---*/

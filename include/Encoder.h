@@ -4,7 +4,7 @@
 /*----------------------------------------------------------------------------*/
 /*    Module:       Encoder.h                                                 */
 /*    Author:       Jeffrey Fisher II                                         */
-/*    Created:      2021-12-15                                                */
+/*    Created:      2021-12-21                                                */
 /*----------------------------------------------------------------------------*/
 #ifdef __cplusplus
 extern "C" {
@@ -79,17 +79,17 @@ int encoder_reset(Encoder_t *encoder);
 /** @brief Calculates rotations using count * ratio.
  * @param encoder Encoder to get rotations from 
  * @return float: Rotations */
-float encoder_get_rotations(Encoder_t *encoder);
+float encoder_sense_rotations(Encoder_t *encoder);
 
 /** @brief Calculates angle in degrees using count * ratio * 360.
  * @param encoder Encoder to get angel from 
  * @return float: Angle in degrees */
-float encoder_get_angle_degrees(Encoder_t *encoder);
+float encoder_sense_angle_degrees(Encoder_t *encoder);
 
 /** @brief Calculates angle in radians using count * ratio * 2 * PI.
  * @param encoder Encoder to get angel from 
  * @return float: Angle in radians */
-float encoder_get_angle_radians(Encoder_t *encoder);
+float encoder_sense_angle_radians(Encoder_t *encoder);
 
 
 /** @brief Updates encoder RPM.
@@ -102,12 +102,12 @@ float encoder_refresh_rpm(Encoder_t *encoder);
  * @param level Phase Level (HIGH or LOW)
  * @param tick Time (usec) of the encoder phase change
  * @param data Encoder Pointer*/
-void encoder_event_callback(int gpio, int level, uint32_t tick, void *data);
+void encoder_tick_event_callback(int gpio, int level, uint32_t tick, void *data);
 
 /** @brief Encoder Control Thread. Refreshes encoder rpm at a uniform interval.
  * @param arg To pass Encoder pointer as arg
  * @return void*: NULL */
-void *encoder_control_thread(void *arg);
+void *encoder_rpm_control_thread(void *arg);
 
 
 #ifdef __cplusplus

@@ -2,7 +2,7 @@
 /*----------------------------------------------------------------------------*/
 /*    Module:       Encoder.c                                                 */
 /*    Author:       Jeffrey Fisher II                                         */
-/*    Created:      2021-12-15                                                */
+/*    Created:      2021-12-21                                                */
 /*----------------------------------------------------------------------------*/
 
 /* LOCAL INCLUDES */
@@ -37,7 +37,6 @@ Encoder_t encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pi
     }
     pthread_mutex_lock(&new_encoder.mutex);
     strncpy(new_encoder.name, encoder_name, sizeof(new_encoder.name));
-    //Clear RPM Buffer
     for(int i = 0; i < ENCODER_RPM_BUFFER_SIZE; i++){ new_encoder.prev_rpm[i] = 0.0F; }
     gpioSetMode(new_encoder.gpio_phase_a, PI_INPUT);
     gpioSetMode(new_encoder.gpio_phase_b, PI_INPUT);
@@ -45,10 +44,6 @@ Encoder_t encoder_init(char encoder_name[NAME_MAX_SIZE], uint8_t gpio_phase_a_pi
     gpioSetPullUpDown(new_encoder.gpio_phase_b, PI_PUD_UP);
     pthread_mutex_unlock(&new_encoder.mutex);
     return new_encoder;
-}
-
-int encoder_create_thread(Encoder_t *encoder){
-    pthread_create(&encoder->thread, NULL, encoder_control_thread, (void *)encoder);
 }
 
 int encoder_del(Encoder_t *encoder){
@@ -60,13 +55,16 @@ int encoder_del(Encoder_t *encoder){
     return SUCCESS;
 }
 
-
 int encoder_start(Encoder_t *encoder){
     pthread_mutex_lock(&encoder->mutex);
-    gpioSetISRFuncEx(encoder->gpio_phase_a, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, encoder_event_callback, (void *)encoder);
-    gpioSetISRFuncEx(encoder->gpio_phase_b, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, encoder_event_callback, (void *)encoder);
+    gpioSetISRFuncEx(encoder->gpio_phase_a, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, encoder_tick_event_callback, (void *)encoder);
+    gpioSetISRFuncEx(encoder->gpio_phase_b, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, encoder_tick_event_callback, (void *)encoder);
     pthread_mutex_unlock(&encoder->mutex);
     return encoder_reset(encoder);
+}
+
+int encoder_create_thread(Encoder_t *encoder){
+    return pthread_create(&encoder->thread, NULL, encoder_rpm_control_thread, (void *)encoder);
 }
 
 int encoder_reset(Encoder_t *encoder){
@@ -77,22 +75,27 @@ int encoder_reset(Encoder_t *encoder){
     return SUCCESS;
 }
 
-
-float encoder_get_rotations(Encoder_t *encoder){
+float encoder_sense_rotations(Encoder_t *encoder){
     pthread_mutex_lock(&encoder->mutex);
     float rotations = ((float)encoder->count) * encoder->ratio;
     pthread_mutex_unlock(&encoder->mutex);
     return rotations;
 }
 
-float encoder_get_angle_degrees(Encoder_t *encoder){
-    return encoder_get_rotations(encoder) * 360.0F;
+float encoder_sense_angle_degrees(Encoder_t *encoder){
+    return encoder_sense_rotations(encoder) * 360.0F;
 }
 
-float encoder_get_angle_radians(Encoder_t *encoder){
-    return encoder_get_rotations(encoder) * 2.0F*M_PI;
+float encoder_sense_angle_radians(Encoder_t *encoder){
+    return encoder_sense_rotations(encoder) * 2.0F*M_PI;
 }
 
+float encoder_sense_rpm(Encoder_t *encoder){
+    pthread_mutex_lock(&encoder->mutex);
+    float rpm = encoder->rpm;
+    pthread_mutex_unlock(&encoder->mutex);
+    return rpm;
+}
 
 float encoder_refresh_rpm(Encoder_t *encoder){
     uint32_t current_us = gpioTick();
@@ -100,7 +103,6 @@ float encoder_refresh_rpm(Encoder_t *encoder){
     encoder->rpm = ((float)(encoder->count - encoder->prev_count) / (float)(current_us - encoder->prev_us)) * 60000000.0F * encoder->ratio;
     encoder->prev_count = encoder->count;
     encoder->prev_us = current_us;
-    // UNCOMMENT FOR RPM AVERAGING:
     float sum = 0;
     for(int i = ENCODER_RPM_BUFFER_SIZE-1; i >= 1; i--){
         encoder->prev_rpm[i] = encoder->prev_rpm[i-1];
@@ -113,13 +115,35 @@ float encoder_refresh_rpm(Encoder_t *encoder){
     return rpm;
 }
 
-void encoder_event_callback(int gpio, int level, uint32_t current_us, void *data){
+/* 
+Encoder Tick Counting Logic:
+   There are four possible states that can occur on any given level
+   shift of the encoder Phases. 
+
+   NOTE: Dependant on knowing the shift in level, not just H/L state.
+   This allows for every level shift to count as a tick.
+
+CLOCK WISE:
+A&!B B&A !A&B !B&A A&!B B&A !A&B !B&!A
+    ________          ________
+   |    ____|___     |    ____|___
+A__|   |    |___|____|   |    |___|__
+B______|        |________|        |__
+
+COUNTER CLOCK WISE:
+B&!A A&B !B&A !A&!B B&!A A&B !B&A !A&!B
+        ________          ________
+    ___|____    |     ___|____    |
+A__|___|    |   |____|___|    |   |__
+B__|        |________|        |______
+*/
+void encoder_tick_event_callback(int gpio, int level, uint32_t current_us, void *data){
     Encoder_t *encoder = (Encoder_t *) data;
     pthread_mutex_lock(&encoder->mutex);
     if(gpio == encoder->gpio_phase_a){
-        encoder->level_phase_a = level; 
+        encoder->level_phase_a = level;
         if(encoder->level_phase_b == 0){
-            encoder->count += (encoder->level_phase_a == 0) ? -1 : 1;
+            encoder->count += (encoder->level_phase_a == 0) ? -1 : 1; 
         }else{
             encoder->count += (encoder->level_phase_a == 0) ? 1 : -1;
         }
@@ -132,10 +156,9 @@ void encoder_event_callback(int gpio, int level, uint32_t current_us, void *data
         }
     } 
     pthread_mutex_unlock(&encoder->mutex);
-    return;
 }
 
-void *encoder_control_thread(void *arg){
+void *encoder_rpm_control_thread(void *arg){
     Encoder_t *encoder = (Encoder_t *) arg;
     while(encoder->enabled){
         encoder_refresh_rpm(encoder);
