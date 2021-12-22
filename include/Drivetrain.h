@@ -19,6 +19,9 @@ extern "C" {
 /* STANDARD INCLUDES */
 #include <stdint.h>
 
+typedef struct position_t{
+    float x, y, h;
+}position_t;
 
 /** @brief DRIVETRAIN TYPE - used to define a dual motor drivetrain.
  * @param name Name used for DEBUG printf
@@ -28,6 +31,7 @@ extern "C" {
 typedef struct Drivetrain_t{
     char name[NAME_MAX_SIZE];
     Motor_t *left_motor, *right_motor;
+    position_t position;
 } Drivetrain_t;
 
 

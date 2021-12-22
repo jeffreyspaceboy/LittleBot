@@ -27,6 +27,7 @@ extern "C" {
  * @param gpio_phase_a GPIO pin for phase A
  * @param gpio_phase_b GPIO pin for phase B
  * @param rpm_target Target RPM to be maintained by the motor control thread
+ * @param prev_target_rpm This is used to check if the target has changed to reset the PID controller
  * @param power the most recent power value set to the motor
  * @param max_power Max power input to the motor
  * @param encoder The encoder connected to the motor
