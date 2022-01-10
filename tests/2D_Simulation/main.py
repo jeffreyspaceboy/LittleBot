@@ -3,6 +3,7 @@ import math
 
 class World:
     def __init__(self, world_dimentions):
+        self.background_color = (30,30,30)
         self.black = (0,0,0)
         self.white = (255,255,255)
         self.green = (0,255,0)
@@ -16,6 +17,24 @@ class World:
         pygame.display.set_caption("Little Bot")
         self.map = pygame.display.set_mode((self.width, self.height))
     
+        self.font = pygame.font.Font('freesansbold.ttf', 30)
+        self.text = self.font.render('default', True, self.white, self.black)
+        self.textRect = self.text.get_rect()
+        self.textRect.center = ( world_dimentions[1]-400, world_dimentions[0]-20)
+    
+        self.trail_set = []
+
+    def write_info(self, left_velocity, right_velocity, theta):
+        txt = f"VL = {left_velocity} | VR = {right_velocity} | THETA = {int(math.degrees(theta))}"
+        self.text = self.font.render(txt, True, self.white, self.black)
+        self.map.blit(self.text, self.textRect)
+
+    def trail(self, position):
+        for i in range(0, len(self.trail_set)-1):
+            pygame.draw.line(self.map, self.yellow, (self.trail_set[i][0], self.trail_set[i][1]), (self.trail_set[i+1][0], self.trail_set[i+1][1]))
+        if self.trail_set.__sizeof__()>20000:
+            self.trail_set.pop(0)
+        self.trail_set.append(position)
 
 class Robot:
     def __init__(self, start_position, robot_image, width):
@@ -44,15 +63,14 @@ class Robot:
     def move(self, event = None):
         if event is not None:
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_1:
+                if event.key == pygame.K_q:
                     self.velocityLeft += 0.001 * self.meterToPixel
-                elif event.key == pygame.K_q:
+                elif event.key == pygame.K_a:
                     self.velocityLeft -= 0.001 * self.meterToPixel
-                elif event.key == pygame.K_0:
+                elif event.key == pygame.K_e:
                     self.velocityRight += 0.001 * self.meterToPixel
-                elif event.key == pygame.K_p:
+                elif event.key == pygame.K_d:
                     self.velocityRight -= 0.001 * self.meterToPixel
-                print("{}, {}\n".format(self.velocityLeft, self.velocityRight))
         self.x += ((self.velocityLeft + self.velocityRight)/2) * math.cos(self.theta) * dt
         self.y -= ((self.velocityLeft + self.velocityRight)/2) * math.sin(self.theta) * dt  
         self.theta += ((self.velocityRight - self.velocityLeft) / self.width) * dt
@@ -77,7 +95,8 @@ while RUNNING:
     dt = (pygame.time.get_ticks() - lasttime) / 1000.0
     lasttime = pygame.time.get_ticks()
     pygame.display.update()
-    world.map.fill(world.black)
+    world.map.fill(world.background_color)
     robot.move()
     robot.draw(world.map)
-
+    world.trail((robot.x, robot.y))
+    world.write_info(int(robot.velocityLeft), int(robot.velocityRight), int(robot.theta))
