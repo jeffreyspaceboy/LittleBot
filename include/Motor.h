@@ -53,7 +53,7 @@ typedef struct Motor_t{
 /** @brief Motor initialization.
  * @param encoder_name Name for DEBUG
  * @param gpio_enable_pin GPIO Motor Enable Pin
- * @param gpio_phase_a_pin GPIO Phase A Pin
+ * @param gpio_phase_a_pin GPIO Phase A Pin, Hello Jeffrey - Katie
  * @param gpio_phase_b_pin GPIO Phase B Pin
  * @param reverse Bolean to reverse Phase A & B
  * @param new_encoder Encoder connected to the motor

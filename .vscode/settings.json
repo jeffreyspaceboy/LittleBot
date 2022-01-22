@@ -16,7 +16,8 @@
         "stdlib.h": "c",
         "pigpio.h": "c",
         "stdbool.h": "c",
-        "limits": "c"
+        "limits": "c",
+        "__node_handle": "c"
     },
     "editor.showFoldingControls": "always",
     "editor.unfoldOnClickAfterEndOfLine": true,
