@@ -17,27 +17,24 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 
-add_executable(bot_captain src/bot_captain.cpp)
-ament_target_dependencies(bot_captain rclcpp std_msgs)
-target_include_directories(bot_captain PUBLIC
+add_executable(little_captain src/little_captain.cpp)
+ament_target_dependencies(little_captain rclcpp std_msgs)
+target_include_directories(little_captain PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:include>)
   
-add_executable(bot_worker src/bot_worker.cpp)
-ament_target_dependencies(bot_worker rclcpp std_msgs)
-target_include_directories(bot_worker PUBLIC
+add_executable(little_bot src/little_bot.cpp)
+ament_target_dependencies(little_bot rclcpp std_msgs)
+target_include_directories(little_bot PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
 install(TARGETS 
-  bot_captain
-  bot_worker
+  little_captain
+  little_bot
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
