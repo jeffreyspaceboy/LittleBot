@@ -63,13 +63,13 @@ class Robot:
     def move(self, event = None):
         if event is not None:
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
+                if event.key == pygame.K_KP4:
                     self.velocityLeft += 0.001 * self.meterToPixel
-                elif event.key == pygame.K_a:
+                elif event.key == pygame.K_KP1:
                     self.velocityLeft -= 0.001 * self.meterToPixel
-                elif event.key == pygame.K_e:
+                elif event.key == pygame.K_KP6:
                     self.velocityRight += 0.001 * self.meterToPixel
-                elif event.key == pygame.K_d:
+                elif event.key == pygame.K_KP3:
                     self.velocityRight -= 0.001 * self.meterToPixel
         self.x += ((self.velocityLeft + self.velocityRight)/2) * math.cos(self.theta) * dt
         self.y -= ((self.velocityLeft + self.velocityRight)/2) * math.sin(self.theta) * dt  
@@ -83,7 +83,7 @@ start_position = (200.0,200.0)
 world_dimentions = (600,1200)
 RUNNING = True
 world = World(world_dimentions)
-robot = Robot(start_position, "/Users/jeffreyfisher/Projects/little_bot/tests/2D_Simulation/little_bot_sprite.png", 0.01 * 3779.52)
+robot = Robot(start_position, "little_bot_sprite.png", 0.01 * 3779.52)
 
 dt = 0.0
 lasttime = pygame.time.get_ticks()
