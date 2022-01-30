@@ -21,5 +21,9 @@
     },
     "editor.showFoldingControls": "always",
     "editor.unfoldOnClickAfterEndOfLine": true,
-    "notebook.showFoldingControls": "always"
+    "notebook.showFoldingControls": "always",
+    "python.autoComplete.extraPaths": [
+        "/home/jeffrey/dev_ws/install/turtlesim/lib/python3.8/site-packages",
+        "/opt/ros/foxy/lib/python3.8/site-packages"
+    ]
 }

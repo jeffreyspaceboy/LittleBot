@@ -6,7 +6,7 @@ using std::placeholders::_1;
 
 class MinimalSubscriber : public rclcpp::Node {
     public:
-        MinimalSubscriber() : Node("little_bot"){
+        MinimalSubscriber() : Node("little_robot"){
             subscription_ = this->create_subscription<std_msgs::msg::String>(
             "topic", 10, std::bind(&MinimalSubscriber::topic_callback, this, _1));
         }

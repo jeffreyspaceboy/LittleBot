@@ -15,10 +15,18 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+
 # find dependencies
+find_package(rosidl_default_generators REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/Pose.msg")
+
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+
+
 
 add_executable(little_captain src/little_captain.cpp)
 ament_target_dependencies(little_captain rclcpp std_msgs)
@@ -26,15 +34,15 @@ target_include_directories(little_captain PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:include>)
   
-add_executable(little_bot src/little_bot.cpp)
-ament_target_dependencies(little_bot rclcpp std_msgs)
-target_include_directories(little_bot PUBLIC
+add_executable(little_robot src/little_robot.cpp)
+ament_target_dependencies(little_robot rclcpp std_msgs)
+target_include_directories(little_robot PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
 install(TARGETS 
   little_captain
-  little_bot
+  little_robot
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
