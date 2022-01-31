@@ -1,4 +1,4 @@
-# ROTATE RELATIVE ACTION
+# ROTATE ABSOLUTE ACTION
 
 # REQUEST
 float32 theta # The desired heading in radians

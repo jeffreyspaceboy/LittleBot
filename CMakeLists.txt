@@ -20,7 +20,7 @@ endif()
 find_package(rosidl_default_generators REQUIRED)
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
+find_package(rclcpp_action REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(little_bot REQUIRED)
 # ADD PACKAGES TO FIND HERE
@@ -37,29 +37,36 @@ set(srv_files
   # ADD SERVICE FILES HERE
 )
 
+# Service Files
+set(action_files
+  "action/RotateAbsolute.action"
+  # ADD ACTION FILES HERE
+)
+
 # Generate Interfaces
 rosidl_generate_interfaces(${PROJECT_NAME}
   ${msg_files}
   ${srv_files}
+  ${action_files}
   # ADD INTERFACE LISTS HERE
 )
 
 # Add Executables
-add_executable(little_captain src/little_captain.cpp)
-ament_target_dependencies(little_captain rclcpp geometry_msgs little_bot)
-target_include_directories(little_captain PUBLIC
+add_executable(remote_controller src/remote_controller.cpp)
+ament_target_dependencies(remote_controller rclcpp rclcpp_action geometry_msgs little_bot)
+target_include_directories(remote_controller PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:include>)
-  
+
 add_executable(little_robot src/little_robot.cpp)
-ament_target_dependencies(little_robot rclcpp geometry_msgs little_bot)
+ament_target_dependencies(little_robot rclcpp rclcpp_action geometry_msgs little_bot)
 target_include_directories(little_robot PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
 # Install Targets
-install(TARGETS 
-  little_captain
+install(TARGETS
+  remote_controller
   little_robot
   # ADD NODE NAME HERE
   DESTINATION lib/${PROJECT_NAME})
