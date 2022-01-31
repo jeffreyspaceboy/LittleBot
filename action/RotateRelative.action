@@ -1,0 +1,10 @@
+# ROTATE RELATIVE ACTION
+
+# REQUEST
+float32 theta # The desired heading in radians
+---
+# RESULT
+float32 delta # The angular displacement in radians to the starting position
+---
+# FEEDBACK
+float32 remaining # The remaining rotation in radians

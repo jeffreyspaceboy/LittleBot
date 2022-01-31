@@ -1,37 +1,38 @@
+//---SYS-LIBS---//
 #include <chrono>
-#include <functional>
-#include <memory>
-#include <string>
 
+//---ROS-LIBS---//
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
 
-using namespace std::chrono_literals;
+//---PKG-LIBS---//
+#include "geometry_msgs/msg/twist.hpp"
 
-/* This example creates a subclass of Node and uses std::bind() to register a
-* member function as a callback from the timer. */
-
-class MinimalPublisher : public rclcpp::Node{
+class Little_Captain : public rclcpp::Node{
 	public:
-		MinimalPublisher() : Node("little_captain"), count_(0){
-			publisher_ = this->create_publisher<std_msgs::msg::String>("topic", 10);
-			timer_ = this->create_wall_timer(500ms, std::bind(&MinimalPublisher::timer_callback, this));
+		Little_Captain(): Node("little_captain"){
+			twist_pubr_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
+			using namespace std::chrono_literals; // Allows for "2000ms"
+			timer_ = this->create_wall_timer(2000ms, std::bind(&Little_Captain::timer_callback, this));
 		}
+
 	private:
-		void timer_callback(){
-			auto message = std_msgs::msg::String();
-			message.data = "Hello, world! " + std::to_string(count_++);
-			RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
-			publisher_->publish(message);
-		}
+		rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr twist_pubr_;
 		rclcpp::TimerBase::SharedPtr timer_;
-		rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
-		size_t count_;
+		int count_ = 0;
+
+		void timer_callback(){
+			geometry_msgs::msg::Twist twist;
+			twist.linear.x = count_;
+			twist.linear.y = count_*2;
+			RCLCPP_INFO(this->get_logger(), "Publishing: '%f', '%f'", twist.linear.x, twist.linear.y);
+			twist_pubr_->publish(twist);    
+			count_++;
+		}
 };
 
 int main(int argc, char * argv[]){
-	rclcpp::init(argc, argv);
-	rclcpp::spin(std::make_shared<MinimalPublisher>());
-	rclcpp::shutdown();
-	return 0;
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<Little_Captain>());
+  rclcpp::shutdown();
+  return 0;
 }
