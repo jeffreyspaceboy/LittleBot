@@ -22,7 +22,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(geometry_msgs REQUIRED)
-find_package(little_bot REQUIRED)
+#find_package(little_bot REQUIRED)
 # ADD PACKAGES TO FIND HERE
 
 # Message Files
@@ -53,13 +53,13 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 
 # Add Executables
 add_executable(remote_controller src/remote_controller.cpp)
-ament_target_dependencies(remote_controller rclcpp rclcpp_action geometry_msgs little_bot)
+ament_target_dependencies(remote_controller rclcpp rclcpp_action geometry_msgs)# little_bot)
 target_include_directories(remote_controller PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:include>)
 
 add_executable(little_robot src/little_robot.cpp)
-ament_target_dependencies(little_robot rclcpp rclcpp_action geometry_msgs little_bot)
+ament_target_dependencies(little_robot rclcpp rclcpp_action geometry_msgs) #little_bot)
 target_include_directories(little_robot PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
