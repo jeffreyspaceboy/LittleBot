@@ -47,16 +47,32 @@ set(action_files
 #  # ADD INTERFACE LISTS HERE
 #)
 
+set(remote_control_node_SRCS
+  src/keyboard_reader.cpp
+  src/keyboard_remote_controller.cpp
+)
+set(remote_control_HDRS
+  include/keyboard_reader.hpp
+  include/keyboard_remote_controller.hpp
+)
+
+set(dependencies
+  rclcpp
+  rclcpp_action
+  geometry_msgs
+)
+
+
 # Add Executables
-add_executable(keyboard_control src/keyboard_control.cpp)
-ament_target_dependencies(keyboard_control rclcpp rclcpp_action geometry_msgs)
-target_include_directories(keyboard_control PUBLIC
+add_executable(remote_control_node ${remote_control_node_SRCS})
+ament_target_dependencies(remote_control_node ${dependencies})
+target_include_directories(remote_control_node PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:include>)
 
 # Install Targets
 install(TARGETS
-  keyboard_control
+  remote_control_node
   # ADD NODE NAMES HERE
   DESTINATION lib/${PROJECT_NAME})
 
