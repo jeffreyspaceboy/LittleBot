@@ -1,13 +1,32 @@
 #!/usr/bin/env python
+
+# NOTE: Change this filename to match your computers directory for the file
+sprite_file = "src/little_bot/2d_lilbot_sim/images/lilbot_sprite.png"
+
+DT = 0.0
+
+# Physical constants.
+GRAVITY = 9.8  # m/s^2
+MU = 0.03  # Coefficient of Friction of the ice
+
+
+SCREEN_WIDTH_PX = 1200
+SCREEN_HEIGHT_PX = 600
+
+# PIXELS_PER_METER = 120
+# SCREEN_WIDTH_M = float(SCREEN_WIDTH_PX) / PIXELS_PER_METER
+# SCREEN_HEIGHT_M = float(SCREEN_HEIGHT_PX) / PIXELS_PER_METER
+
+
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 import math
 
-# NOTE: Change this filename to match your computers directory for the file
-sprite_file = "src/little_bot/2d_lilbot_sim/images/lilbot_sprite.png"
+import rclpy
+from rclpy.node import Node
 
-dt = 0.0
+
 
 class World:
     def __init__(self, world_dimentions):
@@ -79,9 +98,9 @@ class Robot:
                     self.velocityRight += 0.001 * self.meterToPixel
                 elif event.key == pygame.K_d:
                     self.velocityRight -= 0.001 * self.meterToPixel
-        self.x += ((self.velocityLeft + self.velocityRight)/2) * math.cos(self.theta) * dt
-        self.y -= ((self.velocityLeft + self.velocityRight)/2) * math.sin(self.theta) * dt  
-        self.theta += ((self.velocityRight - self.velocityLeft) / self.width) * dt
+        self.x += ((self.velocityLeft + self.velocityRight)/2) * math.cos(self.theta) * DT
+        self.y -= ((self.velocityLeft + self.velocityRight)/2) * math.sin(self.theta) * DT  
+        self.theta += ((self.velocityRight - self.velocityLeft) / self.width) * DT
 
         self.rotatedImage = pygame.transform.rotozoom(self.image, math.degrees(self.theta), 1)
         self.rectangle = self.rotatedImage.get_rect(center=(self.x, self.y))         
@@ -89,7 +108,7 @@ class Robot:
 
 pygame.init()
 start_position = (200.0,200.0)
-world_dimentions = (600,1200)
+world_dimentions = (SCREEN_HEIGHT_PX, SCREEN_WIDTH_PX)
 RUNNING = True
 world = World(world_dimentions)
 robot = Robot(start_position, sprite_file, 0.01 * 3779.52)
@@ -101,7 +120,7 @@ while RUNNING:
         if event.type == pygame.QUIT:
             RUNNING = False
         robot.move(event)
-    dt = (pygame.time.get_ticks() - lasttime) / 1000.0
+    DT = (pygame.time.get_ticks() - lasttime) / 1000.0
     lasttime = pygame.time.get_ticks()
     pygame.display.update()
     world.map.fill(world.background_color)
