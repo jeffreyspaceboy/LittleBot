@@ -1,6 +1,13 @@
 #!/usr/bin/env python
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 import math
+
+# NOTE: Change this filename to match your computers directory for the file
+sprite_file = "src/little_bot/2d_lilbot_sim/images/lilbot_sprite.png"
+
+dt = 0.0
 
 class World:
     def __init__(self, world_dimentions):
@@ -80,32 +87,33 @@ class Robot:
         self.rectangle = self.rotatedImage.get_rect(center=(self.x, self.y))         
 
 
-dt = 0.0
+pygame.init()
+start_position = (200.0,200.0)
+world_dimentions = (600,1200)
+RUNNING = True
+world = World(world_dimentions)
+robot = Robot(start_position, sprite_file, 0.01 * 3779.52)
+
+
+lasttime = pygame.time.get_ticks()
+while RUNNING:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            RUNNING = False
+        robot.move(event)
+    dt = (pygame.time.get_ticks() - lasttime) / 1000.0
+    lasttime = pygame.time.get_ticks()
+    pygame.display.update()
+    world.map.fill(world.background_color)
+    robot.move()
+    robot.draw(world.map)
+    world.trail((robot.x, robot.y))
+    world.write_info(int(robot.velocityLeft), int(robot.velocityRight), int(robot.theta))
+
 
 def main():
-    print('Hi from 2d_lilbot_sim.')
-    pygame.init()
-    start_position = (200.0,200.0)
-    world_dimentions = (600,1200)
-    RUNNING = True
-    world = World(world_dimentions)
-    robot = Robot(start_position, "/home/jeffrey/ros2_dev_ws/src/little_bot/2d_lilbot_sim/images/lilbot_sprite.png", 0.01 * 3779.52)
-
+    print("---Starting Little Bot 2D Simulation---")
     
-    lasttime = pygame.time.get_ticks()
-    while RUNNING:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                RUNNING = False
-            robot.move(event)
-        dt = (pygame.time.get_ticks() - lasttime) / 1000.0
-        lasttime = pygame.time.get_ticks()
-        pygame.display.update()
-        world.map.fill(world.background_color)
-        robot.move()
-        robot.draw(world.map)
-        world.trail((robot.x, robot.y))
-        world.write_info(int(robot.velocityLeft), int(robot.velocityRight), int(robot.theta))
 
 
 if __name__ == '__main__':
