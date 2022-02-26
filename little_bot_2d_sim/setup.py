@@ -1,7 +1,7 @@
 from setuptools import setup
 from setuptools import find_packages
 
-package_name = '2d_lilbot_sim'
+package_name = 'little_bot_2d_sim'
 
 setup(
     name=package_name,
@@ -15,14 +15,14 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='jeffrey',
+    maintainer='Jeffrey Fisher II',
     maintainer_email='jeffreyspaceboy@gmail.com',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            '2d_lilbot_sim = 2d_lilbot_sim.2d_lilbot_sim:main'
+            'little_bot_2d_sim_node = little_bot_2d_sim.little_bot_2d_sim_node:main'
         ],
     },
 )

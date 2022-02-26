@@ -1,23 +1,23 @@
 #!/usr/bin/env python
 
 # NOTE: Change this filename to match your computers directory for the file
-sprite_file = "src/little_bot/2d_lilbot_sim/images/lilbot_sprite.png"
+sprite_file = "src/little_bot/little_bot_2d_sim/images/little_bot_sprite.png"
 
 DT = 0.0
-
-# Physical constants.
-GRAVITY = 9.8  # m/s^2
-MU = 0.03  # Coefficient of Friction of the ice
-
 
 SCREEN_WIDTH_PX = 1200
 SCREEN_HEIGHT_PX = 600
 
-# PIXELS_PER_METER = 120
+
+PIXELS_PER_METER = 10
 # SCREEN_WIDTH_M = float(SCREEN_WIDTH_PX) / PIXELS_PER_METER
 # SCREEN_HEIGHT_M = float(SCREEN_HEIGHT_PX) / PIXELS_PER_METER
 
+ROBOT_WIDTH_M = 0.2
+ROBOT_START_X = 0.0
+ROBOT_START_Y = 0.0
 
+import sys
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
@@ -26,6 +26,9 @@ import math
 import rclpy
 from rclpy.node import Node
 
+from geometry_msgs.msg import TransformStamped
+from tf2_ros.static_transform_broadcaster import StaticTransformBroadcaster
+import tf_transformations
 
 
 class World:
@@ -63,9 +66,12 @@ class World:
             self.trail_set.pop(0)
         self.trail_set.append(position)
 
-class Robot:
+class Robot(Node):
     def __init__(self, start_position, robot_image, width):
-        self.meterToPixel = 3779.52
+        #ROS TF
+        super().__init__('little_bot_2d_sim_node')
+        self._tf_publisher = StaticTransformBroadcaster(self)
+        #ROS TF
         
         self.width = width
 
@@ -73,11 +79,11 @@ class Robot:
         self.y = start_position[1]
         self.theta = 0.0
 
-        self.velocityLeft = 0.01 * self.meterToPixel # [m/s]
-        self.velocityRight = 0.01 * self.meterToPixel # [m/s]
+        self.velocityLeft = 1.0 * PIXELS_PER_METER # [m/s]
+        self.velocityRight = 1.0 * PIXELS_PER_METER # [m/s]
 
-        self.maxSpeed = 0.02 * self.meterToPixel
-        self.minSpeed = 0.02 * self.meterToPixel
+        self.maxSpeed = 1.0 * PIXELS_PER_METER
+        self.minSpeed = 1.0 * PIXELS_PER_METER
 
         self.image = pygame.image.load(robot_image)
         self.image = pygame.transform.scale(self.image, (100, 100))
@@ -91,27 +97,44 @@ class Robot:
         if event is not None:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
-                    self.velocityLeft += 0.001 * self.meterToPixel
+                    self.velocityLeft += 0.001 * PIXELS_PER_METER
                 elif event.key == pygame.K_a:
-                    self.velocityLeft -= 0.001 * self.meterToPixel
+                    self.velocityLeft -= 0.001 * PIXELS_PER_METER
                 elif event.key == pygame.K_e:
-                    self.velocityRight += 0.001 * self.meterToPixel
+                    self.velocityRight += 0.001 * PIXELS_PER_METER
                 elif event.key == pygame.K_d:
-                    self.velocityRight -= 0.001 * self.meterToPixel
+                    self.velocityRight -= 0.001 * PIXELS_PER_METER
         self.x += ((self.velocityLeft + self.velocityRight)/2) * math.cos(self.theta) * DT
         self.y -= ((self.velocityLeft + self.velocityRight)/2) * math.sin(self.theta) * DT  
         self.theta += ((self.velocityRight - self.velocityLeft) / self.width) * DT
 
         self.rotatedImage = pygame.transform.rotozoom(self.image, math.degrees(self.theta), 1)
-        self.rectangle = self.rotatedImage.get_rect(center=(self.x, self.y))         
+        self.rectangle = self.rotatedImage.get_rect(center=(self.x, self.y))  
+        self.make_transforms() 
 
+    def make_transforms(self):
+        static_transformStamped = TransformStamped()
+        static_transformStamped.header.stamp = self.get_clock().now().to_msg()
+        static_transformStamped.header.frame_id = 'world'
+        static_transformStamped.child_frame_id = 'little_bot'
+        static_transformStamped.transform.translation.x = float(self.x/ PIXELS_PER_METER)
+        static_transformStamped.transform.translation.y = float(self.y/ PIXELS_PER_METER)
+        static_transformStamped.transform.translation.z = float(0)
+        quat = tf_transformations.quaternion_from_euler(float(0), float(0), float(self.theta))
+        static_transformStamped.transform.rotation.x = quat[0]
+        static_transformStamped.transform.rotation.y = quat[1]
+        static_transformStamped.transform.rotation.z = quat[2]
+        static_transformStamped.transform.rotation.w = quat[3]
 
+        self._tf_publisher.sendTransform(static_transformStamped)
+
+rclpy.init()
 pygame.init()
-start_position = (200.0,200.0)
+start_position = (ROBOT_START_X, ROBOT_START_Y)
 world_dimentions = (SCREEN_HEIGHT_PX, SCREEN_WIDTH_PX)
 RUNNING = True
 world = World(world_dimentions)
-robot = Robot(start_position, sprite_file, 0.01 * 3779.52)
+robot = Robot(start_position, sprite_file, ROBOT_WIDTH_M * PIXELS_PER_METER)
 
 
 lasttime = pygame.time.get_ticks()
@@ -132,8 +155,16 @@ while RUNNING:
 
 def main():
     print("---Starting Little Bot 2D Simulation---")
-    
 
+    # pass parameters and initialize node
+    
+    robot = Robot(start_position, sprite_file, ROBOT_WIDTH_M * PIXELS_PER_METER)
+    try:
+        rclpy.spin(robot)
+    except KeyboardInterrupt:
+        pass
+
+    rclpy.shutdown()
 
 if __name__ == '__main__':
     main()

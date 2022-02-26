@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(remote_control)
+project(little_bot_keyboard_control)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)

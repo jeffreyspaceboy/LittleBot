@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>remote_control</name>
+  <name>little_bot_keyboard_control</name>
   <version>0.0.0</version>
   <description>little_bot is a package used to control a simple raspberry pi based 2 wheel robot.</description>
   <maintainer email="jeffreyspaceboy@gmail.com">Jeffrey Fisher II</maintainer>
