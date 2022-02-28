@@ -6,7 +6,7 @@ sprite_file = "src/little_bot/little_bot_2d_sim/images/little_bot_sprite.png"
 DT = 0.0
 
 PIXELS_PER_METER = 100
-SCREEN_WIDTH_M = 10.0
+SCREEN_WIDTH_M = 5.0
 SCREEN_HEIGHT_M = 5.0
 
 SCREEN_WIDTH_PX = int(SCREEN_WIDTH_M * PIXELS_PER_METER)
@@ -43,7 +43,7 @@ import rclpy
 from rclpy.node import Node
 
 from geometry_msgs.msg import TransformStamped
-from tf2_ros.static_transform_broadcaster import StaticTransformBroadcaster
+from tf2_ros import TransformBroadcaster, TransformStamped
 import tf_transformations
 
 
@@ -78,7 +78,7 @@ class Robot(Node):
     def __init__(self, start_position, robot_image, width):
         #ROS TF
         super().__init__('little_bot_2d_sim_node')
-        self._tf_publisher = StaticTransformBroadcaster(self)
+        self._tf_publisher = TransformBroadcaster(self)
         #ROS TF
         
         self.width = width
@@ -124,7 +124,7 @@ class Robot(Node):
         static_transformStamped = TransformStamped()
         static_transformStamped.header.stamp = self.get_clock().now().to_msg()
         static_transformStamped.header.frame_id = 'world'
-        static_transformStamped.child_frame_id = 'little_bot'
+        static_transformStamped.child_frame_id = 'body'
         static_transformStamped.transform.translation.x = float(self.x/ PIXELS_PER_METER)
         static_transformStamped.transform.translation.y = float(-self.y/ PIXELS_PER_METER)
         static_transformStamped.transform.translation.z = float(0)

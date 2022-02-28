@@ -29,8 +29,8 @@ def generate_launch_description():
             parameters=[{'use_sim_time': use_sim_time, 'robot_description': robot_desc}],
             arguments=[urdf]),
         Node(
-            package='little_bot_3d_sim',
-            executable='state_publisher',
-            name='state_publisher',
+            package='little_bot_2d_sim',
+            executable='little_bot_2d_sim_node',
+            name='little_bot_2d_sim_node',
             output='screen'),
     ])

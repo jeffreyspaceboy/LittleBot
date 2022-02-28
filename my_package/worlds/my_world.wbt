@@ -1,0 +1,191 @@
+#VRML_SIM R2022a utf8
+WorldInfo {
+  basicTimeStep 8
+  defaultDamping Damping {
+  }
+}
+Viewpoint {
+  orientation -0.2541625033553345 -0.20352335277594993 0.9455049797663604 4.483127051478621
+  position 0.47704719097651677 1.0902761258106335 0.647341586814212
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+CircleArena {
+}
+Robot {
+  children [
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0 0.051 0.038
+      }
+      device [
+        RotationalMotor {
+          name "left wheel motor"
+        }
+      ]
+      endPoint Solid {
+        translation 0 0 0.019
+        rotation -0.5773509358554485 0.5773489358556708 0.5773509358554485 -2.094395307179586
+        scale 0.001 0.001 0.001
+        children [
+          DEF LEFT_WHEEL Shape {
+            appearance PBRAppearance {
+              baseColor 0.1 0.1 0.6
+              roughness 1
+              metalness 0
+            }
+            geometry Mesh {
+              url [
+                "/home/jeffrey/ros2_dev_ws/src/little_bot/little_bot_3d_sim/meshes/left_wheel.stl"
+              ]
+            }
+          }
+        ]
+        name "left wheel"
+        boundingObject USE LEFT_WHEEL
+        physics Physics {
+          density -1
+          mass 88922812.64733487
+          centerOfMass [
+            -9.024334833273617e-05 106.71752132363966 38.00025906870749
+          ]
+          inertiaMatrix [
+            2321461962453.412 327127818700.4617 2064650163562.8113
+            1677806.8468073532 609923.5063893892 -721216125490.7838
+          ]
+        }
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0 -0.051 0.038
+      }
+      device [
+        RotationalMotor {
+          name "right wheel motor"
+        }
+      ]
+      endPoint Solid {
+        translation 0 0 0.019
+        rotation -0.5773509358554485 0.5773489358556708 0.5773509358554485 -2.094395307179586
+        scale 0.001 0.001 0.001
+        children [
+          DEF RIGHT_WHEEL Shape {
+            appearance PBRAppearance {
+              baseColor 0.1 0.1 0.6
+              roughness 1
+              metalness 0
+            }
+            geometry Mesh {
+              url [
+                "/home/jeffrey/ros2_dev_ws/src/little_bot/little_bot_3d_sim/meshes/right_wheel.stl"
+              ]
+            }
+          }
+        ]
+        name "right wheel"
+        boundingObject USE RIGHT_WHEEL
+        physics Physics {
+          density -1
+          mass 88922812.64547797
+          centerOfMass [
+            0.00013097515862774614 -106.71761357385488 37.99974215559863
+          ]
+          inertiaMatrix [
+            2321458477350.0723 327120831960.7273 2064653665202.1755
+            2456320.015830256 -885277.4317599862 721207088585.853
+          ]
+        }
+      }
+    }
+    Transform {
+      translation 0 0 0.019
+      rotation -0.5773509358554485 0.5773489358556708 0.5773509358554485 -2.094395307179586
+      scale 0.001 0.001 0.001
+      children [
+        DEF BODY Shape {
+          appearance PBRAppearance {
+            metalness 0
+          }
+          geometry Mesh {
+            url [
+              "/home/jeffrey/ros2_dev_ws/src/little_bot/little_bot_3d_sim/meshes/base.stl"
+            ]
+          }
+        }
+      ]
+    }
+    DistanceSensor {
+      translation 0.042 0.02 0.063
+      rotation 0 0 1 0.5236003061004253
+      children [
+        DEF SENSOR Transform {
+          rotation 0 1 0 1.5708
+          children [
+            Shape {
+              appearance PBRAppearance {
+                baseColor 1 1 0
+                roughness 1
+                metalness 0
+              }
+              geometry Cylinder {
+                height 0.004
+                radius 0.008
+              }
+            }
+          ]
+        }
+      ]
+      name "ds0"
+      lookupTable [
+        0 1053 0
+        0.05 1020 0
+        0.45 0 0
+      ]
+      numberOfRays 2
+      aperture 1
+    }
+    DistanceSensor {
+      translation 0.042 -0.02 0.063
+      rotation 0 0 1 -0.5235996938995747
+      children [
+        USE SENSOR
+      ]
+      name "ds1"
+      lookupTable [
+        0 1020 0
+        0.05 1020 0
+        0.45 0 0
+      ]
+      numberOfRays 2
+      aperture 1
+    }
+  ]
+  boundingObject Transform {
+    translation 0 0 0.053
+    rotation 0 1 0 0
+    children [
+      Cylinder {
+        height 0.0991
+        radius 0.09
+        subdivision 65
+      }
+    ]
+  }
+  physics Physics {
+    density -1
+    mass 2.521787838963063
+    centerOfMass [
+      0 0 0.053
+    ]
+    inertiaMatrix [
+      0.014254155682444682 0.014254155682444682 0.010213240747800403
+      0 0 0
+    ]
+  }
+  controller "<extern>"
+}
