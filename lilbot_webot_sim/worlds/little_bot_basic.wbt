@@ -2,8 +2,8 @@
 WorldInfo {
 }
 Viewpoint {
-  orientation 0.16129393110204746 0.8746173325801515 -0.4571966637455141 0.7667881021751192
-  position -0.5252252952670129 0.31426583328859387 0.5021449044507409
+  orientation -0.17278082198327957 0.0750923698053564 0.9820936429647622 2.3347726443832237
+  position 1.568475828629428 -1.662742239888763 0.8950070256701411
 }
 TexturedBackground {
 }
@@ -28,7 +28,7 @@ Solid {
   boundingObject USE CUBE
 }
 Solid {
-  translation 0.87 1.93 0.25
+  translation 2.58 0.52 0.25
   children [
     DEF CUBE Shape {
       appearance OldPlywood {
@@ -40,6 +40,7 @@ Solid {
   ]
   name "solid(1)"
   boundingObject USE CUBE
+  locked TRUE
 }
 Solid {
   translation -0.01 -1.5 0.25
@@ -57,24 +58,29 @@ Solid {
   boundingObject USE CUBE
 }
 Robot {
-  translation 0 0 0.04
+  translation 0 0 0.02
   children [
-    Lidar {
-      translation 0 0 0.09
-      horizontalResolution 360
-      fieldOfView 6.28319
-      numberOfLayers 1
-      minRange 0.12
-      maxRange 8
-      noise 0.0043
-      resolution 0.96
-      defaultFrequency 6
-      minFrequency 5
-      maxFrequency 8
+    Transform {
+      children [
+        Lidar {
+          translation 0 0 0.09
+          horizontalResolution 360
+          fieldOfView 6.28319
+          numberOfLayers 1
+          minRange 0.12
+          maxRange 8
+          type "rotating"
+          noise 0.0002
+          resolution 0.96
+          defaultFrequency 6
+          minFrequency 5
+          maxFrequency 8
+        }
+      ]
     }
     BallJoint {
       jointParameters BallJointParameters {
-        anchor 0.0625 0 -0.005
+        anchor 0.0625 0 -0.007
         staticFriction 0.5
       }
       jointParameters2 JointParameters {
@@ -88,7 +94,7 @@ Robot {
         staticFriction 0.5
       }
       endPoint Solid {
-        translation 0.06262883775752649 -8.785614601869755e-05 -0.004881289942940664
+        translation 0.0625 0 -0.007
         rotation 0.6206770577731384 -0.7724015429693032 0.13474363203031084 1.4474786929076553
         children [
           Transform {
@@ -128,7 +134,7 @@ Robot {
     }
     BallJoint {
       jointParameters BallJointParameters {
-        anchor -0.0625 0 -0.005
+        anchor -0.0625 0 -0.007
         staticFriction 0.5
       }
       jointParameters2 JointParameters {
@@ -140,7 +146,7 @@ Robot {
         staticFriction 0.5
       }
       endPoint Solid {
-        translation -0.06238908096938026 -1.1814375581944535e-05 -0.005192186210513826
+        translation -0.0625 0 -0.007
         rotation -0.18276343630023836 -0.9548142921377932 -0.23436551342109463 1.3948451352912825
         children [
           Transform {
@@ -201,6 +207,8 @@ Robot {
       device [
         PositionSensor {
           name "left_wheel_encoder"
+          noise 0.001
+          resolution 0.00670421
         }
         RotationalMotor {
           name "left_wheel_motor"
@@ -208,7 +216,7 @@ Robot {
       ]
       endPoint Solid {
         translation 0 0.094 0.0225
-        rotation 0 0 1 3.139727936715174
+        rotation 0 0 0.9999999999999999 3.139727936715174
         children [
           Transform {
             scale 0.001 0.001 0.001
@@ -242,6 +250,15 @@ Robot {
           ]
         }
         physics Physics {
+          density -1
+          mass 0.11341149479459153
+          centerOfMass [
+            0 -0.0125 0
+          ]
+          inertiaMatrix [
+            6.456894436972078e-05 8.188309924122239e-05 6.456894437019349e-05
+            0 0 1.286896422574151e-10
+          ]
         }
       }
     }
@@ -297,6 +314,15 @@ Robot {
           ]
         }
         physics Physics {
+          density -1
+          mass 0.11341149479459153
+          centerOfMass [
+            0 -0.0125 0
+          ]
+          inertiaMatrix [
+            6.456894436972078e-05 8.188309924122239e-05 6.456894437019349e-05
+            0 0 1.286896422574151e-10
+          ]
         }
       }
     }

@@ -6,5 +6,5 @@ maximizedDockId: -1
 centralWidgetVisible: 1
 orthographicViewHeight: 1
 textFiles: 0 "controllers/simple_little_bot_controller/simple_little_bot_controller.cpp"
-globalOptionalRendering: JointAxes::CoordinateSystem
+globalOptionalRendering: CoordinateSystem::LidarRaysPaths::LidarPointClouds
 consoles: Console:All:All
