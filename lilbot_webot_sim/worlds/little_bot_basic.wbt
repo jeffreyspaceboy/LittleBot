@@ -1,0 +1,287 @@
+#VRML_SIM R2022a utf8
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.09381875732116608 0.0636847966953193 0.9935503446955207 1.9549087807682832
+  position 0.4910230934134644 -1.049414548570577 0.3627142418478676
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 10 10
+  wallHeight 0.4
+}
+Solid {
+  translation -1.98 0.82 0.25
+  children [
+    DEF CUBE Shape {
+      appearance OldPlywood {
+      }
+      geometry Box {
+        size 0.5 0.5 0.5
+      }
+    }
+  ]
+  name "solid(3)"
+  boundingObject USE CUBE
+}
+Solid {
+  translation 0.87 1.93 0.25
+  children [
+    DEF CUBE Shape {
+      appearance OldPlywood {
+      }
+      geometry Box {
+        size 0.5 0.5 0.5
+      }
+    }
+  ]
+  name "solid(1)"
+  boundingObject USE CUBE
+}
+Solid {
+  translation -0.01 -1.5 0.25
+  rotation 0 0 1 -0.785395307179586
+  children [
+    DEF CUBE Shape {
+      appearance OldPlywood {
+      }
+      geometry Box {
+        size 0.5 0.5 0.5
+      }
+    }
+  ]
+  name "solid(2)"
+  boundingObject USE CUBE
+}
+Robot {
+  translation 0 0 0.04
+  scale 0.001 0.001 0.001
+  children [
+    BallJoint {
+      jointParameters BallJointParameters {
+        position 6
+        anchor 62.5 0 -5
+        springConstant 0.2
+        dampingConstant 0.5
+      }
+      jointParameters2 JointParameters {
+        position 6
+        axis 1 0 0
+        springConstant 0.2
+        dampingConstant 0.5
+      }
+      jointParameters3 JointParameters {
+        position 4
+        axis 0 1 0
+        springConstant 0.2
+        dampingConstant 0.5
+      }
+      endPoint Solid {
+        translation 62.5 0 -5
+        rotation 0 1 0 0
+        children [
+          DEF BALL Shape {
+            appearance BrushedAluminium {
+            }
+            geometry Mesh {
+              url [
+                "/home/jeffrey/Downloads/simple_little_bot_models/caster_ball.obj"
+              ]
+            }
+          }
+        ]
+        boundingObject USE BALL
+        physics Physics {
+          density -1
+          mass 1712399.0274853744
+          centerOfMass [
+            57.5807707619493 0.01414119732272889 4.115393061521729
+          ]
+          inertiaMatrix [
+            95761469.11571011 11450834589.713064 11392746776.423634
+            -2788671.1497490495 -811575856.8693798 -199239.912645419
+          ]
+        }
+      }
+    }
+    BallJoint {
+      jointParameters BallJointParameters {
+        anchor -62.5 0 -5
+        springConstant 0.2
+        dampingConstant 0.5
+      }
+      jointParameters2 JointParameters {
+        axis 1 0 0
+        springConstant 0.2
+        dampingConstant 0.5
+      }
+      jointParameters3 JointParameters {
+        axis 0 1 0
+        springConstant 0.2
+        dampingConstant 0.5
+      }
+      endPoint Solid {
+        translation -62.5 0 -5
+        rotation 0 1 0 0
+        children [
+          DEF BALL Shape {
+            appearance BrushedAluminium {
+            }
+            geometry Mesh {
+              url [
+                "/home/jeffrey/Downloads/simple_little_bot_models/caster_ball.obj"
+              ]
+            }
+          }
+        ]
+        boundingObject USE BALL
+        physics Physics {
+          density -1
+          mass 1712399.0274853748
+          centerOfMass [
+            -66.55240436323352 -0.03451027112599945 18.810714302492716
+          ]
+          inertiaMatrix [
+            1249601631.8230925 16418791431.968786 15206870243.821394
+            -7865867.405016392 4287488733.227909 2223323.307920504
+          ]
+        }
+      }
+    }
+    Transform {
+      scale 1000 1000 1000
+      children [
+        Lidar {
+          translation 0 0 0.09
+          horizontalResolution 360
+          fieldOfView 6.28319
+          numberOfLayers 1
+          minRange 0.12
+          maxRange 8
+          noise 0.0043
+          resolution 0.96
+          defaultFrequency 6
+          minFrequency 5
+          maxFrequency 8
+        }
+      ]
+    }
+    DEF BODY Shape {
+      appearance Plaster {
+      }
+      geometry Mesh {
+        url [
+          "/home/jeffrey/Downloads/simple_little_bot_models/body.obj"
+        ]
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0 92.5 22.5
+      }
+      device [
+        PositionSensor {
+          name "left_wheel_encoder"
+        }
+        RotationalMotor {
+          name "left_wheel_motor"
+        }
+      ]
+      endPoint Solid {
+        translation 0 91 22.5
+        rotation 0.9999972604055012 0.00234052961639653 3.320552885762713e-05 3.1400566050564254
+        children [
+          DEF WHEEL Shape {
+            appearance PBRAppearance {
+              baseColor 0.1 0.1 0.5
+              roughness 1
+              metalness 0
+            }
+            geometry Mesh {
+              url [
+                "/home/jeffrey/Downloads/simple_little_bot_models/wheel.obj"
+              ]
+            }
+          }
+        ]
+        name "solid(2)"
+        boundingObject USE WHEEL
+        physics Physics {
+          density -1
+          mass 108911360.08877753
+          centerOfMass [
+            -0.0005353836530040378 105.00049439577087 62.50911918424962
+          ]
+          inertiaMatrix [
+            3296385240604.473 927493853573.7555 2445262254190.579
+            12242664.808580777 7280864.781235851 -1429676979184.5771
+          ]
+        }
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0 -92.5 22.5
+      }
+      device [
+        PositionSensor {
+          name "right_wheel_encoder"
+          noise 0.001
+          resolution 0.00670421
+        }
+        RotationalMotor {
+          name "right_wheel_motor"
+        }
+      ]
+      endPoint Solid {
+        translation 0 -91 22.5
+        rotation 0.019677713086098718 -0.9998049535719011 0.0016859480388105163 3.125167923719906
+        children [
+          DEF WHEEL Shape {
+            appearance PBRAppearance {
+              baseColor 0.1 0.1 0.5
+              roughness 1
+              metalness 0
+            }
+            geometry Mesh {
+              url [
+                "/home/jeffrey/Downloads/simple_little_bot_models/wheel.obj"
+              ]
+            }
+          }
+        ]
+        name "solid(3)"
+        boundingObject USE WHEEL
+        physics Physics {
+          density -1
+          mass 108911360.08877759
+          centerOfMass [
+            -0.0008140287297069451 -105.00005976724519 62.50906204865536
+          ]
+          inertiaMatrix [
+            3296363803533.6514 927492297750.7501 2445242373106.6626
+            -18619513.831066996 11092610.157628166 1429669668303.679
+          ]
+        }
+      }
+    }
+  ]
+  boundingObject USE BODY
+  physics Physics {
+    density -1
+    mass 1255871174.5099967
+    centerOfMass [
+      2.540986198458417 -0.01740058691829151 40.978280121061445
+    ]
+    inertiaMatrix [
+      7195699778600.852 7257721071938.653 5013678008973.637
+      241762112.37447104 -468216901331.0438 2476427370.0888877
+    ]
+  }
+  controller "<extern>"
+}
