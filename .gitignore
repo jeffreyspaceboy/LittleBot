@@ -6,3 +6,4 @@ examples/Keyboard_Control/keyboard_control
 .vscode/settings.json
 .DS_Store
 .vscode/*
+lilbot_webot_sim/.vscode/*
