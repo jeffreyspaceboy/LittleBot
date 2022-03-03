@@ -3,7 +3,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation 0.09890519767356817 0.040841021199564204 -0.9942584034648784 2.3624107853823064
-  position 1.1489150977900209 1.006142221318517 0.40015147882796764
+  position 1.0993142513120706 1.0545074516998552 0.405244752275424
 }
 TexturedBackground {
 }
@@ -105,7 +105,7 @@ Robot {
                 }
                 geometry Mesh {
                   url [
-                    "/home/jeffrey/Downloads/simple_little_bot_models/caster_ball.obj"
+                    "/home/jeffrey/ros2_dev_ws/src/little_bot/lilbot_webot_sim/meshes/caster_ball.obj"
                   ]
                 }
               }
@@ -157,7 +157,7 @@ Robot {
                 }
                 geometry Mesh {
                   url [
-                    "/home/jeffrey/Downloads/simple_little_bot_models/caster_ball.obj"
+                    "/home/jeffrey/ros2_dev_ws/src/little_bot/lilbot_webot_sim/meshes/caster_ball.obj"
                   ]
                 }
               }
@@ -192,7 +192,7 @@ Robot {
           }
           geometry Mesh {
             url [
-              "/home/jeffrey/Downloads/simple_little_bot_models/body.obj"
+              "/home/jeffrey/ros2_dev_ws/src/little_bot/lilbot_webot_sim/meshes/body.obj"
             ]
           }
         }
@@ -216,7 +216,7 @@ Robot {
       ]
       endPoint Solid {
         translation 0 0.094 0.0225
-        rotation 0 0 0.9999999999999999 3.139727936715174
+        rotation 0 0 1 3.139727936715174
         children [
           Transform {
             scale 0.001 0.001 0.001
@@ -229,7 +229,7 @@ Robot {
                 }
                 geometry Mesh {
                   url [
-                    "/home/jeffrey/Downloads/simple_little_bot_models/wheel.obj"
+                    "/home/jeffrey/ros2_dev_ws/src/little_bot/lilbot_webot_sim/meshes/wheel.obj"
                   ]
                 }
               }
@@ -293,7 +293,7 @@ Robot {
                 }
                 geometry Mesh {
                   url [
-                    "/home/jeffrey/Downloads/simple_little_bot_models/wheel.obj"
+                    "/home/jeffrey/ros2_dev_ws/src/little_bot/lilbot_webot_sim/meshes/wheel.obj"
                   ]
                 }
               }
@@ -344,5 +344,5 @@ Robot {
       1.8522959928894904e-07 0.00016054266409879994 2.7691660684257923e-06
     ]
   }
-  controller "simple_little_bot_controller"
+  controller "<extern>"
 }

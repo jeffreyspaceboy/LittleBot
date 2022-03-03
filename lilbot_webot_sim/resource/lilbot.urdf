@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<robot name="lilbot_webot_sim">
+    <webots>
+        <device reference="lidar" type="Lidar">
+            <ros>
+                <topicName>/lidar</topicName>
+                <alwaysOn>true</alwaysOn>
+            </ros>
+        </device>
+        <device reference="left_wheel_encoder" type="PositionSensor">
+            <ros>
+                <topicName>/left_wheel_encoder</topicName>
+                <alwaysOn>true</alwaysOn>
+            </ros>
+        </device>
+        <device reference="right_wheel_encoder" type="PositionSensor">
+            <ros>
+                <topicName>/right_wheel_encoder</topicName>
+                <alwaysOn>true</alwaysOn>
+            </ros>
+        </device>
+        <plugin type="lilbot_webot_sim.lilbot_driver.LilBotDriver"/>
+    </webots>
+</robot>
