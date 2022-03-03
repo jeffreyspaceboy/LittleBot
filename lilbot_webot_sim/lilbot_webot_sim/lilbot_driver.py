@@ -2,8 +2,8 @@ import rclpy
 from geometry_msgs.msg import Twist
 from time import sleep
 
-HALF_DISTANCE_BETWEEN_WHEELS = 0.045
-WHEEL_RADIUS = 0.025
+HALF_DISTANCE_BETWEEN_WHEELS = 0.094
+WHEEL_RADIUS = 0.038
 
 class LilBotDriver:
     def init(self, webots_node, properties):
