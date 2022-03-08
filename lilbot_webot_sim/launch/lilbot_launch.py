@@ -1,42 +1,52 @@
 import os
-import pathlib
 import launch
-from launch_ros.actions import Node
+from launch.substitutions.path_join_substitution import PathJoinSubstitution
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch import LaunchDescription
 from ament_index_python.packages import get_package_share_directory
-from webots_ros2_driver.webots_launcher import WebotsLauncher
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    package_dir = get_package_share_directory("lilbot_webot_sim")
-    robot_description = pathlib.Path(os.path.join(package_dir, "resource", "lilbot.urdf")).read_text()
+    package_directory = get_package_share_directory("lilbot_webot_sim")
+    core_directory = get_package_share_directory("webots_ros2_core")
 
-    webots = WebotsLauncher(
-        world=os.path.join(package_dir, "worlds", "lilbot_world.wbt")
-    )
-
-    lilbot_driver = Node(
-        package="webots_ros2_driver",
-        executable="driver",
-        output="screen",
-        parameters=[
-            {"robot_description": robot_description},
+    webots = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(core_directory, "launch", "robot_launch.py")
+        ),
+        launch_arguments=[
+            ("package", "lilbot_webot_sim"),
+            ("executable", "enable_robot"),
+            ("name", "lilbot"),
+            ("world", PathJoinSubstitution([package_directory, "worlds", "lilbot_world.wbt"])),
         ]
     )
 
-    obstacle_avoider = Node(
-        package="lilbot_webot_sim",
-        executable="obstacle_avoider",
+    rviz_path = package_directory+"/rviz/config.rviz"
+    rviz2 = Node(
+        package="rviz2", 
+        executable="rviz2", 
+        name="rviz2", 
+        output="screen", 
+        arguments=["-d"+str(rviz_path)]
+    )
+
+    lilbot_driver = Node(
+        package='lilbot_webot_sim',
+        executable='line_follower',
+        name='master_node'
     )
 
     return LaunchDescription([
         webots,
+        rviz2,
         lilbot_driver,
-        #obstacle_avoider,
-        launch.actions.RegisterEventHandler(
-            event_handler=launch.event_handlers.OnProcessExit(
-                target_action=webots,
-                on_exit=[launch.actions.EmitEvent(event=launch.events.Shutdown())],
-            )
-        )
+        # launch.actions.RegisterEventHandler(
+        #     event_handler=launch.event_handlers.OnProcessExit(
+        #         target_action=webots,
+        #         on_exit=[launch.actions.EmitEvent(event=launch.events.Shutdown())],
+        #     )
+        # )
     ])
