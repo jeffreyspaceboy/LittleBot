@@ -1,0 +1,153 @@
+PROTO lilbot [
+    field SFString   robot_name         "lilbot"
+    field SFVec3f    robot_translation  0.0 0.0 0.1
+    field SFString   robot_controller   "<extern>"
+
+	field SFVec3f	 mesh_scale  0.001 0.001 0.001
+	field MFString	 mesh_body_url ["../meshes/body.obj"]
+	field MFString	 mesh_wheel_url ["../meshes/wheel.obj"]
+	field MFString   mesh_caster_ball_url ["../meshes/caster_ball.obj"]
+]
+{
+    Robot {
+    translation 0 0 0.04
+    children [
+        Transform {
+        scale 0.001 0.001 0.001
+        children [
+            DEF BODY Shape {
+            appearance PBRAppearance {
+                metalness 0
+            }
+            geometry Mesh {
+                url [
+                "../meshes/body.obj"
+                ]
+            }
+            }
+        ]
+        }
+        HingeJoint {
+        jointParameters HingeJointParameters {
+            axis 0 1 0
+            anchor 0 0.0925 0.0225
+        }
+        device [
+            PositionSensor {
+            name "encoder_wheel_left"
+            noise 0.001
+            resolution 0.00670421
+            }
+            RotationalMotor {
+            name "motor_wheel_left"
+            }
+        ]
+        endPoint Solid {
+            translation 0 0.094 0.0225
+            rotation 0 0 0.9999999999999999 3.139727936715174
+            children [
+            Transform {
+                scale 0.001 0.001 0.001
+                children [
+                Shape {
+                    appearance PBRAppearance {
+                    baseColor 0.1 0.1 0.5
+                    roughness 1
+                    metalness 0
+                    }
+                    geometry Mesh {
+                    url [
+                        "../meshes/wheel.obj"
+                    ]
+                    }
+                }
+                ]
+            }
+            ]
+            name "wheel_left"
+            boundingObject Transform {
+            translation 0 -0.0125 0
+            rotation 1 0 0 1.5708
+            children [
+                Shape {
+                geometry Cylinder {
+                    height 0.025
+                    radius 0.038
+                }
+                }
+            ]
+            }
+            physics Physics {
+            }
+        }
+        }
+        HingeJoint {
+        jointParameters HingeJointParameters {
+            axis 0 1 0
+            anchor 0 -0.0925 0.0225
+        }
+        device [
+            PositionSensor {
+            name "encoder_wheel_right"
+            noise 0.001
+            resolution 0.00670421
+            }
+            RotationalMotor {
+            name "motor_wheel_right"
+            }
+        ]
+        endPoint Solid {
+            translation 0 -0.094 0.0225
+            rotation 0 1 0 0
+            children [
+            Transform {
+                scale 0.001 0.001 0.001
+                children [
+                DEF WHEEL Shape {
+                    appearance PBRAppearance {
+                    baseColor 0.1 0.1 0.5
+                    roughness 1
+                    metalness 0
+                    }
+                    geometry Mesh {
+                    url [
+                        "../meshes/wheel.obj"
+                    ]
+                    }
+                }
+                ]
+            }
+            ]
+            name "wheel_right"
+            boundingObject Transform {
+            translation 0 -0.0125 0
+            rotation 1 0 0 1.5708
+            children [
+                Shape {
+                geometry Cylinder {
+                    height 0.025
+                    radius 0.038
+                }
+                }
+            ]
+            }
+            physics Physics {
+            }
+        }
+        }
+    ]
+    name "lilbot"
+    boundingObject Transform {
+        scale 0.001 0.001 0.001
+        children [
+        USE BODY
+        ]
+    }
+    physics Physics {
+        centerOfMass [
+        -0.01 0 0.02
+        ]
+    }
+    controller "<extern>"
+    }
+}

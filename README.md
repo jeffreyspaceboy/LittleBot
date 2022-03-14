@@ -11,6 +11,16 @@ ROS Version: ROS2 Foxy Fitzroy
 Last Edit: 2022/2/22 
 
 
-Webots Simulation
+## Webots Simulation
 http://docs.ros.org/en/foxy/Tutorials/Simulators/Webots/Setting-up-a-Robot-Simulation-Webots.html
 https://github.com/cyberbotics/webots_ros2/wiki/Tutorial-Create-Webots-Robot
+
+
+## Useful Commands 
+
+rm -r build install log
+
+colcon build
+
+source install/setup.bash
+
