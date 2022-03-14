@@ -1,9 +1,10 @@
 #VRML_SIM R2022a utf8
 WorldInfo {
+  basicTimeStep 16
 }
 Viewpoint {
   orientation -0.2662329758163558 0.20908679374301453 0.9409584025185351 1.730975449416079
-  position 1.025464114851943 -6.499451149158217 3.840969507776798
+  position 1.1655936770324589 -8.066176775282793 4.741597706572835
   follow "lilbot"
 }
 TexturedBackground {
@@ -17,6 +18,7 @@ Robot {
       children [
         Lidar {
           translation 0 0 0.09
+          name "lidar_sensor"
           horizontalResolution 360
           fieldOfView 6.28319
           numberOfLayers 1

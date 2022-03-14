@@ -48,7 +48,7 @@ class LilbotWebotsDriver:
         self.__encoder_wheel_right = self.__robot.getDevice("encoder_wheel_right")
         self.__encoder_wheel_right.enable(1)
 
-        self.__lidar= self.__robot.getLidar("lidar")
+        self.__lidar= self.__robot.getLidar("lidar_sensor")
         self.__lidar.enable(1)
         self.__laser_publisher = self.__node.create_publisher(LaserScan, '/laser_scan', 1)
 
@@ -64,7 +64,7 @@ class LilbotWebotsDriver:
         self.left_omega = 0.0
         self.right_omega = 0.0
         self.odom_pub = self.__node.create_publisher(Odometry,"odom",1)
-        self.odom_timer = self.__node.create_timer(0.1, self.publish_odom)
+        self.odom_timer = self.__node.create_timer(0.01, self.publish_odom)
         self.last_time = 0.0
         #########################
 
@@ -174,14 +174,13 @@ class LilbotWebotsDriver:
     def laser_pub(self):
         msg_lidar = LaserScan()
         msg_lidar.header.frame_id = 'base_link'
-        stamp = Time(seconds=self.__robot.getTime()).to_msg()
-        msg_lidar.header.stamp = stamp
+        msg_lidar.header.stamp = Time(seconds=self.__robot.getTime()).to_msg()
         msg_lidar.angle_min = 0.0
         msg_lidar.angle_max = 2 * 22 / 7
-        msg_lidar.angle_increment = ( 0.25 * 22 ) / (180 * 7 )
+        msg_lidar.angle_increment = 0.96
         msg_lidar.range_min = 0.12
-        msg_lidar.range_max = 2.0
-        msg_lidar.scan_time = 0.032
+        msg_lidar.range_max = 8.0
+        msg_lidar.scan_time = 0.064
         msg_lidar.ranges = self.__lidar.getRangeImage()
 
         self.__laser_publisher.publish(msg_lidar)

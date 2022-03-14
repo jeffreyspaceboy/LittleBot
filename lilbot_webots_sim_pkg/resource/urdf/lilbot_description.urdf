@@ -1,9 +1,9 @@
 <?xml version="1.0" ?>
 <robot name="lilbot">
     <webots>
-        <device reference="lidar" type="Lidar">
+        <device reference="lidar_sensor" type="Lidar">
             <ros>
-                <topicName>/lidar</topicName>
+                <topicName>/lidar_sensor</topicName>
                 <alwaysOn>true</alwaysOn>
             </ros>
         </device>
