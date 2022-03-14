@@ -2,106 +2,117 @@
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.29371739980682676 -0.11028911374888005 0.9495085046692332 3.82656164350981
-  position 1.6027753276927965 1.3565935107989928 1.3693288548203095
+  orientation -0.11427391846182153 0.0906821991638158 0.9893018802742645 1.810461488629551
+  position 0.5355485430700222 -1.7364809250844888 0.49408644013881764
+  follow "lilbot"
 }
 TexturedBackground {
 }
 TexturedBackgroundLight {
 }
-CircleArena {
-}
 Robot {
-  translation 0 0 0.04
+  translation 0 0 0.02
   children [
     Transform {
       children [
-          Lidar {
-              translation 0 0 0.09
-              horizontalResolution 360
-              fieldOfView 6.28319
-              numberOfLayers 1
-              minRange 0.12
-              maxRange 8
-              type "rotating"
-              noise 0.0002
-              resolution 0.96
-              defaultFrequency 6
-              minFrequency 5
-              maxFrequency 8
-          }
+        Lidar {
+          translation 0 0 0.09
+          horizontalResolution 360
+          fieldOfView 6.28319
+          numberOfLayers 1
+          minRange 0.12
+          maxRange 8
+          type "rotating"
+          noise 0.0002
+          resolution 0.96
+          defaultFrequency 6
+          minFrequency 5
+          maxFrequency 8
+        }
       ]
     }
     BallJoint {
-        jointParameters BallJointParameters {
-            anchor 0.0625 0 -0.006
-            staticFriction 0.5
-        }
-        jointParameters2 JointParameters {
-            axis 1 0 0
-            staticFriction 0.5
-        }
-        jointParameters3 JointParameters {
-            axis 0 1 0
-            staticFriction 0.5
-        }
-        endPoint Solid {
-            translation 0.0625 0 -0.006
+      jointParameters BallJointParameters {
+        anchor 0.0625 0 -0.006
+        staticFriction 0.5
+      }
+      jointParameters2 JointParameters {
+        axis 1 0 0
+        staticFriction 0.5
+      }
+      jointParameters3 JointParameters {
+        axis 0 1 0
+        staticFriction 0.5
+      }
+      endPoint Solid {
+        translation 0.0625 0 -0.006
+        children [
+          Transform {
+            scale 0.001 0.001 0.001
             children [
-                Transform {
-                    scale 0.001 0.001 0.001
-                    children [
-                        DEF BALL Shape {
-                            appearance PBRAppearance { }
-                            geometry Mesh { url [
-                              "../meshes/caster_ball.obj"
-                            ] }
-                        }
-                    ]
+              DEF BALL Shape {
+                appearance PBRAppearance {
                 }
+                geometry Mesh {
+                  url [
+                    "../meshes/caster_ball.obj"
+                  ]
+                }
+              }
             ]
-            name "caster_ball_front"
-            boundingObject Transform {
-                scale 0.001 0.001 0.001
-                children [ USE BALL ]
-            }
-            physics Physics { }
+          }
+        ]
+        name "caster_ball_front"
+        boundingObject Transform {
+          scale 0.001 0.001 0.001
+          children [
+            USE BALL
+          ]
         }
+        physics Physics {
+        }
+      }
     }
     BallJoint {
-        jointParameters BallJointParameters {
-            anchor -0.0625 0 -0.006
-            staticFriction 0.5
-        }
-        jointParameters2 JointParameters {
-            axis 1 0 0
-            staticFriction 0.5
-        }
-        jointParameters3 JointParameters {
-            axis 0 1 0
-            staticFriction 0.5
-        }
-        endPoint Solid {
-            translation -0.0625 0 -0.006
+      jointParameters BallJointParameters {
+        anchor -0.0625 0 -0.006
+        staticFriction 0.5
+      }
+      jointParameters2 JointParameters {
+        axis 1 0 0
+        staticFriction 0.5
+      }
+      jointParameters3 JointParameters {
+        axis 0 1 0
+        staticFriction 0.5
+      }
+      endPoint Solid {
+        translation -0.0625 0 -0.006
+        children [
+          Transform {
+            scale 0.001 0.001 0.001
             children [
-                Transform {
-                    scale 0.001 0.001 0.001
-                    children [
-                        DEF BALL Shape {
-                            appearance PBRAppearance { }
-                            geometry Mesh { url [
-                              "../meshes/caster_ball.obj"
-                            ] }
-                        }
-                    ]
+              DEF BALL Shape {
+                appearance PBRAppearance {
                 }
+                geometry Mesh {
+                  url [
+                    "../meshes/caster_ball.obj"
+                  ]
+                }
+              }
             ]
-            boundingObject Transform {
-                scale 0.001 0.001 0.001
-                children [ USE BALL ]
-            }
-            physics Physics { }
+          }
+        ]
+        boundingObject Transform {
+          scale 0.001 0.001 0.001
+          children [
+            USE BALL
+          ]
         }
+        physics Physics {
+        }
+      }
     }
     Transform {
       scale 0.001 0.001 0.001
@@ -135,7 +146,7 @@ Robot {
       ]
       endPoint Solid {
         translation 0 0.094 0.0225
-        rotation 0 0 0.9999999999999999 3.139727936715174
+        rotation 0 0 1 3.139727936715174
         children [
           Transform {
             scale 0.001 0.001 0.001
@@ -240,4 +251,6 @@ Robot {
     ]
   }
   controller "<extern>"
+}
+Floor {
 }

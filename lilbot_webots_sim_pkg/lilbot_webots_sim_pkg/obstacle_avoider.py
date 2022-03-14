@@ -11,25 +11,22 @@ class ObstacleAvoider(Node):
     def __init__(self):
         super().__init__("obstacle_avoider")
 
-    #     self.__publisher = self.create_publisher(Twist, "cmd_vel", 1)
+        self.__publisher = self.create_publisher(Twist, "cmd_vel", 1)
+        self.create_timer(0.2, self.timer_callback)
+        self.speed = 0.0
+        
 
-    #     self.create_subscription(Range, "sensor_left", self.__left_sensor_callback, 1)
-    #     self.create_subscription(Range, "sensor_right", self.__right_sensor_callback, 1)
+    def timer_callback(self):
+        command_message = Twist()
 
-    # def __left_sensor_callback(self, message):
-    #     self.__left_sensor_value = message.range
+        if(self.speed == 0.0):
+            command_message.linear.x = 0.5
+            self.speed = 0.5
+        else:
+            command_message.linear.x = 0.0
+            self.speed = 0.0
 
-    # def __right_sensor_callback(self, message):
-    #     self.__right_sensor_value = message.range
-
-    #     command_message = Twist()
-
-    #     command_message.linear.x = 0.1
-
-    #     if self.__left_sensor_value < 0.9 * MAX_RANGE or self.__right_sensor_value < 0.9 * MAX_RANGE:
-    #         command_message.angular.z = -2.0
-
-    #     self.__publisher.publish(command_message)
+        self.__publisher.publish(command_message)
 
 
 def main(args=None):
