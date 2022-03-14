@@ -12,19 +12,19 @@ class ObstacleAvoider(Node):
         super().__init__("obstacle_avoider")
 
         self.__publisher = self.create_publisher(Twist, "cmd_vel", 1)
-        self.create_timer(0.2, self.timer_callback)
-        self.speed = 0.0
+        self.create_timer(2.0, self.timer_callback)
+        self.speed = -0.1
         
 
     def timer_callback(self):
         command_message = Twist()
 
-        if(self.speed == 0.0):
-            command_message.linear.x = 0.5
-            self.speed = 0.5
+        if(self.speed <= 0.0):
+            command_message.linear.x = 0.1
+            self.speed = 0.1
         else:
-            command_message.linear.x = 0.0
-            self.speed = 0.0
+            command_message.linear.x = -0.1
+            self.speed = -0.1
 
         self.__publisher.publish(command_message)
 

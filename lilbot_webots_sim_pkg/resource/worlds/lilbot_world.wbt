@@ -2,8 +2,8 @@
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.11427391846182153 0.0906821991638158 0.9893018802742645 1.810461488629551
-  position 0.5355485430700222 -1.7364809250844888 0.49408644013881764
+  orientation -0.2662329758163558 0.20908679374301453 0.9409584025185351 1.730975449416079
+  position 1.025464114851943 -6.499451149158217 3.840969507776798
   follow "lilbot"
 }
 TexturedBackground {
@@ -253,4 +253,19 @@ Robot {
   controller "<extern>"
 }
 Floor {
+}
+OilBarrel {
+  translation 1.09 1.05 0.44
+}
+OilBarrel {
+  translation 1.09 -1.1 0.44
+  name "oil barrel(1)"
+}
+OilBarrel {
+  translation 0.07 0.72 0.44
+  name "oil barrel(2)"
+}
+OilBarrel {
+  translation -1.58 -0.81 0.44
+  name "oil barrel(3)"
 }

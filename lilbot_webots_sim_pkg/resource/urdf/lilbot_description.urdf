@@ -1,15 +1,21 @@
 <?xml version="1.0" ?>
 <robot name="lilbot">
     <webots>
-        <device reference="ds0" type="DistanceSensor">
+        <device reference="lidar" type="Lidar">
             <ros>
-                <topicName>/sensor_left</topicName>
+                <topicName>/lidar</topicName>
                 <alwaysOn>true</alwaysOn>
             </ros>
         </device>
-        <device reference="ds1" type="DistanceSensor">
+        <device reference="encoder_wheel_left" type="PositionSensor">
             <ros>
-                <topicName>/sensor_right</topicName>
+                <topicName>/encoder_wheel_left</topicName>
+                <alwaysOn>true</alwaysOn>
+            </ros>
+        </device>
+        <device reference="encoder_wheel_right" type="PositionSensor">
+            <ros>
+                <topicName>/encoder_wheel_right</topicName>
                 <alwaysOn>true</alwaysOn>
             </ros>
         </device>

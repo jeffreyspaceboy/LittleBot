@@ -26,7 +26,8 @@ setup(
     entry_points={
         "console_scripts": [
             "lilbot_webots_driver = lilbot_webots_sim_pkg.lilbot_webots_driver:main",
-            "obstacle_avoider = lilbot_webots_sim_pkg.obstacle_avoider:main"
+            "obstacle_avoider = lilbot_webots_sim_pkg.obstacle_avoider:main",
+            "odom_publisher = lilbot_webots_sim_pkg.odom_publisher:main",
         ],
     },
 )

@@ -26,10 +26,16 @@ def generate_launch_description():
         executable="obstacle_avoider",
     )
 
+    odom_publisher = Node(
+        package="lilbot_webots_sim_pkg",
+        executable="odom_publisher",
+    )
+
     return LaunchDescription([
         webots,
         webots_driver,
         obstacle_avoider,
+        odom_publisher,
         launch.actions.RegisterEventHandler(
             event_handler=launch.event_handlers.OnProcessExit(
                 target_action=webots,
