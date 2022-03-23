@@ -6,10 +6,11 @@ data_files = []
 data_files.append(("share/ament_index/resource_index/packages", ["resource/" + package_name]))
 data_files.append(("share/" + package_name + "/launch", glob("launch/*")))
 data_files.append(("share/" + package_name + "/resource/meshes", glob("resource/meshes/*")))
-data_files.append(("share/" + package_name + "/resource/protos", glob("resource/protos/*")))
 data_files.append(("share/" + package_name + "/resource/worlds", glob("resource/worlds/*")))
 data_files.append(("share/" + package_name + "/resource/urdf", glob("resource/urdf/*")))
 data_files.append(("share/" + package_name, ["package.xml"]))
+
+# data_files.append(("share/" + package_name + "/resource/protos", glob("resource/protos/*")))
 
 setup(
     name=package_name,
@@ -19,15 +20,15 @@ setup(
     install_requires=["setuptools"],
     zip_safe=True,
     maintainer="user",
-    maintainer_email="user.name@mail.com",
+    maintainer_email="jeffreyspaceboy@gmail.com",
     description="TODO: Package description",
     license="TODO: License declaration",
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
             "lilbot_webots_driver = lilbot_webots_sim_pkg.lilbot_webots_driver:main",
-            "obstacle_avoider = lilbot_webots_sim_pkg.obstacle_avoider:main",
-            "odom_publisher = lilbot_webots_sim_pkg.odom_publisher:main",
+            # "obstacle_avoider = lilbot_webots_sim_pkg.obstacle_avoider:main",
+            # "odom_publisher = lilbot_webots_sim_pkg.odom_publisher:main",
         ],
     },
 )
