@@ -3,12 +3,12 @@
 - Packages should be created into this directory. This will allow the entire little_bot repository to be cloned, and all necesary packages will then be included.
 
 ## Resources
-//Understanding Nodes: https://docs.ros.org/en/foxy/Tutorials/Understanding-ROS2-Nodes.html  
+Understanding Nodes: https://docs.ros.org/en/foxy/Tutorials/Understanding-ROS2-Nodes.html  
 
 ## Details
 Author: Jeffrey Fisher II  
-ROS Version: ROS2 Foxy Fitzroy  
-Last Edit: 2022/2/22 
+ROS Version: ROS2 Galactic Geochelone
+Last Edit: 2022/3/23 
 
 
 ## Webots Simulation

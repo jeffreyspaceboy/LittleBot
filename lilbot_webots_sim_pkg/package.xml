@@ -3,18 +3,13 @@
 <package format="3">
   <name>lilbot_webots_sim_pkg</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="jeffreyspaceboy@gmail.com">jeffrey</maintainer>
-  <license>TODO: License declaration</license>
+  <description>This ROS2 package allows for 3D simulation of lilbot using webots. This package is mainly for development.</description>
+  <maintainer email="jeffreyspaceboy@gmail.com">Jeffrey Fisher II</maintainer>
+  <license>Apache License 2.0</license>
 
   <depend>rclpy</depend>
   <depend>geometry_msgs</depend>
   <depend>webots_ros2_driver</depend>
-
-  <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
-  <test_depend>ament_pep257</test_depend>
-  <test_depend>python3-pytest</test_depend>
 
   <export>
     <build_type>ament_python</build_type>
