@@ -1,12 +1,16 @@
 <?xml version="1.0" ?>
 <robot name="lilbot">
     <webots>
-        <device reference="lidar_sensor" type="Lidar">
+        <device reference="lidar" type="Lidar">
             <ros>
-                <topicName>/lidar_sensor</topicName>
+                <enabled>true</enabled>
+                <updateRate>5</updateRate>
+                <topicName>/scan</topicName>
                 <alwaysOn>true</alwaysOn>
+                <frameName>lidar</frameName>
             </ros>
         </device>
+
         <device reference="encoder_wheel_left" type="PositionSensor">
             <ros>
                 <topicName>/encoder_wheel_left</topicName>

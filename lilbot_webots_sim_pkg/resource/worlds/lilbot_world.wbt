@@ -18,7 +18,7 @@ Robot {
       children [
         Lidar {
           translation 0 0 0.09
-          name "lidar_sensor"
+          name "lidar"
           horizontalResolution 360
           fieldOfView 6.28319
           numberOfLayers 1

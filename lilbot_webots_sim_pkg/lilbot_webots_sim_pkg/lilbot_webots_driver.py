@@ -20,17 +20,12 @@ class LilbotWebotsDriver:
 
         self.__time_step = 0.064
 
-        
 
-        
-
-
-
-        self.__motor_wheel_left = self.__robot.getDevice("motor_wheel_left")
+        self.__motor_wheel_left = self.__robot.getMotor("motor_wheel_left")
         self.__motor_wheel_left.setPosition(float("inf"))
         self.__motor_wheel_left.setVelocity(0)
 
-        self.__motor_wheel_right = self.__robot.getDevice("motor_wheel_right")
+        self.__motor_wheel_right = self.__robot.getMotor("motor_wheel_right")
         self.__motor_wheel_right.setPosition(float("inf"))
         self.__motor_wheel_right.setVelocity(0)
 
@@ -43,14 +38,15 @@ class LilbotWebotsDriver:
         self.__node.create_subscription(Twist, "cmd_vel", self.__cmd_vel_callback, 1)
         
 
-        self.__encoder_wheel_left = self.__robot.getDevice("encoder_wheel_left")
+        self.__encoder_wheel_left = self.__robot.getPositionSensor("encoder_wheel_left")
         self.__encoder_wheel_left.enable(1)
-        self.__encoder_wheel_right = self.__robot.getDevice("encoder_wheel_right")
+        self.__encoder_wheel_right = self.__robot.getPositionSensor("encoder_wheel_right")
         self.__encoder_wheel_right.enable(1)
 
-        self.__lidar= self.__robot.getLidar("lidar_sensor")
+        self.__lidar= self.__robot.getLidar("lidar")
         self.__lidar.enable(1)
-        self.__laser_publisher = self.__node.create_publisher(LaserScan, '/laser_scan', 1)
+        self.__lidar.enablePointCloud()
+        self.__laser_publisher = self.__node.create_publisher(LaserScan, '/scan', 1)
 
 
         ##########################
