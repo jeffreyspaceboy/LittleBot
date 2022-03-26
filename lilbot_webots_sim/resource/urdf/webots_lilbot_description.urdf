@@ -21,7 +21,7 @@
             </ros>
         </device>
         <!-- <plugin type="webots_ros2_control::Ros2Control" /> -->
-        <plugin type="lilbot_webots_sim_pkg.lilbot_webots_driver.LilbotDriver" />
+        <plugin type="lilbot_webots_sim.lilbot_webots_driver.LilbotDriver" />
     </webots>
 
     <!-- <ros2_control name="WebotsControl" type="system">
@@ -38,7 +38,7 @@
             <visual>
             <origin rpy="1.5708 0.0 -1.5708" xyz="0.0 0.0 0.019"/>
             <geometry>
-                <mesh filename="package://lilbot_webots_sim_pkg/resource/meshes/body.obj" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://lilbot_webots_sim/resource/meshes/body.obj" scale="0.001 0.001 0.001"/>
             </geometry>
             <material name="white"/>
             </visual>
@@ -48,7 +48,7 @@
             <visual>
             <origin rpy="1.5708 0.0 -1.5708" xyz="0.0 0.0 0.019"/>
             <geometry>
-                <mesh filename="package://lilbot_webots_sim_pkg/resource/meshes/wheel.obj" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://lilbot_webots_sim/resource/meshes/wheel.obj" scale="0.001 0.001 0.001"/>
             </geometry>
             <material name="blue"/>
             </visual>
@@ -64,7 +64,7 @@
             <visual>
             <origin rpy="1.5708 0.0 -1.5708" xyz="0.0 0.0 0.019"/>
             <geometry>
-                <mesh filename="package://lilbot_webots_sim_pkg/resource/meshes/right_wheel.obj" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://lilbot_webots_sim/resource/meshes/right_wheel.obj" scale="0.001 0.001 0.001"/>
             </geometry>
             <material name="blue"/>
             </visual>

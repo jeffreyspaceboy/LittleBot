@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>lilbot_webots_sim_pkg</name>
+  <name>lilbot_webots_sim</name>
   <version>0.0.0</version>
   <description>This ROS2 package allows for 3D simulation of lilbot using webots. This package is mainly for development.</description>
   <maintainer email="jeffreyspaceboy@gmail.com">Jeffrey Fisher II</maintainer>

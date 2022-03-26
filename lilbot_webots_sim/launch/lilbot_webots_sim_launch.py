@@ -8,7 +8,7 @@ from webots_ros2_driver.webots_launcher import WebotsLauncher
 
 
 def generate_launch_description():
-    package_directory = get_package_share_directory("lilbot_webots_sim_pkg")
+    package_directory = get_package_share_directory("lilbot_webots_sim")
     lilbot_description = pathlib.Path(os.path.join(package_directory, "resource/urdf", "webots_lilbot_description.urdf")).read_text()
     # ros2_control_params = os.path.join(package_directory, "resource/yml", "ros2_control_configuration.yml")
 

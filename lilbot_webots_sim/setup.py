@@ -1,7 +1,7 @@
 from glob import glob
 from setuptools import setup
 
-package_name = "lilbot_webots_sim_pkg"
+package_name = "lilbot_webots_sim"
 
 data_files = []
 data_files.append(("share/ament_index/resource_index/packages", ["resource/" + package_name]))
@@ -23,7 +23,7 @@ setup(
     license = "Apache License 2.0",
     entry_points = {
         "console_scripts": [
-            "lilbot_webots_driver = lilbot_webots_sim_pkg.lilbot_webots_driver:main",
+            "lilbot_webots_driver = lilbot_webots_sim.lilbot_webots_driver:main",
         ],
     },
 )
