@@ -6,7 +6,8 @@ package_name = "lilbot_webots_sim"
 data_files = []
 data_files.append(("share/ament_index/resource_index/packages", ["resource/" + package_name]))
 data_files.append(("share/" + package_name + "/launch", glob("launch/*")))
-data_files.append(("share/" + package_name + "/resource/meshes", glob("resource/meshes/*")))
+data_files.append(("share/" + package_name + "/resource/meshes/models", glob("resource/meshes/models/*")))
+# data_files.append(("share/" + package_name + "/resource/meshes/textures", glob("resource/meshes/textures/*")))
 data_files.append(("share/" + package_name + "/resource/worlds", glob("resource/worlds/*")))
 data_files.append(("share/" + package_name + "/resource/urdf", glob("resource/urdf/*")))
 data_files.append(("share/" + package_name, ["package.xml"]))
