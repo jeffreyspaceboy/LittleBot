@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # NOTE: Change this filename to match your computers directory for the file
-sprite_file = "src/little_bot/little_bot_2d_sim/images/little_bot_sprite.png"
+sprite_file = "src/little_bot/lilbot_pygame/images/lilbot_sprite.png"
 
 DT = 0.0
 
@@ -77,7 +77,7 @@ class World:
 class Robot(Node):
     def __init__(self, start_position, robot_image, width):
         #ROS TF
-        super().__init__('little_bot_2d_sim_node')
+        super().__init__('lilbot_pygame_node')
         self._tf_publisher = TransformBroadcaster(self)
         #ROS TF
         

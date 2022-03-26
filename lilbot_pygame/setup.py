@@ -1,7 +1,7 @@
 from setuptools import setup
 from setuptools import find_packages
 
-package_name = 'little_bot_2d_sim'
+package_name = 'lilbot_pygame'
 
 setup(
     name=package_name,
@@ -22,7 +22,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'little_bot_2d_sim_node = little_bot_2d_sim.little_bot_2d_sim_node:main'
+            'lilbot_pygame_node = lilbot_pygame.lilbot_pygame_node:main'
         ],
     },
 )

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>little_bot_2d_sim</name>
+  <name>lilbot_pygame</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="jeffreyspaceboy@gmail.com">jeffrey</maintainer>
