@@ -2,9 +2,9 @@
 <package format="3">
   <name>lilbot_pygame</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="jeffreyspaceboy@gmail.com">jeffrey</maintainer>
-  <license>TODO: License declaration</license>
+  <description>Pygame package for simple 2D simulation testing.</description>
+  <maintainer email="jeffreyspaceboy@gmail.com">Jeffrey Fisher II</maintainer>
+  <license>Apache License 2.0</license>
 
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>rclpy</exec_depend>
