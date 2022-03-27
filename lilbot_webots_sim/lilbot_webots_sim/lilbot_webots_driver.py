@@ -1,13 +1,10 @@
 
 import math
-
 import rclpy
-
 from geometry_msgs.msg import Twist, Quaternion, TransformStamped
-
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
-from tf2_ros import StaticTransformBroadcaster,TransformBroadcaster 
+from tf2_ros import TransformBroadcaster 
 import tf_transformations
 
 HALF_DISTANCE_BETWEEN_WHEELS = 0.0925
