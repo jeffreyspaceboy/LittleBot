@@ -9,6 +9,8 @@
 
   <depend>rclpy</depend>
   <depend>geometry_msgs</depend>
+  <depend>tf_transforms</depend>
+  <depend>math</depend>
   <depend>webots_ros2_driver</depend>
 
   <export>

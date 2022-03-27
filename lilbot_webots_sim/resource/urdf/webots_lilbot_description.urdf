@@ -1,13 +1,13 @@
 <?xml version="1.0" ?>
 <robot name="lilbot">
     <webots>
-        <device reference="lidar" type="Lidar">
+        <!-- <device reference="lidar" type="Lidar">
             <ros>
-                <topicName>/scan</topicName>
+                <topicName>/scan_raw</topicName>
                 <alwaysOn>true</alwaysOn>
             </ros>
-        </device>
-
+        </device> -->
+        <!-- 
         <device reference="encoder_wheel_left" type="PositionSensor">
             <ros>
                 <topicName>/encoder_wheel_left</topicName>
@@ -19,7 +19,7 @@
                 <topicName>/encoder_wheel_right</topicName>
                 <alwaysOn>true</alwaysOn>
             </ros>
-        </device>
+        </device> -->
         <!-- <plugin type="webots_ros2_control::Ros2Control" /> -->
         <plugin type="lilbot_webots_sim.lilbot_webots_driver.LilbotDriver" />
     </webots>

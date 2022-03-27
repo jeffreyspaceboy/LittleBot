@@ -54,11 +54,20 @@ def generate_launch_description():
         }],
     )
 
+    rviz2 = Node(
+        package='rviz2',
+        namespace='',
+        executable='rviz2',
+        name='rviz2',
+        arguments=[]#['-d', [os.path.join(pkg_dir, 'config', 'config_file.rviz')]]
+    )
+
     return launch.LaunchDescription([
         webots, # Start the Webots node
         #ros2_supervisor, # Start the Ros2Supervisor node # Only with the develop branch!
         webots_robot_driver, # Start the Webots robot driver
         robot_state_publisher, # Start the robot_state_publisher
+        rviz2,
 
         launch.actions.RegisterEventHandler(
             event_handler=launch.event_handlers.OnProcessExit(

@@ -1,6 +1,6 @@
 #VRML_SIM R2022a utf8
 WorldInfo {
-  basicTimeStep 16
+  basicTimeStep 5
 }
 Viewpoint {
   orientation -0.35953456238438164 0.6073211814892773 0.7084461030773898 1.2891326700969095
@@ -27,9 +27,9 @@ Robot {
           type "fixed"
           noise 0.00001
           resolution 0.96
-          defaultFrequency 100
+          defaultFrequency 1000000
           minFrequency 5
-          maxFrequency 100
+          maxFrequency 1000000
         }
       ]
     }
