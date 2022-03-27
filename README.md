@@ -24,3 +24,19 @@ colcon build
 
 source install/setup.bash
 
+
+
+
+lilbot
+	Overall launch and control of robot
+lilbot_drivetrain
+	Controls physical hardware
+	Nodes:
+		Motor_Wheel_Left
+			Encoder_Wheel_Left
+		Right_Wheel_Motor
+			Right_Wheel_En
+lilbot_interfaces
+	Sets up all custom interfaces
+lilbot_webots_sim
+	Controls virtual version of the robot
