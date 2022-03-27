@@ -18,7 +18,7 @@ WHEEL_RADIUS = 0.038
 class LilbotDriver:
     def init(self, webots_node, properties):
         self.__robot = webots_node.robot
-        self.__timestep = 0.005
+        self.__timestep = 0.032
 
         # ===== WHEEL MOTORS ===== #
         self.__motor_wheel_left = self.__robot.getMotor("motor_wheel_left")
@@ -31,11 +31,11 @@ class LilbotDriver:
         # ===== SENSORS ===== #
         self.__encoder_wheel_left = self.__robot.getPositionSensor("encoder_wheel_left")
         self.__encoder_wheel_right = self.__robot.getPositionSensor("encoder_wheel_right")
-        self.__encoder_wheel_left.enable(5)
-        self.__encoder_wheel_right.enable(5)
+        self.__encoder_wheel_left.enable(1)
+        self.__encoder_wheel_right.enable(1)
 
         self.__lidar_sensor = self.__robot.getLidar("lidar")
-        self.__lidar_sensor.enable(5)
+        self.__lidar_sensor.enable(1)
         self.__lidar_sensor.enablePointCloud()
         ###rotation 0 0 1 3.14159265359
 
@@ -148,7 +148,7 @@ class LilbotDriver:
         msg_lidar.angle_increment = (22 / 7) * (1 / 180) #( 0.25 * 22 ) / (180 * 7 ) 
         msg_lidar.range_min = 0.12
         msg_lidar.range_max = 8.0
-        msg_lidar.scan_time = 0.032
+        msg_lidar.scan_time = self.__timestep
         msg_lidar.ranges = self.__lidar_sensor.getRangeImage()
         self.__laser_publisher.publish(msg_lidar)
 
