@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp/time.hpp"
 
 #include "nav_msgs/msg/odometry.hpp"
 
@@ -12,14 +13,62 @@
 #include <pigpio.h> //https://roboticsbackend.com/use-and-compile-wiringpi-with-ros-on-raspberry-pi/
 #endif
 
+#define WHEEL_BASE 0.185
+#define WHEEL_RADIUS 0.038
+
 namespace Lilbot{
-	class Motor : public rclcpp::Node{
-		public:
-			Motor(const std::string &node_name) : Node(node_name){
-				RCLCPP_INFO(this->get_logger(), "MOTOR INIT: %s", node_name);
+	class PID_Controller{
+		bool _enabled;
+		float _target;
+		float _kp, _ki, _kd;
+		float _error, _prev_error, _error_tolerance, _error_integral, _dedt, _dt;
+		long _prev_time;
+
+		PID_Controller(float kP = 0.0, float kI = 0.0, float kD = 0.0) : 
+			_enabled(false),
+			_target(0.0),
+			_kp(kP), _ki(kI), _kd(kD),
+			_error(0.0), _prev_error(0.0), _error_tolerance(0.0), _error_integral(0.0), _dedt(0.0), _dt(0.0),
+			_prev_time(0)
+		{
+			// Insert other setup
+		}
+
+		void start(float target, float error_tolerance = 0.0){
+			_error_tolerance = error_tolerance;
+			_target = target;
+			_prev_error = target;
+			_error_integral = 0.0;
+			#ifdef __arm__
+			_prev_time = gpioTick();
+			#endif
+			_enabled = true;
+		}
+
+		float control(float current){
+			if(!_enabled){ 
+				//RCLCPP_WARN_ONCE(this->get_logger(), "You must run pid_start before using the PID controller.");
 			}
-		private:
-			uint8_t gpio_pin_enable, gpio_pin_phase_a, gpio_pin_phase_b;
+
+			long current_time = 0.0;
+			#ifdef __arm__
+			current_time = gpioTick();
+			#endif
+			_dt = (float)(current_time - _prev_time);	// Time Delta
+			_error = _target - current;					// Error
+
+			// If error is within the user defined tolerance range, act as if there is no error.
+			if(_error < _error_tolerance  || _error > -_error_tolerance) { _error = 0.0; } 
+
+			_error_integral += _error * _dt;			// Integral
+			_dedt = (_error - _prev_error) / _dt;		// Derivative  
+
+			_prev_error = _error;						// Update Previous Error
+			_prev_time = current_time;					// Update Previous Time
+
+			return (_kp * _error) + (_ki * _error_integral) + (_kd * _dedt); // Return the Control Signal
+		}
+		
 	};
 
 	class Drivetrain : public rclcpp::Node{
@@ -47,7 +96,7 @@ namespace Lilbot{
 			void odom_timer_callback()
 			{
 				#ifndef __arm__
-					RCLCPP_WARN_ONCE(this->get_logger(), "GPIO's are disabled on this platform. Try using this node on a Raspberry Pi.");
+					RCLCPP_WARN_ONCE(this->get_logger(), "GPIO's are disabled on this platform. Try this node on the Lilbot instead.");
 				#elif
 					// Encoder stuff
 				#endif
