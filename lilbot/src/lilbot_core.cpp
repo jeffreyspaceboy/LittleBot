@@ -9,6 +9,8 @@
 #include "geometry_msgs/msg/twist.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 
+#include "lilbot_msgs/srv/pid.hpp"
+
 #ifdef __arm__
 #include <pigpio.h> //https://roboticsbackend.com/use-and-compile-wiringpi-with-ros-on-raspberry-pi/
 #endif
@@ -19,69 +21,7 @@
 #define ENCODER_RPM_BUFFER_SIZE 10
 
 namespace Lilbot{
-	class PID_Controller{
-		private:
-			bool _enabled;
-			float _target;
-			float _kp, _ki, _kd;
-			float _error, _prev_error, _error_tolerance, _error_integral, _dedt, _dt;
-			long _prev_time;
-
-		public:
-			PID_Controller(float kP = 0.0, float kI = 0.0, float kD = 0.0) : 
-				_enabled(false),
-				_target(0.0),
-				_kp(kP), _ki(kI), _kd(kD),
-				_error(0.0), _prev_error(0.0), _error_tolerance(0.0), _error_integral(0.0), _dedt(0.0), _dt(0.0),
-				_prev_time(0)
-			{
-				// Insert other setup
-			}
-
-			void start(float target, float error_tolerance = 0.0){
-				_error_tolerance = error_tolerance;
-				_target = target;
-				_prev_error = target;
-				_error_integral = 0.0;
-				#ifdef __arm__
-				_prev_time = gpioTick();
-				#endif
-				_enabled = true;
-			}
-
-			float control(float current){
-				if(!_enabled){ 
-					//RCLCPP_WARN_ONCE(this->get_logger(), "You must run pid_start before using the PID controller.");
-				}
-
-				long current_time = 0.0;
-				#ifdef __arm__
-				current_time = gpioTick();
-				#endif
-				_dt = (float)(current_time - _prev_time);	// Time Delta
-				_error = _target - current;					// Error
-
-				// If error is within the user defined tolerance range, act as if there is no error.
-				if(_error < _error_tolerance  || _error > -_error_tolerance) { _error = 0.0; } 
-
-				_error_integral += _error * _dt;			// Integral
-				_dedt = (_error - _prev_error) / _dt;		// Derivative  
-
-				_prev_error = _error;						// Update Previous Error
-				_prev_time = current_time;					// Update Previous Time
-
-				return (_kp * _error) + (_ki * _error_integral) + (_kd * _dedt); // Return the Control Signal
-			}
 	
-		// void add(const std::shared_ptr<example_interfaces::srv::AddTwoInts::Request> request,
-		// 		std::shared_ptr<example_interfaces::srv::AddTwoInts::Response>      response)
-		// {
-		// response->sum = request->a + request->b;
-		// RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Incoming request\na: %ld" " b: %ld", request->a, request->b);
-		// RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending back response: [%ld]", (long int)response->sum);
-		// }
-	};
-
 	class Encoder{
 		private:
 			bool _enabled;
@@ -231,8 +171,7 @@ namespace Lilbot{
 
 			void command_velocity_callback(const geometry_msgs::msg::Twist::SharedPtr msg) const
 			{
-				geometry_msgs::msg::Twist *cmd_vel_msg = msg.get();
-				RCLCPP_INFO(this->get_logger(), "X: %f",cmd_vel_msg->linear.x);
+				RCLCPP_INFO(this->get_logger(), "X: %f",msg->linear.x);
 			}
 	};
 }

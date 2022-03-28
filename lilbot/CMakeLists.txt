@@ -12,16 +12,26 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(lilbot_msgs REQUIRED)
+
+# add_executable(lilbot_pid_controller src/lilbot_pid_controller.cpp)
+# target_include_directories(lilbot_pid_controller PUBLIC
+# 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+# 	$<INSTALL_INTERFACE:include>)
+# target_compile_features(lilbot_pid_controller PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+# ament_target_dependencies(lilbot_pid_controller rclcpp geometry_msgs lilbot_msgs)
+
 
 add_executable(lilbot_core src/lilbot_core.cpp)
 target_include_directories(lilbot_core PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:include>)
 target_compile_features(lilbot_core PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
-ament_target_dependencies(lilbot_core rclcpp geometry_msgs)
+ament_target_dependencies(lilbot_core rclcpp geometry_msgs lilbot_msgs)
 
 
-install(TARGETS 
+install(TARGETS
+	# lilbot_pid_controller
 	lilbot_core
 	DESTINATION lib/${PROJECT_NAME})
 

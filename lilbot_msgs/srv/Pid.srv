@@ -1,0 +1,7 @@
+builtin_interfaces/Time stamp
+
+float32 current 0.0
+float32 target 0.0
+float32 tolerance 0.0
+---
+float32 control_signal
