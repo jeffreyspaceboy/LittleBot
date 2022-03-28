@@ -30,24 +30,11 @@ namespace Lilbot{
 			float control(float current, float target, float tolerance, float current_time);
 			
 		private:  
-			/** @brief Target sensor/calculated value.*/
 			float _target;
-
-			/** @brief Proportional gain constant.*/
-			float _kp;
-			/** @brief Integral gain constant.*/
-			float _ki; 
-			/** @brief Derivative gain constant.*/
-			float _kd;
-
-			/** @brief Error between the current sensor/calculated value and the target.*/
-			float _error;
-			float _prev_error;
-			float _error_tolerance;
-			float _error_integral;
-			float _dedt;
-
-			float _prev_time; // [sec]
+			float _kp, _ki, _kd;
+			float _error, _error_prev, _error_tolerance;
+			float _error_integral, _dedt;
+			float _time_prev; // [sec]
 			rclcpp::Service<lilbot_msgs::srv::Pid>::SharedPtr _service;
 	};
 }
