@@ -1,23 +1,23 @@
-#ifndef LILBOT_PID_CONTROLLER_H
-#define LILBOT_PID_CONTROLLER_H
+#ifndef LILBOT_PID_CONTROLLER_HPP
+#define LILBOT_PID_CONTROLLER_HPP
 
-#include "rclcpp/rclcpp.hpp"
-#include "lilbot_msgs/srv/pid.hpp"
+#include "lilbot_driver/lilbot_definitions.h"
 
-namespace Lilbot{
-	/** @brief PID service node for controlling motors and other robotic systems. (ROS2 - Galactic)*/
-	class PID_Controller : public rclcpp::Node {
+namespace Lilbot
+{
+	/** @brief PID controller for motors and other robotic systems. (Any ROS Version)*/
+	class PID_Controller
+	{
 		public:  
-			/** @brief Construct a new pid controller node. 
-			 * (NOTE: Each system must use its own PID controller node. Do not use the same PID controller for multiple systems.)
+			/** @brief Construct a new pid controller.
+			 * (NOTE: Each system should use an unique PID controller. Do not use the same PID controller for multiple systems.)
 			 * 
-			 * @param node_name Name associated with the PID controller node.
-			 * @param service_name Name associated with the PID service.
+			 * @param name Name of the PID Controller to help with debug.
 			 * @param kP Proportional gain constant.
 			 * @param kI Integral gain constant.
 			 * @param kD Derivative gain constant.
 			 */
-			PID_Controller(const std::string &node_name, const std::string &service_name, float kP = 0.0, float kI = 0.0, float kD = 0.0);
+			PID_Controller(char name[NAME_MAX_SIZE] = "PID_Controller", float kP = 0.0, float kI = 0.0, float kD = 0.0);
 
 			/** @brief Updates the PID controller, and outputs an adjusted control signal. 
 			 * 
@@ -27,15 +27,15 @@ namespace Lilbot{
 			 * @param current_time The current time.
 			 * @return float: Result control signal.
 			 */
-			float control(float current, float target, float tolerance, float current_time);
+			float control(float current, float target, float tolerance, float current_time_sec, float timeout_sec = 1.0);
 			
 		private:  
+			char _name[NAME_MAX_SIZE];
 			float _target;
 			float _kp, _ki, _kd;
 			float _error, _error_prev, _error_tolerance;
 			float _error_integral, _dedt;
 			float _time_prev; // [sec]
-			rclcpp::Service<lilbot_msgs::srv::Pid>::SharedPtr _service;
 	};
 }
 #endif

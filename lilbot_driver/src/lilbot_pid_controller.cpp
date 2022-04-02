@@ -1,38 +1,36 @@
 #include "lilbot_driver/lilbot_pid_controller.hpp"
 
-Lilbot::PID_Controller::PID_Controller(const std::string &node_name, const std::string &service_name, float kP, float kI, float kD) : 
-	Node(node_name),
+Lilbot::PID_Controller::PID_Controller(char name[], float kP, float kI, float kD) : 
 	_target(0.0),
 	_kp(kP), _ki(kI), _kd(kD),
 	_error(0.0), _error_prev(0.0), _error_tolerance(0.0), _error_integral(0.0), _dedt(0.0),
 	_time_prev(0.0) 
-{    
-	auto handle_service = [this]( 	
-		const std::shared_ptr<rmw_request_id_t> request_header,
-		const std::shared_ptr<lilbot_msgs::srv::Pid::Request> request,
-		std::shared_ptr<lilbot_msgs::srv::Pid::Response> response
-	) -> void {      
-		(void)request_header;
-		float current_time_sec = (float)request->stamp.sec + ((float)request->stamp.nanosec / 1E9F);
-		response->control_signal = control(request->current, request->target, request->tolerance, current_time_sec);
-		RCLCPP_INFO(this->get_logger(), "Target: %0.3f, Current: %0.3f, Error: %0.3f, Signal: %0.3f", _target, request->current, _error, response->control_signal);   
-	};     
-	_service = this->create_service<lilbot_msgs::srv::Pid>(service_name, handle_service);  
-} 
+{
+	for(int i = 0; i < NAME_MAX_SIZE; i++)
+	{
+		_name[i] = name[i];
+	}
+}
 
-float Lilbot::PID_Controller::control(float current, float target, float tolerance, float current_time){
-	float dt = current_time - _time_prev;			// Calculate Time Delta [sec]
+float Lilbot::PID_Controller::control(float current, float target, float tolerance, float current_time_sec, float timeout_sec)
+{
+	float dt = current_time_sec - _time_prev;			// Calculate Time Delta [sec]
 
 	_target = target;  								// Update Target
 	_error_tolerance = tolerance;					// Update Error Tolerance
 
 	_error = _target - current;						// Proportional
-	if(_error < _error_tolerance  || _error > -_error_tolerance) { _error = 0.0; } // If error is within the user defined tolerance range, act as if there is no error.
+	if(_error < _error_tolerance  || _error > -_error_tolerance || dt > timeout_sec) 
+	{ 
+		// If error is within the user defined tolerance range, act as if there is no error.
+		// Also, if there is too big of a time gap since the last time the controller was used, otherwise there may be an extreme PID response.
+		_error = 0.0; 
+	}
 	_error_integral += _error * dt;					// Integral
 	_dedt = (_error - _error_prev) / dt;			// Derivative 
 
 	_error_prev = _error;							// Update Previous Error
-	_time_prev = current_time;						// Update Previous Time
+	_time_prev = current_time_sec;						// Update Previous Time
 	return (_kp * _error) + (_ki * _error_integral) + (_kd * _dedt); // Return the Control Signal
 }
 
