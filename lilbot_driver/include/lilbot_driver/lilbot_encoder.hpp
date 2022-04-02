@@ -1,15 +1,66 @@
 #ifndef LILBOT_ENCODER_HPP
 #define LILBOT_ENCODER_HPP
 
-#define ENCODER_RPM_BUFFER_SIZE 10
-#define ENCODER_REFRESH_USEC 100
 
-#ifndef TWO_PI
-#define TWO_PI 6.28318530718
-#endif
-
+/*---C---*/
 #include <stdint.h>
-#include "rclcpp/rclcpp.hpp"
+
+/*---CPP---*/
+#include <mutex>
+#include <thread>
+#include <string>
+
+/*---LILBOT---*/
+#include <lilbot_driver/lilbot_definitions.h>
+
+namespace Lilbot
+{
+	/** @brief Encoder node for controlling sensing the rotation of motors. (Any ROS Distribution)*/
+	class Encoder
+	{
+		public:
+			/** @brief Construct a new Encoder object.
+			 * 
+			 * @param encoder_name Name of the Encoder to help with debug.
+			 * @param gpio_pin_phase_a GPIO pin of phase a of the encoder.
+			 * @param gpio_pin_phase_b GPIO pin of phase be of the encoder.
+			 * @param encoder_ratio Ratio between the output of what you're trying to track (wheels), and the raw encoder. This should combine all gear ratios into one single value.
+			 * @param reverse Enable to swap phase a and b. Use this to ensure forward on the encoder is the same as it is on your motor.
+			 * @param rpm_refresh_us Amount of microseconds between each rpm refresh. RPM is calculated ever rpm_refresh_us amount of time.
+			 */
+			Encoder(const std::string &encoder_name, uint8_t gpio_pin_phase_a, uint8_t gpio_pin_phase_b, float encoder_ratio, bool reverse = false, unsigned int rpm_refresh_us = 1500);
+			
+			/** @brief Destroy the Encoder object. */
+			~Encoder();
+
+			/** @brief Resets count and prev_count to 0. */
+			void reset_count();
+
+			float get_rotations();
+			float get_angle_degrees();
+			float get_angle_radians();
+			float get_rpm();
+
+		private:
+			bool _enabled;
+			std::string _name;
+			uint8_t _gpio_pin_phase_a, _gpio_pin_phase_b, _gpio_pin_prev; 
+			int _level_phase_a, _level_phase_b;
+			long _count, _count_prev;
+			float _rpm, _ratio;
+			float _rpm_prev[ENCODER_RPM_BUFFER_SIZE];
+			unsigned int _rpm_refresh_us; // [usec]
+			float _time_prev; // [sec]
+
+			std::mutex _mutex;
+			std::thread _thread;		
+
+			void _rpm_thread();
+			void _tick_compute(int gpio, int level, uint32_t current_us);
+			static void _tick_event_execute(int gpio, int level, uint32_t current_us, void *data);
+	};
+}
+#endif
 
 /*
 	Encoder Tick Counting Logic:
@@ -30,31 +81,3 @@
 	A__|___|    |   |____|___|    |   |__
 	B__|        |________|        |______
 */
-
-namespace Lilbot{
-	class Encoder : public rclcpp::Node {
-		public:
-			Encoder(const std::string &node_name, uint8_t gpio_pin_phase_a, uint8_t gpio_pin_phase_b, float encoder_ratio, int reverse = 0);
-
-			void reset_count();
-
-			float get_rotations();
-			float get_angle_degrees();
-			float get_angle_radians();
-			float get_rpm();
-
-		private:
-			uint8_t _gpio_pin_phase_a, _gpio_pin_phase_b, _gpio_pin_prev; 
-			int _level_phase_a, _level_phase_b;
-			long _count, _count_prev;
-			float _rpm, _ratio;
-			float _rpm_prev[ENCODER_RPM_BUFFER_SIZE];
-			float _time_prev;
-
-			rclcpp::TimerBase::SharedPtr _timer;
-			
-			void update_rpm();
-			void encoder_tick_event_callback(int gpio, int level, uint32_t current_us, void *data);
-	};
-}
-#endif

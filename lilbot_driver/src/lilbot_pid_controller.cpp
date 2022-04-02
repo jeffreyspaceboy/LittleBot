@@ -1,20 +1,23 @@
+/*---LILBOT_PID_CONTROLLER_CPP---*/
+
+
+/*---LILBOT---*/
 #include "lilbot_driver/lilbot_pid_controller.hpp"
 
-Lilbot::PID_Controller::PID_Controller(char name[], float kP, float kI, float kD) : 
+Lilbot::PID_Controller::PID_Controller(const std::string &pid_controller_name, float kP, float kI, float kD) : 
+	_name(pid_controller_name),
 	_target(0.0),
 	_kp(kP), _ki(kI), _kd(kD),
 	_error(0.0), _error_prev(0.0), _error_tolerance(0.0), _error_integral(0.0), _dedt(0.0),
 	_time_prev(0.0) 
 {
-	for(int i = 0; i < NAME_MAX_SIZE; i++)
-	{
-		_name[i] = name[i];
-	}
+	// Initialize PID Controller
 }
 
 float Lilbot::PID_Controller::control(float current, float target, float tolerance, float current_time_sec, float timeout_sec)
 {
-	float dt = current_time_sec - _time_prev;			// Calculate Time Delta [sec]
+	_mutex.lock();
+	float dt = current_time_sec - _time_prev;		// Calculate Time Delta [sec]
 
 	_target = target;  								// Update Target
 	_error_tolerance = tolerance;					// Update Error Tolerance
@@ -28,15 +31,10 @@ float Lilbot::PID_Controller::control(float current, float target, float toleran
 	}
 	_error_integral += _error * dt;					// Integral
 	_dedt = (_error - _error_prev) / dt;			// Derivative 
+	float control_output = (_kp * _error) + (_ki * _error_integral) + (_kd * _dedt); // Return the Control Signal
 
 	_error_prev = _error;							// Update Previous Error
-	_time_prev = current_time_sec;						// Update Previous Time
-	return (_kp * _error) + (_ki * _error_integral) + (_kd * _dedt); // Return the Control Signal
+	_time_prev = current_time_sec;					// Update Previous Time
+	_mutex.unlock();
+	return control_output;
 }
-
-// int main(int argc, char *argv[]) {  
-// 	rclcpp::init(argc, argv);  
-// 	auto node = std::make_shared<Lilbot::PID_Controller>("pid_node","pid_service", 20.0, 1.55, 0.05);  
-// 	rclcpp::spin(node);  
-// 	return 0;
-// }

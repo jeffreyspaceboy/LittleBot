@@ -1,13 +1,29 @@
+/*---LILBOT_ENCODER_CPP---*/
+
+
+/*---C---*/
+#include <unistd.h>
+#include <climits>
+#ifdef __arm__
+#include <pigpio.h>
+#endif
+
+/*---CPP---*/
+#include <chrono>
+#include <ctime>
+
+/*---LILBOT---*/
 #include "lilbot_driver/lilbot_encoder.hpp"
 
-Lilbot::Encoder::Encoder(const std::string &node_name, uint8_t gpio_pin_phase_a, uint8_t gpio_pin_phase_b, float encoder_ratio, int reverse) :
-	Node(node_name),
-	_gpio_pin_phase_a((reverse == 0) ? gpio_pin_phase_a : gpio_pin_phase_b),
-	_gpio_pin_phase_b((reverse == 0) ? gpio_pin_phase_b : gpio_pin_phase_a),
-	_gpio_pin_prev(-1), _level_phase_a(2), _level_phase_b(2),
+Lilbot::Encoder::Encoder(const std::string &encoder_name, uint8_t gpio_pin_phase_a, uint8_t gpio_pin_phase_b, float encoder_ratio, bool reverse, unsigned int rpm_refresh_us) :
+	_enabled(true),
+	_name(encoder_name),
+	_gpio_pin_phase_a((reverse) ? gpio_pin_phase_a : gpio_pin_phase_b),
+	_gpio_pin_phase_b((reverse) ? gpio_pin_phase_b : gpio_pin_phase_a),
+	_gpio_pin_prev(-1), _level_phase_a(0), _level_phase_b(0),
 	_count(0L), _count_prev(0L),
 	_rpm(0.0), _ratio(encoder_ratio),
-	_time_prev((float)rclcpp::Time(0).seconds())
+	_rpm_refresh_us(rpm_refresh_us)
 {
 	for(int i = 0; i < ENCODER_RPM_BUFFER_SIZE; i++){ _rpm_prev[i] = 0.0; }
 
@@ -17,50 +33,80 @@ Lilbot::Encoder::Encoder(const std::string &node_name, uint8_t gpio_pin_phase_a,
 	gpioSetPullUpDown(_gpio_pin_phase_a, PI_PUD_UP);
 	gpioSetPullUpDown(_gpio_pin_phase_b, PI_PUD_UP);
 
-	gpioSetISRFuncEx(_gpio_pin_phase_a, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, this->tick_event_callback, (void *)this);
-	gpioSetISRFuncEx(_gpio_pin_phase_b, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, this->tick_event_callback, (void *)this);
+	gpioSetISRFuncEx(_gpio_pin_phase_a, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, _tick_event_callback, this);
+	gpioSetISRFuncEx(_gpio_pin_phase_b, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, _tick_event_callback, this);
 	#endif
+	
+	_thread = std::thread(&Lilbot::Encoder::_rpm_thread, this);
+}
 
-	_timer = this->create_wall_timer(std::chrono::microseconds(ENCODER_REFRESH_USEC), std::bind(&Encoder::update_rpm, this)); // Setup a timer to refresh the RPM
+Lilbot::Encoder::~Encoder()
+{
+	_enabled = false;
+	#ifdef __arm__
+	gpioSetISRFuncEx(_gpio_pin_phase_a, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, 0, this);
+	gpioSetISRFuncEx(_gpio_pin_phase_b, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, 0, this);
+	#endif
+	_thread.join();
 }
 
 void Lilbot::Encoder::reset_count(){
+	_mutex.lock();
 	_count = 0L;
 	_count_prev = 0L;
+	_mutex.unlock();
 }
 
-float Lilbot::Encoder::get_rotations(){
-	return (float)_count * _ratio; // [rotations]
+float Lilbot::Encoder::get_rotations(){ 
+	_mutex.lock();
+	float rotations = (float)_count * _ratio;
+	_mutex.unlock();
+	return rotations; // [rotations]
+} 
+
+float Lilbot::Encoder::get_angle_degrees(){ return get_rotations() * 360.0; } // [degrees]
+
+float Lilbot::Encoder::get_angle_radians(){ return get_rotations() * TWO_PI; } // [radians]
+
+float Lilbot::Encoder::get_rpm(){ 
+	_mutex.lock();
+	float rpm = _rpm;
+	_mutex.unlock();
+	return rpm; // [rotations/minute]
 }
 
-float Lilbot::Encoder::get_angle_degrees(){
-	return get_rotations() * 360.0; // [degrees]
-}
-
-float Lilbot::Encoder::get_angle_radians(){
-	return get_rotations() * TWO_PI; // [radians]
-}
-
-float Lilbot::Encoder::get_rpm(){
-	return _rpm; // [rotations/minute]
-}
-
-void Lilbot::Encoder::update_rpm(){
-	float time_current = (float)rclcpp::Time(0).seconds();
-	_rpm = ((float)(_count - _count_prev) / (float)(time_current - _time_prev)) * 60.0F * _ratio;
-	_count_prev = _count;
-	_time_prev = time_current;
-	float sum = _rpm;
-	for(int i = ENCODER_RPM_BUFFER_SIZE-1; i >= 1; i--){
-		_rpm_prev[i] = _rpm_prev[i-1];
-		sum += _rpm_prev[i];
+void Lilbot::Encoder::_rpm_thread(){
+	float time_current = 0.0;
+	unsigned int microseconds;
+	while(_enabled){
+		#ifdef __arm__
+		time_current = ((float)gpioTick()) / 1E6; // [seconds]
+		#endif
+		_mutex.lock();
+		if(_count >= LONG_MAX - 1000L || _count <= LONG_MIN + 1000L)
+		{
+			// Handle overflow case
+			_count -= _count_prev;
+			_count_prev = 0L;
+		}
+		_rpm = ((float)(_count - _count_prev) / (time_current - _time_prev)) * 60.0F * _ratio;
+		_count_prev = _count;
+		_time_prev = time_current;
+		float sum = _rpm;
+		for(int i = ENCODER_RPM_BUFFER_SIZE-1; i >= 1; i--){
+			_rpm_prev[i] = _rpm_prev[i-1];
+			sum += _rpm_prev[i];
+		}
+		_rpm_prev[0] = _rpm;
+		_rpm = sum/ENCODER_RPM_BUFFER_SIZE;
+		microseconds = _rpm_refresh_us;
+		_mutex.unlock();
+		usleep(microseconds);
 	}
-	_rpm_prev[0] = _rpm;
-	_rpm = sum/ENCODER_RPM_BUFFER_SIZE;
 }
 
-void Lilbot::Encoder::encoder_tick_event_callback(int gpio, int level, uint32_t current_us, void *data){
-	//Encoder *encoder = (Encoder *) data;
+void Lilbot::Encoder::_tick_compute(int gpio, int level, uint32_t current_us){
+	_mutex.lock();
 	if(gpio == this->_gpio_pin_phase_a){
 		this->_level_phase_a = level;
 		if(this->_level_phase_b == 0){
@@ -76,6 +122,12 @@ void Lilbot::Encoder::encoder_tick_event_callback(int gpio, int level, uint32_t 
 			this->_count += (this->_level_phase_b == 0) ? -1 : 1;
 		}
 	} 
+	_mutex.unlock();
+}
+
+void Lilbot::Encoder::_tick_event_execute(int gpio, int level, uint32_t current_us, void *data){
+	Lilbot::Encoder *encoder = (Lilbot::Encoder *) data;
+	encoder->_tick_compute(gpio, level, current_us);
 }
 
 /*
