@@ -1,14 +1,40 @@
 #ifndef LILBOT_DEFINITIONS_H
 #define LILBOT_DEFINITIONS_H
 
-#ifdef __cplusplus
-extern "C" {
+/* GPIO DEFINITIONS */
+#define LDR_EN 21
+
+#define L_MTR_EN 6
+#define L_MTR_A 22
+#define L_MTR_B 27
+#define L_ENC_A 17
+#define L_ENC_B 4
+
+#define R_MTR_EN 5
+#define R_MTR_A 12
+#define R_MTR_B 13
+#define R_ENC_A 19
+#define R_ENC_B 26
+
+/* MOTOR DEFINITIONS */
+#define MOTOR_DEFAULT_MAX_POWER 255
+#define MOTOR_REFRESH_RATE 3000 //[usec]
+//#define MOTOR_PWM_FREQUENCY 100000
+
+/* ENCODER DEFINITIONS */
+#define ENCODER_DEFAULT_TICK_RESET 0
+#define ENCODER_RPM_BUFFER_SIZE 3
+#define ENCODER_EVENT_TIMEOUT 100
+#define ENCODER_DEFAULT_REFRESH_RATE 1500 // [usec]
+
+/* PRE-CALCULATED MATH */
+#ifndef TWO_PI
+#define TWO_PI 6.28318530718
 #endif
 
 /* GENERAL DEFINITIONS */
+#ifndef NAME_MAX_SIZE
 #define NAME_MAX_SIZE 64
-
-#ifdef __cplusplus
-}
 #endif
+
 #endif
