@@ -4,7 +4,7 @@
 /*---C---*/
 #include <unistd.h>
 #include <climits>
-#ifdef __arm__
+#ifdef __aarch64__
 #include <pigpio.h>
 #endif
 
@@ -27,14 +27,14 @@ Lilbot::Encoder::Encoder(const std::string &encoder_name, uint8_t gpio_pin_phase
 {
 	for(int i = 0; i < ENCODER_RPM_BUFFER_SIZE; i++){ _rpm_prev[i] = 0.0; }
 
-	#ifdef __arm__
+	#ifdef __aarch64__
 	gpioSetMode(_gpio_pin_phase_a, PI_INPUT);
 	gpioSetMode(_gpio_pin_phase_b, PI_INPUT);
 	gpioSetPullUpDown(_gpio_pin_phase_a, PI_PUD_UP);
 	gpioSetPullUpDown(_gpio_pin_phase_b, PI_PUD_UP);
 
-	gpioSetISRFuncEx(_gpio_pin_phase_a, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, _tick_event_callback, this);
-	gpioSetISRFuncEx(_gpio_pin_phase_b, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, _tick_event_callback, this);
+	gpioSetISRFuncEx(_gpio_pin_phase_a, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, _tick_event_execute, this);
+	gpioSetISRFuncEx(_gpio_pin_phase_b, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, _tick_event_execute, this);
 	#endif
 	
 	_thread = std::thread(&Lilbot::Encoder::_rpm_thread, this);
@@ -44,7 +44,7 @@ Lilbot::Encoder::~Encoder()
 {
 	_mutex.lock();
 	_enabled = false;
-	#ifdef __arm__
+	#ifdef __aarch64__
 	gpioSetISRFuncEx(_gpio_pin_phase_a, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, 0, this);
 	gpioSetISRFuncEx(_gpio_pin_phase_b, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, 0, this);
 	#endif
@@ -81,7 +81,7 @@ void Lilbot::Encoder::_rpm_thread(){
 	float time_current = 0.0;
 	unsigned int microseconds;
 	while(_enabled){
-		#ifdef __arm__
+		#ifdef __aarch64__
 		time_current = ((float)gpioTick()) / 1E6; // [seconds]
 		#endif
 		_mutex.lock();

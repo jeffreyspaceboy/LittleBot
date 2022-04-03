@@ -22,7 +22,20 @@ rm -r build install log
 
 colcon build
 
+source /opt/ros/galactic/setup.bash
+
 source install/setup.bash
+
+
+ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 0.00}}'
+
+<!-- FOR ADDING GPIO TO CURRENT USER: (https://raspberrypi.stackexchange.com/questions/40105/access-gpio-pins-without-root-no-access-to-dev-mem-try-running-as-root)
+
+sudo groupadd gpio
+sudo usermod -a -G gpio user_name
+sudo grep gpio /etc/group
+sudo chown root.gpio /dev/gpiomem
+sudo chmod g+rw /dev/gpiomem -->
 
 
 

@@ -18,8 +18,8 @@ add_executable(lilbot_driver_node src/lilbot_driver_node.cpp src/lilbot_pid_cont
 
 EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
 
-if (${ARCHITECTURE} MATCHES "arm")
-    target_link_libraries(lilbot_driver_node -lpigpio)
+if (${ARCHITECTURE} MATCHES "aarch64")
+    target_link_libraries(lilbot_driver_node -lpigpio -lrt)
 endif()
 
 target_include_directories(lilbot_driver_node PUBLIC
@@ -27,7 +27,6 @@ target_include_directories(lilbot_driver_node PUBLIC
 	$<INSTALL_INTERFACE:include>)
 target_compile_features(lilbot_driver_node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 ament_target_dependencies(lilbot_driver_node rclcpp geometry_msgs lilbot_msgs)
-
 
 install(TARGETS
 	# lilbot_pid_controller
@@ -44,5 +43,9 @@ if(BUILD_TESTING)
 	#set(ament_cmake_cpplint_FOUND TRUE)
 	ament_lint_auto_find_test_dependencies()
 endif()
+
+install(DIRECTORY launch
+	DESTINATION share/${PROJECT_NAME}/
+)
 
 ament_package()

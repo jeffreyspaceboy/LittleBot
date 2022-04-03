@@ -15,7 +15,7 @@
 #include "lilbot_driver/lilbot_encoder.hpp"
 #include "lilbot_driver/lilbot_motor.hpp"
 
-#ifdef __arm__
+#ifdef __aarch64__
 #include <pigpio.h> //https://roboticsbackend.com/use-and-compile-wiringpi-with-ros-on-raspberry-pi/
 #endif
 
@@ -69,10 +69,8 @@ namespace Lilbot{
 
 			void odom_timer_callback()
 			{
-				#ifndef __arm__
+				#ifndef __aarch64__
 					RCLCPP_WARN_ONCE(this->get_logger(), "GPIO's are disabled on this platform. Try this node on the Lilbot instead.");
-				#elif
-					// Encoder stuff
 				#endif
 			}
 
@@ -90,9 +88,15 @@ namespace Lilbot{
 }
 
 int main(int argc, char * argv[]){
+	#ifdef __aarch64__
+	if (gpioInitialise() < 0) return 1;
+	#endif
 	rclcpp::init(argc, argv);
 	rclcpp::spin(std::make_shared<Lilbot::Drivetrain>("Lilbot"));
 	rclcpp::shutdown();
+	#ifdef __aarch64__
+	gpioTerminate();
+	#endif
 	return 0;
 }
 

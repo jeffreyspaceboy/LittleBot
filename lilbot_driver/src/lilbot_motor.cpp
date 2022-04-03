@@ -3,6 +3,9 @@
 
 /*---C---*/
 #include <unistd.h>
+#ifdef __aarch64__
+#include <pigpio.h>
+#endif
 
 /*---LILBOT---*/
 #include "lilbot_driver/lilbot_motor.hpp"
@@ -20,12 +23,12 @@ Lilbot::Motor::Motor(const std::string &motor_name, uint8_t gpio_enable_pin, uin
 	_pid_velocity_controller(new_pid_velocity_controller)
 {
 
-	#ifdef __arm__
-	gpioSetMode(new_motor.gpio_enable, PI_OUTPUT);
-	gpioSetMode(new_motor.gpio_phase_a, PI_OUTPUT);
-	gpioSetMode(new_motor.gpio_phase_b, PI_OUTPUT);
+	#ifdef __aarch64__
+	gpioSetMode(_gpio_pin_enable, PI_OUTPUT);
+	gpioSetMode(_gpio_pin_phase_a, PI_OUTPUT);
+	gpioSetMode(_gpio_pin_phase_b, PI_OUTPUT);
 	#ifdef MOTOR_PWM_FREQUENCY
-	gpioSetPWMfrequency(new_motor.gpio_enable, MOTOR_PWM_FREQUENCY);
+	gpioSetPWMfrequency(_gpio_pin_enable, MOTOR_PWM_FREQUENCY);
 	#endif
 	#endif
 
@@ -61,7 +64,7 @@ int Lilbot::Motor::get_power(){
 
 /* MOTION FUNCTIONS */
 void Lilbot::Motor::spin(int new_power){
-	#ifdef __arm__
+	#ifdef __aarch64__
 	_mutex.lock();
 	_power = new_power;
 	if(_power > _power_max || _power < -_power_max){
@@ -79,7 +82,7 @@ void Lilbot::Motor::spin(int new_power){
 	#endif
 }
 void Lilbot::Motor::stop(){
-	#ifdef __arm__
+	#ifdef __aarch64__
 	_mutex.lock();
 	gpioWrite(_gpio_pin_enable, 0);
 	gpioWrite(_gpio_pin_phase_a, 0);
@@ -93,7 +96,7 @@ void Lilbot::Motor::_rpm_control_thread(){
 	unsigned int microseconds;
 	while(_rpm_control_enabled){
 		_mutex.lock();
-		#ifdef __arm__
+		#ifdef __aarch64__
 		time_current = ((float)gpioTick()) / 1E6; // [seconds]
 		#endif
 		if(_prev_target_rpm != _rpm_target){ 
