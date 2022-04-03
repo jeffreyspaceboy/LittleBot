@@ -14,7 +14,14 @@ find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(lilbot_msgs REQUIRED)
 
-add_executable(lilbot_driver_node src/lilbot_driver_node.cpp src/lilbot_pid_controller.cpp src/lilbot_encoder.cpp)
+add_executable(lilbot_driver_node src/lilbot_driver_node.cpp src/lilbot_pid_controller.cpp src/lilbot_encoder.cpp src/lilbot_motor.cpp)
+
+EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
+
+if (${ARCHITECTURE} MATCHES "arm")
+    target_link_libraries(lilbot_driver_node -lpigpio)
+endif()
+
 target_include_directories(lilbot_driver_node PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:include>)

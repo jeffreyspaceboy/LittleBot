@@ -12,6 +12,7 @@
 #include "lilbot_msgs/srv/pid.hpp"
 
 #include "lilbot_driver/lilbot_pid_controller.hpp"
+#include "lilbot_driver/lilbot_encoder.hpp"
 
 #ifdef __arm__
 #include <pigpio.h> //https://roboticsbackend.com/use-and-compile-wiringpi-with-ros-on-raspberry-pi/
@@ -20,7 +21,7 @@
 #define WHEEL_BASE 0.185
 #define WHEEL_RADIUS 0.038
 
-#define ENCODER_RPM_BUFFER_SIZE 10
+//#define ENCODER_RPM_BUFFER_SIZE 10
 
 namespace Lilbot{
 

@@ -56,7 +56,7 @@ namespace Lilbot
 			std::thread _thread;		
 
 			void _rpm_thread();
-			void _tick_compute(int gpio, int level, uint32_t current_us);
+			void _tick_compute(int gpio, int level);
 			static void _tick_event_execute(int gpio, int level, uint32_t current_us, void *data);
 	};
 }

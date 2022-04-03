@@ -42,12 +42,14 @@ Lilbot::Encoder::Encoder(const std::string &encoder_name, uint8_t gpio_pin_phase
 
 Lilbot::Encoder::~Encoder()
 {
+	_mutex.lock();
 	_enabled = false;
 	#ifdef __arm__
 	gpioSetISRFuncEx(_gpio_pin_phase_a, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, 0, this);
 	gpioSetISRFuncEx(_gpio_pin_phase_b, EITHER_EDGE, ENCODER_EVENT_TIMEOUT, 0, this);
 	#endif
 	_thread.join();
+	_mutex.unlock();
 }
 
 void Lilbot::Encoder::reset_count(){
@@ -105,7 +107,7 @@ void Lilbot::Encoder::_rpm_thread(){
 	}
 }
 
-void Lilbot::Encoder::_tick_compute(int gpio, int level, uint32_t current_us){
+void Lilbot::Encoder::_tick_compute(int gpio, int level){
 	_mutex.lock();
 	if(gpio == this->_gpio_pin_phase_a){
 		this->_level_phase_a = level;
@@ -127,7 +129,7 @@ void Lilbot::Encoder::_tick_compute(int gpio, int level, uint32_t current_us){
 
 void Lilbot::Encoder::_tick_event_execute(int gpio, int level, uint32_t current_us, void *data){
 	Lilbot::Encoder *encoder = (Lilbot::Encoder *) data;
-	encoder->_tick_compute(gpio, level, current_us);
+	encoder->_tick_compute(gpio, level);
 }
 
 /*
