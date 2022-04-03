@@ -13,21 +13,32 @@
 
 #include "lilbot_driver/lilbot_pid_controller.hpp"
 #include "lilbot_driver/lilbot_encoder.hpp"
+#include "lilbot_driver/lilbot_motor.hpp"
 
 #ifdef __arm__
 #include <pigpio.h> //https://roboticsbackend.com/use-and-compile-wiringpi-with-ros-on-raspberry-pi/
 #endif
 
 #define WHEEL_BASE 0.185
+#define HALF_WHEEL_BASE 0.0925
 #define WHEEL_RADIUS 0.038
 
 //#define ENCODER_RPM_BUFFER_SIZE 10
+#define ENC_RATIO 1.0F/(44.0F * 21.3F)
 
 namespace Lilbot{
 
 	class Drivetrain : public rclcpp::Node{
 		public:
-			Drivetrain(const std::string &node_name) : Node(node_name){
+			Drivetrain(const std::string &node_name) : 
+				Node(node_name),
+				_pidVelL("PID_VEL_LEFT", 3.5F, 0.00001F, 0.0001F),
+				_pidVelR("PID_VEL_RGHT", 3.5F, 0.00001F, 0.0001F),
+				_encL("ENC_LEFT", L_ENC_A, L_ENC_B, ENC_RATIO, false),
+				_encR("ENC_RGHT", R_ENC_A, R_ENC_B, ENC_RATIO, true),
+				_motorL("MOTOR_LEFT", L_MTR_EN, L_MTR_A, L_MTR_B, true, 255, &_encL, &_pidVelL),
+				_motorR("MOTOR_RGHT", R_MTR_EN, R_MTR_A, R_MTR_B, false, 255, &_encR, &_pidVelR)
+			{
 				this->_odom_refresh_timer = this->create_wall_timer(
 					this->_refresh_delay_usec, 
 					std::bind(&Drivetrain::odom_timer_callback, this)
@@ -40,6 +51,15 @@ namespace Lilbot{
 				);
 			}
 		private:
+			PID_Controller _pidVelL;
+			PID_Controller _pidVelR;
+
+			Encoder _encL;
+			Encoder _encR;
+
+			Motor _motorL;
+			Motor _motorR;
+
 			rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr _odom_publisher;
 
 			rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr _cmd_vel_subscription;
@@ -56,9 +76,15 @@ namespace Lilbot{
 				#endif
 			}
 
-			void command_velocity_callback(const geometry_msgs::msg::Twist::SharedPtr msg) const
+			void command_velocity_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
 			{
 				RCLCPP_INFO(this->get_logger(), "X: %f",msg->linear.x);
+				double forward_speed = msg->linear.x;
+				double angular_speed = msg->angular.z;
+				double command_wheel_motor_left = (forward_speed - angular_speed * HALF_WHEEL_BASE) / WHEEL_RADIUS;
+				double command_wheel_motor_right = (forward_speed + angular_speed * HALF_WHEEL_BASE) / WHEEL_RADIUS;
+				_motorL.set_rpm(command_wheel_motor_left);
+				_motorR.set_rpm(command_wheel_motor_right);
 			}
 	};
 }

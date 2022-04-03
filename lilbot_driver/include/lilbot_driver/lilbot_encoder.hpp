@@ -28,8 +28,8 @@ namespace Lilbot
 			 * @param reverse Enable to swap phase a and b. Use this to ensure forward on the encoder is the same as it is on your motor.
 			 * @param rpm_refresh_us Amount of microseconds between each rpm refresh. RPM is calculated ever rpm_refresh_us amount of time.
 			 */
-			Encoder(const std::string &encoder_name, uint8_t gpio_pin_phase_a, uint8_t gpio_pin_phase_b, float encoder_ratio, bool reverse = false, unsigned int rpm_refresh_us = ENCODER_DEFAULT_REFRESH_RATE);
-			
+			Encoder(const std::string &encoder_name, uint8_t gpio_pin_phase_a, uint8_t gpio_pin_phase_b, float encoder_ratio = 1.0F, bool reverse = false, unsigned int rpm_refresh_us = ENCODER_DEFAULT_REFRESH_RATE);
+
 			/** @brief Destroy the Encoder object. */
 			~Encoder();
 
