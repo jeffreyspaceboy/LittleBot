@@ -26,6 +26,7 @@ source /opt/ros/galactic/setup.bash
 
 source install/setup.bash
 
+colcon build --packages-select my_package
 
 ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 0.00}}'
 

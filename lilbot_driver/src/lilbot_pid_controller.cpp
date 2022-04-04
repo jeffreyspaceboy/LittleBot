@@ -16,7 +16,6 @@ Lilbot::PID_Controller::PID_Controller(const std::string &pid_controller_name, f
 
 float Lilbot::PID_Controller::control(float current, float target, float tolerance, float current_time_sec, float timeout_sec)
 {
-	_mutex.lock();
 	float dt = current_time_sec - _time_prev;		// Calculate Time Delta [sec]
 
 	_target = target;  								// Update Target
@@ -35,6 +34,5 @@ float Lilbot::PID_Controller::control(float current, float target, float toleran
 
 	_error_prev = _error;							// Update Previous Error
 	_time_prev = current_time_sec;					// Update Previous Time
-	_mutex.unlock();
 	return control_output;
 }

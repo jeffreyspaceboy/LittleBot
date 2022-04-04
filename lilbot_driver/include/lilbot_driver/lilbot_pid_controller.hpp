@@ -34,7 +34,7 @@ namespace Lilbot
 			 * @param timeout_sec Timeout to reset the PID controller if the controller hasn't been used in a while.
 			 * @return float: Result control signal.
 			 */
-			float control(float current, float target, float tolerance, float current_time_sec, float timeout_sec = 1.0);
+			float control(float current, float target, float tolerance, float current_time_sec, float timeout_sec = 5.0);
 
 		private:
 			std::string _name;
@@ -43,8 +43,6 @@ namespace Lilbot
 			float _error, _error_prev, _error_tolerance;
 			float _error_integral, _dedt;
 			float _time_prev; // [sec]
-
-			std::mutex _mutex;
 	};
 }
 #endif

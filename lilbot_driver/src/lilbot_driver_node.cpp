@@ -32,10 +32,10 @@ namespace Lilbot{
 		public:
 			Drivetrain(const std::string &node_name) : 
 				Node(node_name),
-				_pidVelL("PID_VEL_LEFT", 3.5F, 0.00001F, 0.0001F),
+				_pidVelL("PID_VEL_LEFT", 1.0F, 1.0F, 1.0F),
 				_pidVelR("PID_VEL_RGHT", 3.5F, 0.00001F, 0.0001F),
-				_encL("ENC_LEFT", L_ENC_A, L_ENC_B, ENC_RATIO, false),
-				_encR("ENC_RGHT", R_ENC_A, R_ENC_B, ENC_RATIO, true),
+				_encL("ENC_LEFT", L_ENC_A, L_ENC_B, ENC_RATIO, true),
+				_encR("ENC_RGHT", R_ENC_A, R_ENC_B, ENC_RATIO, false),
 				_motorL("MOTOR_LEFT", L_MTR_EN, L_MTR_A, L_MTR_B, true, 255, &_encL, &_pidVelL),
 				_motorR("MOTOR_RGHT", R_MTR_EN, R_MTR_A, R_MTR_B, false, 255, &_encR, &_pidVelR)
 			{
@@ -65,24 +65,28 @@ namespace Lilbot{
 			rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr _cmd_vel_subscription;
 
 			rclcpp::TimerBase::SharedPtr _odom_refresh_timer;
-			std::chrono::microseconds _refresh_delay_usec = std::chrono::microseconds(1500); // [usec]
+			std::chrono::microseconds _refresh_delay_usec = std::chrono::microseconds(200000); // [usec]
 
 			void odom_timer_callback()
 			{
 				#ifndef __aarch64__
 					RCLCPP_WARN_ONCE(this->get_logger(), "GPIO's are disabled on this platform. Try this node on the Lilbot instead.");
 				#endif
+				RCLCPP_INFO(this->get_logger(), "MTR_L: %f | MTR_R: %f",_motorL.get_rpm(), _motorR.get_rpm());
 			}
 
 			void command_velocity_callback(const geometry_msgs::msg::Twist::SharedPtr msg)
 			{
-				RCLCPP_INFO(this->get_logger(), "X: %f",msg->linear.x);
+				//RCLCPP_INFO(this->get_logger(), "X: %f",msg->linear.x);
 				double forward_speed = msg->linear.x;
 				double angular_speed = msg->angular.z;
-				double command_wheel_motor_left = (forward_speed - angular_speed * HALF_WHEEL_BASE) / WHEEL_RADIUS;
-				double command_wheel_motor_right = (forward_speed + angular_speed * HALF_WHEEL_BASE) / WHEEL_RADIUS;
+				float command_wheel_motor_left = (float)((forward_speed - angular_speed * HALF_WHEEL_BASE) / WHEEL_RADIUS);
+				float command_wheel_motor_right = (float)((forward_speed + angular_speed * HALF_WHEEL_BASE) / WHEEL_RADIUS);
+				//_motorL.spin(command_wheel_motor_left);
+				//_motorR.spin(command_wheel_motor_right);
 				_motorL.set_rpm(command_wheel_motor_left);
 				_motorR.set_rpm(command_wheel_motor_right);
+				RCLCPP_INFO(this->get_logger(), "MTR_CMD_L: %f | MTR_R: %f",command_wheel_motor_left, command_wheel_motor_right);
 			}
 	};
 }

@@ -39,13 +39,15 @@ Lilbot::Motor::~Motor(){
 	_mutex.lock();
 	_rpm_control_enabled = false;
 	_thread.join();
+	gpioWrite(_gpio_pin_enable, 0);
+	gpioWrite(_gpio_pin_phase_a, 0);
+	gpioWrite(_gpio_pin_phase_b, 0);
 	_mutex.unlock();
 }
 
 /* SET FUNCTIONS */
 void Lilbot::Motor::set_rpm(float rpm_target){
 	_mutex.lock();
-	_rpm_control_enabled = true;
 	_rpm_target = rpm_target;
 	_mutex.unlock();
 }
@@ -93,6 +95,7 @@ void Lilbot::Motor::stop(){
 
 void Lilbot::Motor::_rpm_control_thread(){
 	float time_current = 0.0;
+	int new_power = 0;
 	unsigned int microseconds;
 	while(_rpm_control_enabled){
 		_mutex.lock();
@@ -101,12 +104,12 @@ void Lilbot::Motor::_rpm_control_thread(){
 		#endif
 		if(_prev_target_rpm != _rpm_target){ 
 			_pid_velocity_controller->control(get_rpm(), _rpm_target, 0.0, time_current);
-			_prev_target_rpm = _rpm_target;
 		}
-		int power = (int)_pid_velocity_controller->control(get_rpm(), _rpm_target, 0.0, time_current);
+		_prev_target_rpm = _rpm_target;
+		new_power = (int)_pid_velocity_controller->control(get_rpm(), _rpm_target, 0.0, time_current, 100.0F);
 		microseconds = _rpm_control_refresh_us;
 		_mutex.unlock();
-		spin(power);
+		spin(new_power);
 		usleep(microseconds);
 	}
 }
